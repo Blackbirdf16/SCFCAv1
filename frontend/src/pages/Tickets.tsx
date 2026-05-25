@@ -4,36 +4,64 @@ import RoleGuard from "../components/RoleGuard";
 import StatusBadge from "../components/StatusBadge";
 import TableWrapper from "../components/TableWrapper";
 import { useAuth } from "../hooks/useAuth";
-import { pocStore } from "../services/pocStore";
-import { DocumentItem, Ticket, TicketApprovalEvent, TicketStatus, TicketType } from "../types";
+import {
+  approveTicket as approveTicketApi,
+  assignTicket as assignTicketApi,
+  createTicket as createTicketApi,
+  listCases,
+  listDocuments,
+  listTickets,
+  rejectTicket as rejectTicketApi
+} from "../services/scfcaData";
+import { CaseItem, DocumentItem, Ticket, TicketType } from "../types";
 import { canApproveTickets, canCreateTickets, isReadOnlyRole } from "../utils/roles";
 
 const TICKET_TYPE_LABELS: Record<TicketType, string> = {
   transfer_request: "Transfer request",
+  conversion_request: "Conversion request",
+  reassignment_request: "Reassignment request",
+  administrative_metadata_update: "Administrative metadata update",
+  case_creation_request: "Case creation request",
   custody_change: "Custody change",
-  release_request: "Release request"
+  release_request: "Release request",
 };
 
-function nowTimestamp(): string {
-  const d = new Date();
-  const pad = (n: number) => String(n).padStart(2, "0");
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
-}
+const CASE_CREATION_HANDLERS = [
+  "alice",
+  "mark",
+  "john",
+];
 
 export default function Tickets() {
-  const [tickets, setTickets] = useState<Ticket[]>(() => pocStore.getTickets());
+  const [tickets, setTickets] = useState<Ticket[]>([]);
+  const [cases, setCases] = useState<CaseItem[]>([]);
+  const [documents, setDocuments] = useState<DocumentItem[]>([]);
   const [caseId, setCaseId] = useState("");
   const [ticketType, setTicketType] = useState<TicketType | "">("");
   const [description, setDescription] = useState("");
   const [error, setError] = useState("");
+  const [proposedCaseId, setProposedCaseId] = useState("");
+  const [assignedHandler, setAssignedHandler] = useState("");
 
   const [assignTicketId, setAssignTicketId] = useState("");
   const [assignTo, setAssignTo] = useState("");
   const { user } = useAuth();
 
   useEffect(() => {
-    pocStore.setTickets(tickets);
-  }, [tickets]);
+    void refreshTicketData();
+  }, []);
+
+  const refreshTicketData = async () => {
+    try {
+      const [ticketItems, caseItems, documentItems] = await Promise.all([listTickets(), listCases(), listDocuments()]);
+      setTickets(ticketItems);
+      setCases(caseItems);
+      setDocuments(documentItems);
+    } catch (err) {
+      console.error(err);
+      setError("Unable to load tickets from the backend.");
+    }
+  };
 
   const canApprove = user ? canApproveTickets(user.role) : false;
   const canCreate = user ? canCreateTickets(user.role) : false;
@@ -41,20 +69,10 @@ export default function Tickets() {
 
   const assignedCaseIds = useMemo(() => {
     if (!user) return new Set<string>();
-    const items = pocStore.getCases();
-    return new Set(items.filter((c) => c.handler === user.username).map((c) => c.id));
-  }, [user]);
+    return new Set(cases.map((c) => c.id));
+  }, [cases, user]);
 
-  const visibleTickets = useMemo(() => {
-    if (!user) return [];
-    if (user.role === "regular") {
-      return tickets.filter((t) => (t.createdBy ?? "") === user.username && assignedCaseIds.has(t.caseId));
-    }
-    return tickets;
-  }, [assignedCaseIds, tickets, user]);
-
-  const cases = useMemo(() => pocStore.getCases(), []);
-  const documents = useMemo(() => pocStore.getDocuments(), []);
+  const visibleTickets = tickets;
 
   const ticketRows = useMemo(() => {
     const caseById = new Map(cases.map((c) => [c.id, c] as const));
@@ -85,7 +103,7 @@ export default function Tickets() {
     });
   }, [cases, documents, visibleTickets]);
 
-  const createTicket = (event: React.FormEvent) => {
+  const createTicket = async (event: React.FormEvent) => {
     event.preventDefault();
     setError("");
     if (!user) return;
@@ -93,10 +111,56 @@ export default function Tickets() {
       setError("Your role is read-only and cannot create tickets.");
       return;
     }
-    if (!caseId || !ticketType || !description.trim()) return;
+    if (!ticketType || !description.trim()) return;
+
+    if (ticketType === "case_creation_request") {
+      if (user.role !== "administrator") {
+        setError("Only administrators can request case creation.");
+        return;
+      }
+
+      const normalizedProposedCaseId = proposedCaseId.trim().toUpperCase();
+      if (!normalizedProposedCaseId) {
+        setError("Proposed case ID is required.");
+        return;
+      }
+
+      if (!assignedHandler) {
+        setError("Assigned handler is required.");
+        return;
+      }
+
+      if (!CASE_CREATION_HANDLERS.includes(assignedHandler)) {
+        setError("Assigned handler must be handler1/handler2/handler3.");
+        return;
+      }
+
+      try {
+        await createTicketApi({
+          caseId: normalizedProposedCaseId,
+          proposedCaseId: normalizedProposedCaseId,
+          assignedHandler,
+          ticketType,
+          description: description.trim(),
+          linkedDocumentIds: []
+        });
+        await refreshTicketData();
+      } catch (err: any) {
+        console.error(err);
+        setError(err?.response?.data?.detail ?? "Ticket creation failed.");
+        return;
+      }
+      setProposedCaseId("");
+      setAssignedHandler("");
+      setTicketType("");
+      setDescription("");
+      return;
+    }
+
+    if (!caseId) return;
 
     const normalizedCaseId = caseId.trim().toUpperCase();
-    const relatedCase = pocStore.getCases().find((c) => c.id === normalizedCaseId);
+    const relatedCase = cases.find((c) => c.id === normalizedCaseId);
     if (!relatedCase) {
       setError("Unknown custody case ID. Tickets must be linked to an existing case.");
       return;
@@ -106,94 +170,62 @@ export default function Tickets() {
       return;
     }
 
-    const next: Ticket = {
-      id: `T-${Math.floor(Math.random() * 900 + 100)}`,
-      caseId: normalizedCaseId,
-      ticketType,
-      description: description.trim(),
-      status: "pending_review",
-      linkedDocumentIds: [],
-      approvalHistory: [],
-      createdBy: user.username,
-      assignedTo: user.role === "administrator" ? user.username : "admin_team"
-    };
-    setTickets((prev) => [next, ...prev]);
+    try {
+      await createTicketApi({
+        caseId: normalizedCaseId,
+        ticketType,
+        description: description.trim(),
+        linkedDocumentIds: []
+      });
+      await refreshTicketData();
+    } catch (err: any) {
+      console.error(err);
+      setError(err?.response?.data?.detail ?? "Ticket creation failed.");
+      return;
+    }
     setCaseId("");
     setTicketType("");
     setDescription("");
   };
 
-  const approveTicket = (id: string) => {
+  const approveTicket = async (id: string) => {
     setError("");
     if (!user) return;
     if (!canApprove) return;
-
-    setTickets((prev) =>
-      prev.map((ticket) => {
-        if (ticket.id !== id) return ticket;
-        if (ticket.status === "approved" || ticket.status === "rejected") return ticket;
-
-        const approvalHistory = Array.isArray(ticket.approvalHistory) ? ticket.approvalHistory : [];
-        const approvals = approvalHistory.filter((e) => e.decision === "approved");
-        if (approvals.length >= 2) return ticket;
-
-        if (approvals.some((e) => e.decidedBy === user.username)) {
-          setError("This administrator has already approved this ticket.");
-          return ticket;
-        }
-
-        const stage = (approvals.length + 1) as 1 | 2;
-        const nextEvent: TicketApprovalEvent = {
-          stage,
-          decision: "approved",
-          decidedBy: user.username,
-          decidedAt: nowTimestamp()
-        };
-
-        const nextApprovalHistory = [nextEvent, ...approvalHistory];
-        const nextStatus: TicketStatus = stage === 1 ? "awaiting_second_approval" : "approved";
-        return { ...ticket, status: nextStatus, approvalHistory: nextApprovalHistory };
-      })
-    );
+    try {
+      await approveTicketApi(id);
+      await refreshTicketData();
+    } catch (err: any) {
+      console.error(err);
+      setError(err?.response?.data?.detail ?? "Approval failed.");
+    }
   };
 
-  const rejectTicket = (id: string) => {
+  const rejectTicket = async (id: string) => {
     setError("");
     if (!user) return;
     if (!canApprove) return;
-
-    setTickets((prev) =>
-      prev.map((ticket) => {
-        if (ticket.id !== id) return ticket;
-        if (ticket.status === "approved" || ticket.status === "rejected") return ticket;
-
-        const approvalHistory = Array.isArray(ticket.approvalHistory) ? ticket.approvalHistory : [];
-        const approvals = approvalHistory.filter((e) => e.decision === "approved");
-        if (approvalHistory.some((e) => e.decidedBy === user.username && e.decision === "rejected")) {
-          setError("This ticket was already rejected by this administrator.");
-          return ticket;
-        }
-
-        const stage = (approvals.length >= 1 ? 2 : 1) as 1 | 2;
-        const nextEvent: TicketApprovalEvent = {
-          stage,
-          decision: "rejected",
-          decidedBy: user.username,
-          decidedAt: nowTimestamp()
-        };
-
-        return { ...ticket, status: "rejected", approvalHistory: [nextEvent, ...approvalHistory] };
-      })
-    );
+    try {
+      await rejectTicketApi(id);
+      await refreshTicketData();
+    } catch (err: any) {
+      console.error(err);
+      setError(err?.response?.data?.detail ?? "Rejection failed.");
+    }
   };
 
-  const assignTicket = (event: React.FormEvent) => {
+  const assignTicket = async (event: React.FormEvent) => {
     event.preventDefault();
     if (!canApprove) return;
     if (!assignTicketId || !assignTo) return;
-    setTickets((prev) =>
-      prev.map((ticket) => (ticket.id === assignTicketId ? { ...ticket, assignedTo: assignTo } : ticket))
-    );
+    try {
+      await assignTicketApi(assignTicketId, assignTo);
+      await refreshTicketData();
+    } catch (err: any) {
+      console.error(err);
+      setError(err?.response?.data?.detail ?? "Assignment failed.");
+      return;
+    }
     setAssignTicketId("");
     setAssignTo("");
   };
@@ -306,12 +338,33 @@ export default function Tickets() {
         {user && canCreate && !readOnly ? (
           <FormContainer title="Create Ticket">
             <form className="space-y-3" onSubmit={createTicket}>
-              <input
-                value={caseId}
-                onChange={(e) => setCaseId(e.target.value)}
-                placeholder={user.role === "regular" ? "Assigned case ID" : "Case ID"}
-                className="w-full rounded-md border border-slate-700 bg-dark px-3 py-2"
-              />
+              {ticketType === "case_creation_request" ? (
+                <>
+                  <input
+                    value={proposedCaseId}
+                    onChange={(e) => setProposedCaseId(e.target.value)}
+                    placeholder="Proposed case ID (e.g., SCFCA-CASE-2026-0051)"
+                    className="w-full rounded-md border border-slate-700 bg-dark px-3 py-2"
+                  />
+                  <select
+                    value={assignedHandler}
+                    onChange={(e) => setAssignedHandler(e.target.value)}
+                    className="w-full rounded-md border border-slate-700 bg-dark px-3 py-2"
+                  >
+                    <option value="" disabled>Select assigned handler</option>
+                    {CASE_CREATION_HANDLERS.map((h) => (
+                      <option key={h} value={h}>{h}</option>
+                    ))}
+                  </select>
+                </>
+              ) : (
+                <input
+                  value={caseId}
+                  onChange={(e) => setCaseId(e.target.value)}
+                  placeholder={user.role === "regular" ? "Assigned case ID" : "Case ID"}
+                  className="w-full rounded-md border border-slate-700 bg-dark px-3 py-2"
+                />
+              )}
               <select
                 value={ticketType}
                 onChange={(e) => setTicketType(e.target.value as TicketType)}
@@ -319,6 +372,12 @@ export default function Tickets() {
               >
                 <option value="" disabled>Select ticket type</option>
                 <option value="transfer_request">Transfer request</option>
+                <option value="conversion_request">Conversion request</option>
+                <option value="reassignment_request">Reassignment request</option>
+                <option value="administrative_metadata_update">Administrative metadata update</option>
+                {user.role === "administrator" ? (
+                  <option value="case_creation_request">Case creation request</option>
+                ) : null}
                 <option value="custody_change">Custody change</option>
                 <option value="release_request">Release request</option>
               </select>
@@ -333,6 +392,9 @@ export default function Tickets() {
               <button className="accent-button w-full py-2" type="submit">Create</button>
               {user.role === "regular" ? (
                 <p className="text-xs text-slate-500">Regular users can only open tickets for assigned custody cases.</p>
+              ) : null}
+              {user.role === "administrator" && ticketType === "case_creation_request" ? (
+                <p className="text-xs text-slate-500">This ticket requests case creation only; it does not create a case yet.</p>
               ) : null}
             </form>
           </FormContainer>

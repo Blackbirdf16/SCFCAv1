@@ -116,10 +116,10 @@ export default function Sidebar() {
   };
 
   return (
-    <aside className="w-64 bg-dark-panel border-r border-slate-700/50 flex flex-col py-6 px-4">
+    <aside className="w-64 flex flex-col py-6 px-4 theme-panel" style={{ borderRightWidth: 1 }}>
       <div className="mb-6">
-        <div className="text-slate-100 text-2xl font-semibold tracking-tight">SCFCA</div>
-        <p className="text-xs text-slate-400 mt-1">Secure Custody Framework</p>
+        <div className="theme-text text-2xl font-semibold tracking-tight">SCFCA</div>
+        <p className="text-xs theme-muted mt-1">Secure Custody Framework</p>
       </div>
       <nav className="flex-1">
         {isDashboardVisible ? (
@@ -128,8 +128,8 @@ export default function Sidebar() {
             className={({ isActive }) =>
               `block py-2 px-4 rounded-lg mb-3 font-medium transition border border-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/30 ${
                 isActive
-                  ? "bg-dark-card text-slate-100 border-slate-500/30"
-                  : "text-slate-200 hover:bg-slate-700/30 hover:text-slate-100"
+                  ? "theme-card theme-text"
+                  : "theme-text hover:bg-[color-mix(in_srgb,var(--scfca-card)_72%,transparent)]"
               }`
             }
           >
@@ -150,20 +150,20 @@ export default function Sidebar() {
                   aria-expanded={isOpen}
                   className={`w-full flex items-center justify-between py-2 px-4 rounded-lg transition border border-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/30 ${
                     isGroupActive
-                      ? "bg-dark-card/30 text-slate-100 border-slate-500/15"
-                      : "text-slate-300 hover:bg-slate-700/20 hover:text-slate-100"
+                      ? "theme-card theme-text"
+                      : "theme-text hover:bg-[color-mix(in_srgb,var(--scfca-card)_72%,transparent)]"
                   }`}
                 >
                   <span className="text-sm font-medium">{group.label}</span>
                   <span
-                    className={`w-4 text-center text-slate-400 text-xs transition-transform ${isOpen ? "rotate-90" : "rotate-0"}`}
+                    className={`w-4 text-center theme-muted text-xs transition-transform ${isOpen ? "rotate-90" : "rotate-0"}`}
                   >
                     ▸
                   </span>
                 </button>
 
                 {isOpen ? (
-                  <div className="mt-1 ml-3 border-l border-slate-700/40 pl-3 space-y-0.5">
+                  <div className="mt-1 ml-3 pl-3 space-y-0.5 theme-border" style={{ borderLeftWidth: 1 }}>
                     {group.items.map((item) => (
                       <NavLink
                         key={item.path}
@@ -171,8 +171,8 @@ export default function Sidebar() {
                         className={({ isActive }) =>
                           `block py-1.5 px-3 rounded-md text-sm transition border border-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/30 ${
                             isActive
-                              ? "bg-dark-card/60 text-slate-100 border-slate-500/20"
-                              : "text-slate-300 hover:bg-slate-700/20 hover:text-slate-100"
+                              ? "theme-card theme-text"
+                              : "theme-text hover:bg-[color-mix(in_srgb,var(--scfca-card)_72%,transparent)]"
                           }`
                         }
                       >
@@ -186,17 +186,17 @@ export default function Sidebar() {
           })}
         </div>
       </nav>
-      <div className="pt-4 border-t border-slate-700/50 text-xs text-slate-300">
+      <div className="pt-4 text-xs theme-text theme-border" style={{ borderTopWidth: 1 }}>
         <div className="mb-2">
-          Signed in as <span className="text-gold font-semibold">{user?.username ?? "demo"}</span>
+          Signed in as <span className="theme-accent font-semibold">{user?.username ?? "demo"}</span>
         </div>
         <div className="mb-3">
-          Role <span className="text-slate-100 font-semibold">{user?.role ?? "N/A"}</span>
+          Role <span className="theme-text font-semibold">{user?.role ?? "N/A"}</span>
         </div>
         <button
           type="button"
           onClick={logout}
-          className="w-full py-2 rounded-md border border-slate-600/40 bg-slate-700/20 hover:bg-slate-700/35 text-slate-100 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/30"
+          className="w-full py-2 border transition theme-card theme-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/30"
         >
           Logout
         </button>

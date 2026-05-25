@@ -16,10 +16,12 @@ module.exports = {
         ]
       },
       colors: {
-        gold: "#D6A84F",
-        dark: "#0B1220",
-        "dark-panel": "#0F1A2B",
-        "dark-card": "#14233A"
+        // Keep existing class names (bg-dark, bg-dark-panel, bg-dark-card, bg-gold)
+        // but map them to CSS variables controlled by the authenticated role.
+        gold: "var(--scfca-accent)",
+        dark: "var(--scfca-bg)",
+        "dark-panel": "var(--scfca-panel)",
+        "dark-card": "var(--scfca-card)"
       }
     }
   },

@@ -3,6 +3,7 @@ import FormContainer from "../components/FormContainer";
 import RoleGuard from "../components/RoleGuard";
 import { useAuth } from "../hooks/useAuth";
 import { pocStore } from "../services/pocStore";
+import { listCases, listTickets } from "../services/scfcaData";
 
 type AccountSection = "identification" | "security-statement" | "reports";
 
@@ -148,7 +149,7 @@ export default function Account() {
                 <div className="rounded-lg border border-slate-700/50 bg-dark-card/40 p-4">
                   <div className="text-xs uppercase tracking-wide text-slate-400">Limitations</div>
                   <ul className="mt-2 list-disc pl-5 space-y-1 text-slate-300">
-                    <li>In-browser persistence (localStorage) is used for demo realism and is not tamper-resistant.</li>
+                    <li>Business records are served by the backend APIs; localStorage is limited to browser profile preferences.</li>
                     <li>Authentication is PoC and intended for demonstration only.</li>
                   </ul>
                 </div>
@@ -192,12 +193,12 @@ export default function Account() {
                     <button
                       type="button"
                       className="accent-button mt-3 px-3 py-2 text-sm"
-                      onClick={() => {
-                        const cases = pocStore.getCases();
+                      onClick={async () => {
+                        const cases = await listCases();
                         downloadJson(`scfca_cases_${new Date().toISOString().slice(0, 10)}.json`, { cases });
                       }}
                     >
-                      Download (demo)
+                      Download
                     </button>
                   </div>
 
@@ -207,12 +208,12 @@ export default function Account() {
                     <button
                       type="button"
                       className="accent-button mt-3 px-3 py-2 text-sm"
-                      onClick={() => {
-                        const tickets = pocStore.getTickets();
+                      onClick={async () => {
+                        const tickets = await listTickets();
                         downloadJson(`scfca_tickets_${new Date().toISOString().slice(0, 10)}.json`, { tickets });
                       }}
                     >
-                      Download (demo)
+                      Download
                     </button>
                   </div>
                 </div>
@@ -220,7 +221,7 @@ export default function Account() {
                 <div className="rounded-lg border border-slate-700/50 bg-dark-card/40 p-4">
                   <div className="text-xs uppercase tracking-wide text-slate-400">Report Notes</div>
                   <div className="mt-2 text-sm text-slate-300 space-y-1">
-                    <div>Exports are generated client-side for demonstration.</div>
+                    <div>Exports are generated from backend API responses.</div>
                     <div className="text-xs text-slate-500">No PII is transmitted to external services in this PoC.</div>
                   </div>
                 </div>

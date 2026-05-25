@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import FormContainer from "../components/FormContainer";
 import { useAuth } from "../hooks/useAuth";
 import { pocStore } from "../services/pocStore";
+import { listDocuments, listTickets } from "../services/scfcaData";
 import type { UserProfile } from "../types";
 
 type SettingsSection = "profile" | "privacy";
@@ -66,9 +67,10 @@ export default function Settings() {
     setTimeout(() => setSavedMessage(""), 2000);
   };
 
-  const downloadPersonalData = () => {
-    const tickets = user ? pocStore.getTickets().filter((t) => (t.createdBy ?? "") === user.username) : [];
-    const documents = user ? pocStore.getDocuments().filter((d) => (d.uploadedBy ?? "") === user.username) : [];
+  const downloadPersonalData = async () => {
+    const [visibleTickets, visibleDocuments] = user ? await Promise.all([listTickets(), listDocuments()]) : [[], []];
+    const tickets = user ? visibleTickets.filter((ticket) => (ticket.createdBy ?? "") === user.username) : [];
+    const documents = user ? visibleDocuments.filter((document) => (document.uploadedBy ?? "") === user.username) : [];
 
     downloadJson(`scfca_personal_data_${new Date().toISOString().slice(0, 10)}.json`, {
       generatedAt: new Date().toISOString(),
@@ -176,7 +178,7 @@ export default function Settings() {
               <div className="rounded-lg border border-slate-700/50 bg-dark-card/40 p-4">
                 <div className="text-xs uppercase tracking-wide text-slate-400">Download personal data</div>
                 <div className="mt-2 text-sm text-slate-200">
-                  Exports your locally stored profile data and the tickets/documents attributed to your username (PoC).
+                  Exports your local profile preferences and backend-visible tickets/documents attributed to your username (PoC).
                 </div>
                 <button
                   type="button"

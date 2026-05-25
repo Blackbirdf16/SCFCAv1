@@ -1,40 +1,60 @@
-import { useEffect, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
 import FormContainer from "../components/FormContainer";
 import TableWrapper from "../components/TableWrapper";
 import { useAuth } from "../hooks/useAuth";
-import { pocStore } from "../services/pocStore";
-import { DocumentItem } from "../types";
+import { listCases, listDocuments, registerDocument as registerDocumentMetadata } from "../services/scfcaData";
+import { CaseItem, DocumentItem } from "../types";
 import { canUploadDocuments, isReadOnlyRole } from "../utils/roles";
 
 export default function Documents() {
-  const [documents, setDocuments] = useState<DocumentItem[]>(() => pocStore.getDocuments());
+  const [documents, setDocuments] = useState<DocumentItem[]>([]);
+  const [cases, setCases] = useState<CaseItem[]>([]);
   const [name, setName] = useState("");
+  const [docType, setDocType] = useState("");
   const [hash, setHash] = useState("");
   const [caseId, setCaseId] = useState("");
   const [walletRef, setWalletRef] = useState("");
   const [verificationResult, setVerificationResult] = useState<string>("");
   const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
   const { user } = useAuth();
 
   useEffect(() => {
-    pocStore.setDocuments(documents);
-  }, [documents]);
+    let mounted = true;
+    Promise.all([listDocuments(), listCases()])
+      .then(([documentItems, caseItems]) => {
+        if (!mounted) return;
+        setDocuments(documentItems);
+        setCases(caseItems);
+      })
+      .catch((err) => {
+        console.error(err);
+        if (mounted) setError("Unable to load document metadata from the backend.");
+      });
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
-  const visibleDocuments = (() => {
-    if (!user) return [];
-    if (user.role === "regular") {
-      return documents.filter((d) => (d.uploadedBy ?? "") === user.username);
-    }
-    return documents;
-  })();
-
-  const assignedCaseIds = (() => {
+  const assignedCaseIds = useMemo(() => {
     if (!user) return new Set<string>();
-    const items = pocStore.getCases();
-    return new Set(items.filter((c) => c.handler === user.username).map((c) => c.id));
-  })();
+    return new Set(cases.map((c) => c.id));
+  }, [cases, user]);
 
-  const registerDocument = (event: React.FormEvent) => {
+  const visibleDocuments = documents;
+
+  const canViewContent = (doc: DocumentItem): boolean => {
+    if (!user) return false;
+    if (user.role === "administrator") return true;
+    if (user.role === "auditor") return false;
+    return !!doc.caseId && assignedCaseIds.has(doc.caseId);
+  };
+
+  const downloadDocument = (docId: string) => {
+    window.open(`http://127.0.0.1:8000/api/v1/documents/${encodeURIComponent(docId)}/download`, "_blank");
+  };
+
+  const registerDocument = async (event: FormEvent) => {
     event.preventDefault();
     setError("");
     if (!user) return;
@@ -46,6 +66,10 @@ export default function Documents() {
       return;
     }
     if (!name || !hash) return;
+    if (!name.toLowerCase().endsWith(".pdf")) {
+      setError("Only PDF documents are allowed.");
+      return;
+    }
 
     const normalizedCaseId = caseId ? caseId.trim().toUpperCase() : "";
     if (user.role === "regular") {
@@ -59,20 +83,31 @@ export default function Documents() {
       }
     }
 
-    const next: DocumentItem = {
-      id: `DOC-${Math.floor(Math.random() * 900 + 100)}`,
-      name,
-      hash,
-      createdAt: new Date().toISOString().slice(0, 10),
-      caseId: normalizedCaseId || undefined,
-      walletRef: walletRef ? walletRef.toUpperCase() : undefined,
-      uploadedBy: user.username
-    };
-    setDocuments((prev) => [next, ...prev]);
-    setName("");
-    setHash("");
-    setCaseId("");
-    setWalletRef("");
+    setBusy(true);
+    try {
+      const doc = await registerDocumentMetadata({
+        name,
+        docType: docType || undefined,
+        hash,
+        createdAt: new Date().toISOString().slice(0, 10),
+        caseId: normalizedCaseId || undefined,
+        walletRef: walletRef ? walletRef.toUpperCase() : undefined
+      });
+
+      if (doc && doc.id) {
+        setDocuments(await listDocuments());
+        setName("");
+        setDocType("");
+        setHash("");
+        setCaseId("");
+        setWalletRef("");
+      }
+    } catch (err: any) {
+      console.error(err);
+      setError("Register failed. Check backend status and permissions.");
+    } finally {
+      setBusy(false);
+    }
   };
 
   const verifyIntegrity = () => {
@@ -94,10 +129,12 @@ export default function Documents() {
                 <th className="py-2">Document ID</th>
                 <th className="py-2">Case ID</th>
                 <th className="py-2">Wallet Ref</th>
+                <th className="py-2">Type</th>
                 <th className="py-2">Name</th>
                 <th className="py-2">Hash</th>
                 <th className="py-2">Created</th>
                 <th className="py-2">Uploaded By</th>
+                <th className="py-2">Access</th>
               </tr>
             </thead>
             <tbody>
@@ -106,10 +143,20 @@ export default function Documents() {
                   <td className="py-2">{doc.id}</td>
                   <td className="py-2">{doc.caseId ?? "—"}</td>
                   <td className="py-2 font-mono text-xs text-slate-300">{doc.walletRef ?? "—"}</td>
+                  <td className="py-2">{doc.docType ?? "—"}</td>
                   <td className="py-2">{doc.name}</td>
                   <td className="py-2">{doc.hash}</td>
                   <td className="py-2">{doc.createdAt}</td>
                   <td className="py-2 text-slate-300">{doc.uploadedBy ?? "—"}</td>
+                  <td className="py-2">
+                    {canViewContent(doc) ? (
+                      <button className="accent-button px-3 py-1 text-xs" type="button" onClick={() => downloadDocument(doc.id)}>
+                        Download
+                      </button>
+                    ) : (
+                      <span className="text-xs text-slate-500">Restricted</span>
+                    )}
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -134,6 +181,12 @@ export default function Documents() {
                 className="w-full rounded-md border border-slate-700 bg-dark px-3 py-2"
               />
               <input
+                value={docType}
+                onChange={(e) => setDocType(e.target.value)}
+                placeholder="Document type (optional)"
+                className="w-full rounded-md border border-slate-700 bg-dark px-3 py-2"
+              />
+              <input
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Document name"
@@ -146,7 +199,9 @@ export default function Documents() {
                 className="w-full rounded-md border border-slate-700 bg-dark px-3 py-2"
               />
               {error ? <div className="text-xs text-rose-300">{error}</div> : null}
-              <button className="accent-button w-full py-2" type="submit">Register</button>
+              <button className="accent-button w-full py-2" type="submit" disabled={busy}>
+                {busy ? "Registering…" : "Register"}
+              </button>
               {user.role === "regular" ? (
                 <p className="text-xs text-slate-500">Regular users can upload only for assigned cases.</p>
               ) : null}

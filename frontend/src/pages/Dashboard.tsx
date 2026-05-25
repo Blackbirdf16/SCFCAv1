@@ -40,6 +40,58 @@ export default function Dashboard() {
   const hasAssets = summary.registeredAssets > 0;
   const hasTickets = summary.pendingTickets + summary.approvedTickets > 0;
 
+  // Role-based dashboard metrics
+  let metricsSection = null;
+  if (user?.role === "regular") {
+    // Case handler: show assigned cases, assets, tickets
+    metricsSection = (
+      <div className="mt-6 grid grid-cols-3 gap-4">
+        <div className="rounded-lg border border-slate-700/50 bg-dark-card/40 px-3 py-3">
+          <div className="text-[11px] uppercase tracking-wide text-slate-400">Assigned Cases</div>
+          <div className="mt-1 text-lg font-semibold text-slate-100">{summary.totalCases}</div>
+        </div>
+        <div className="rounded-lg border border-slate-700/50 bg-dark-card/40 px-3 py-3">
+          <div className="text-[11px] uppercase tracking-wide text-slate-400">Assets</div>
+          <div className="mt-1 text-lg font-semibold text-slate-100">{summary.registeredAssets}</div>
+        </div>
+        <div className="rounded-lg border border-slate-700/50 bg-dark-card/40 px-3 py-3">
+          <div className="text-[11px] uppercase tracking-wide text-slate-400">Tickets</div>
+          <div className="mt-1 text-lg font-semibold text-slate-100">
+            {summary.pendingTickets + summary.approvedTickets}
+          </div>
+        </div>
+      </div>
+    );
+  } else if (user?.role === "administrator") {
+    // Admin: show governance metrics (stubbed for now)
+    metricsSection = (
+      <div className="mt-6 grid grid-cols-2 gap-4">
+        <div className="rounded-lg border border-slate-700/50 bg-dark-card/40 px-3 py-3">
+          <div className="text-[11px] uppercase tracking-wide text-slate-400">Pending Approvals</div>
+          <div className="mt-1 text-lg font-semibold text-slate-100">{summary.pendingTickets}</div>
+        </div>
+        <div className="rounded-lg border border-slate-700/50 bg-dark-card/40 px-3 py-3">
+          <div className="text-[11px] uppercase tracking-wide text-slate-400">Case Creation Requests</div>
+          <div className="mt-1 text-lg font-semibold text-slate-100">0</div>
+        </div>
+      </div>
+    );
+  } else if (user?.role === "auditor") {
+    // Auditor: show audit/report metrics (stubbed for now)
+    metricsSection = (
+      <div className="mt-6 grid grid-cols-2 gap-4">
+        <div className="rounded-lg border border-slate-700/50 bg-dark-card/40 px-3 py-3">
+          <div className="text-[11px] uppercase tracking-wide text-slate-400">Audit Events</div>
+          <div className="mt-1 text-lg font-semibold text-slate-100">{auditEvents.length}</div>
+        </div>
+        <div className="rounded-lg border border-slate-700/50 bg-dark-card/40 px-3 py-3">
+          <div className="text-[11px] uppercase tracking-wide text-slate-400">Reports</div>
+          <div className="mt-1 text-lg font-semibold text-slate-100">0</div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
@@ -59,22 +111,7 @@ export default function Dashboard() {
             </div>
           </div>
 
-          <div className="mt-6 grid grid-cols-3 gap-4">
-            <div className="rounded-lg border border-slate-700/50 bg-dark-card/40 px-3 py-3">
-              <div className="text-[11px] uppercase tracking-wide text-slate-400">Cases</div>
-              <div className="mt-1 text-lg font-semibold text-slate-100">{summary.totalCases}</div>
-            </div>
-            <div className="rounded-lg border border-slate-700/50 bg-dark-card/40 px-3 py-3">
-              <div className="text-[11px] uppercase tracking-wide text-slate-400">Assets</div>
-              <div className="mt-1 text-lg font-semibold text-slate-100">{summary.registeredAssets}</div>
-            </div>
-            <div className="rounded-lg border border-slate-700/50 bg-dark-card/40 px-3 py-3">
-              <div className="text-[11px] uppercase tracking-wide text-slate-400">Tickets</div>
-              <div className="mt-1 text-lg font-semibold text-slate-100">
-                {summary.pendingTickets + summary.approvedTickets}
-              </div>
-            </div>
-          </div>
+          {metricsSection}
 
           <div className="mt-5 flex flex-wrap gap-2">
             <button

@@ -1,18 +1,20 @@
-import { useEffect, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import FormContainer from "../components/FormContainer";
 import KpiCard from "../components/KpiCard";
 import StatusBadge from "../components/StatusBadge";
 import TableWrapper from "../components/TableWrapper";
 import { AssetItem, AssetStatus, AssetType, CaseItem, CustodyAction } from "../types";
-import { pocStore } from "../services/pocStore";
+import { assetsFromCases, listCases } from "../services/scfcaData";
 import { useAuth } from "../hooks/useAuth";
 import { isReadOnlyRole } from "../utils/roles";
 
-export default function Assets() {
-  const [assets, setAssets] = useState<AssetItem[]>(() => pocStore.getAssets());
-  const [actions, setActions] = useState<CustodyAction[]>(() => pocStore.getCustodyActions());
+type AssetsView = "all" | "holdings" | "transfers";
 
-  const cases = useMemo(() => pocStore.getCases(), []);
+export default function Assets({ view = "all" }: { view?: AssetsView }) {
+  const [assets, setAssets] = useState<AssetItem[]>([]);
+  const [actions] = useState<CustodyAction[]>([]);
+  const [cases, setCases] = useState<CaseItem[]>([]);
+  const [assetError, setAssetError] = useState("");
   const { user } = useAuth();
 
   const [registerWalletRef, setRegisterWalletRef] = useState("");
@@ -51,12 +53,22 @@ export default function Assets() {
   const [releaseNotes, setReleaseNotes] = useState("");
 
   useEffect(() => {
-    pocStore.setAssets(assets);
-  }, [assets]);
-
-  useEffect(() => {
-    pocStore.setCustodyActions(actions);
-  }, [actions]);
+    let mounted = true;
+    listCases()
+      .then((caseItems) => {
+        if (!mounted) return;
+        setCases(caseItems);
+        setAssets(assetsFromCases(caseItems));
+        setAssetError("");
+      })
+      .catch((error) => {
+        console.error(error);
+        if (mounted) setAssetError("Unable to load asset holdings from backend custody cases.");
+      });
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   const caseByWalletRef = useMemo(() => {
     const map = new Map<string, CaseItem>();
@@ -125,6 +137,49 @@ export default function Assets() {
     return visibleActions.filter((a) => a.status === "requested" || a.status === "in_review").length;
   }, [visibleActions]);
 
+  const showHoldings = view === "all" || view === "holdings";
+  const showTransfers = view === "all" || view === "transfers";
+
+  const requestedActions = useMemo(() => visibleActions.filter((a) => a.status === "requested").length, [visibleActions]);
+  const inReviewActions = useMemo(() => visibleActions.filter((a) => a.status === "in_review").length, [visibleActions]);
+
+  const kpis = useMemo(() => {
+    if (view === "holdings") {
+      return [
+        { title: "Registered Holdings", value: assets.length },
+        { title: "Wallets Monitored", value: walletsMonitored },
+        { title: "Pending Registry Items", value: pendingRegistry },
+        { title: "Unlinked Holdings", value: unlinkedHoldings }
+      ];
+    }
+
+    if (view === "transfers") {
+      return [
+        { title: "Visible Actions", value: visibleActions.length },
+        { title: "Open Custody Actions", value: openActions },
+        { title: "Requested", value: requestedActions },
+        { title: "In review", value: inReviewActions }
+      ];
+    }
+
+    return [
+      { title: "Registered Holdings", value: assets.length },
+      { title: "Wallets Monitored", value: walletsMonitored },
+      { title: "Pending Registry Items", value: pendingRegistry },
+      { title: "Open Custody Actions", value: openActions }
+    ];
+  }, [
+    assets.length,
+    inReviewActions,
+    openActions,
+    pendingRegistry,
+    requestedActions,
+    unlinkedHoldings,
+    visibleActions.length,
+    view,
+    walletsMonitored
+  ]);
+
   const groupedWallets = useMemo(() => {
     const byWallet = new Map<string, AssetItem[]>();
     const unlinked: AssetItem[] = [];
@@ -177,18 +232,7 @@ export default function Assets() {
 
     const caseId = registerCaseId.trim() ? registerCaseId.trim().toUpperCase() : undefined;
 
-    const newAsset: AssetItem = {
-      id: `AS-${Math.floor(Math.random() * 90 + 10)}`,
-      walletRef,
-      caseId,
-      symbol,
-      assetType: registerAssetType,
-      balance,
-      protocol: registerProtocol.trim() ? registerProtocol.trim() : undefined,
-      network: registerNetwork.trim() ? registerNetwork.trim() : "—",
-      status: registerStatus
-    };
-    setAssets((prev) => [newAsset, ...prev]);
+    setAssetError("Asset registration is read from PostgreSQL-backed custody cases in this phase.");
     setRegisterWalletRef("");
     setRegisterCaseId("");
     setRegisterSymbol("");
@@ -200,16 +244,8 @@ export default function Assets() {
   };
 
   const appendAction = (action: Omit<CustodyAction, "id" | "createdAt">) => {
-    const now = new Date();
-    const pad2 = (n: number) => String(n).padStart(2, "0");
-    const createdAt = `${now.getFullYear()}-${pad2(now.getMonth() + 1)}-${pad2(now.getDate())} ${pad2(now.getHours())}:${pad2(now.getMinutes())}`;
-
-    const newAction: CustodyAction = {
-      id: `ACT-${Math.floor(Math.random() * 900 + 100)}`,
-      createdAt,
-      ...action
-    };
-    setActions((prev) => [newAction, ...prev]);
+    void action;
+    setAssetError("Custody action creation is handled through PostgreSQL-backed tickets.");
   };
 
   const onSubmitTransferRequest = (event: React.FormEvent) => {
@@ -331,14 +367,14 @@ export default function Assets() {
   return (
     <div className="space-y-6">
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <KpiCard title="Registered Holdings" value={assets.length} />
-        <KpiCard title="Wallets Monitored" value={walletsMonitored} />
-        <KpiCard title="Pending Registry Items" value={pendingRegistry} />
-        <KpiCard title="Open Custody Actions" value={openActions} />
+        {kpis.map((kpi) => (
+          <KpiCard key={kpi.title} title={kpi.title} value={kpi.value} />
+        ))}
       </div>
 
       <div className="grid gap-6 xl:grid-cols-3">
         <div className="xl:col-span-2 space-y-6">
+          {showHoldings ? (
           <TableWrapper title="Operational Wallet Holdings">
             <div className="text-xs text-slate-400 mb-3">
               Wallet-linked overview for custody operations (PoC only; no signing, no transaction execution).
@@ -362,7 +398,7 @@ export default function Assets() {
                   const caseId = caseItem?.id;
 
                   return (
-                    <>
+                    <Fragment key={walletRef}>
                       <tr key={`${walletRef}-header`} className="border-b border-slate-800 bg-slate-900/40">
                         <td className="py-3" colSpan={8}>
                           <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
@@ -390,13 +426,15 @@ export default function Assets() {
                           </tr>
                         );
                       })}
-                    </>
+                    </Fragment>
                   );
                 })}
               </tbody>
             </table>
           </TableWrapper>
+          ) : null}
 
+          {showHoldings ? (
           <TableWrapper title={`Exceptions / Unlinked Holdings (${unlinkedHoldings})`}>
             <div className="text-xs text-slate-400 mb-3">
               Assets without a wallet reference or without a known custody case mapping.
@@ -426,7 +464,9 @@ export default function Assets() {
               </tbody>
             </table>
           </TableWrapper>
+          ) : null}
 
+          {showTransfers ? (
           <TableWrapper title="Custody Action Queue (PoC)">
             <div className="text-xs text-slate-400 mb-3">
               Demo-safe workflow records only. No blockchain calls, no signing, no execution.
@@ -462,11 +502,14 @@ export default function Assets() {
               </tbody>
             </table>
           </TableWrapper>
+          ) : null}
         </div>
 
         <div className="space-y-6">
+          {showHoldings ? (
           <FormContainer title="Register / Update Holding (PoC)">
             <form className="space-y-3" onSubmit={onRegisterHolding}>
+              {assetError ? <p className="text-xs text-rose-300">{assetError}</p> : null}
               <input
                 value={registerWalletRef}
                 onChange={(e) => setRegisterWalletRef(e.target.value)}
@@ -529,14 +572,16 @@ export default function Assets() {
               </select>
               <button className="accent-button w-full py-2" type="submit">Register Holding</button>
               <p className="text-xs text-slate-500">
-                Note: This registers PoC holdings for UI linking only. It does not create or modify any real wallet state.
+                Note: holdings shown here are loaded from PostgreSQL-backed custody cases.
               </p>
             </form>
           </FormContainer>
+          ) : null}
 
-          {user && !isReadOnlyRole(user.role) ? (
-            <FormContainer title="Transfer & Custody Actions (Demo Safe)">
-              <div className="space-y-6">
+          {showTransfers ? (
+            user && !isReadOnlyRole(user.role) ? (
+              <FormContainer title="Transfer & Custody Actions (Demo Safe)">
+                <div className="space-y-6">
               <div>
                 <p className="text-xs font-semibold tracking-wide text-slate-200">Transfer request</p>
                 <p className="text-xs text-slate-500 mb-3">Creates an approval-style record only. No signing, no chain execution.</p>
@@ -715,11 +760,12 @@ export default function Assets() {
               </div>
               </div>
             </FormContainer>
-          ) : (
-            <FormContainer title="Transfer & Custody Actions (Demo Safe)">
-              <p className="text-sm text-slate-400">Custody actions are restricted for auditor/read-only roles.</p>
-            </FormContainer>
-          )}
+            ) : (
+              <FormContainer title="Transfer & Custody Actions (Demo Safe)">
+                <p className="text-sm text-slate-400">Custody actions are restricted for auditor/read-only roles.</p>
+              </FormContainer>
+            )
+          ) : null}
         </div>
       </div>
     </div>

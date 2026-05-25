@@ -3,6 +3,7 @@ import DashboardLayout from "../layouts/DashboardLayout";
 import Login from "../pages/Login";
 import Dashboard from "../pages/Dashboard";
 import Cases from "../pages/Cases";
+import CaseDetails from "../pages/CaseDetails";
 import Assets from "../pages/Assets";
 import Tickets from "../pages/Tickets";
 import Audit from "../pages/Audit";
@@ -10,6 +11,7 @@ import Documents from "../pages/Documents";
 import Account from "../pages/Account";
 import Settings from "../pages/Settings";
 import PlaceholderPage from "../pages/PlaceholderPage";
+import Chat from "../pages/Chat";
 import { useAuth } from "../hooks/useAuth";
 
 function ProtectedLayout() {
@@ -28,27 +30,11 @@ export default function AppRoutes() {
         <Route path="/" element={<Navigate to="/dashboard" />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/cases" element={<Cases />} />
-        <Route path="/cases/details" element={<Cases />} />
+        <Route path="/cases/details" element={<CaseDetails />} />
 
         <Route path="/assets" element={<Assets />} />
-        <Route
-          path="/assets/holdings"
-          element={
-            <PlaceholderPage
-              title="Wallet Holdings"
-              description="Institutional view of coin balances per custody wallet reference (placeholder)."
-            />
-          }
-        />
-        <Route
-          path="/assets/transfers"
-          element={
-            <PlaceholderPage
-              title="Transfers"
-              description="Operational transfer requests and approvals (placeholder)."
-            />
-          }
-        />
+        <Route path="/assets/holdings" element={<Assets view="holdings" />} />
+        <Route path="/assets/transfers" element={<Assets view="transfers" />} />
 
         <Route path="/tickets" element={<Tickets />} />
         <Route path="/tickets/open" element={<Tickets />} />
@@ -82,7 +68,7 @@ export default function AppRoutes() {
 
         <Route
           path="/help/chat"
-          element={<PlaceholderPage title="Help / Chat" description="Support and guided workflow help (placeholder)." />}
+          element={<Chat />}
         />
 
         <Route path="/audit" element={<Audit />} />

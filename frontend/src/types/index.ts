@@ -11,7 +11,24 @@ export interface UserProfile {
   nickname: string;
 }
 
-export type TicketType = "transfer_request" | "custody_change" | "release_request";
+export interface ChatMessage {
+  id: string;
+  timestamp: string;
+  author: string;
+  role: Role;
+  text: string;
+}
+
+export type TicketType =
+  // Thesis-required
+  | "transfer_request"
+  | "conversion_request"
+  | "reassignment_request"
+  | "administrative_metadata_update"
+  | "case_creation_request"
+  // Legacy (kept for backwards compatibility)
+  | "custody_change"
+  | "release_request";
 
 export type TicketStatus = "pending_review" | "awaiting_second_approval" | "approved" | "rejected";
 
@@ -36,6 +53,8 @@ export interface CaseItem {
   handler: string;
   custodyStatus: "open" | "in_review" | "closed";
   holdings: Holding[];
+  summary?: string;
+  restrictedNotes?: string;
 }
 
 export interface Holding {
@@ -81,6 +100,8 @@ export interface Ticket {
   approvalHistory?: TicketApprovalEvent[];
   createdBy?: string;
   assignedTo?: string;
+  proposedCaseId?: string;
+  assignedHandler?: string;
 }
 
 export interface AuditEvent {
@@ -88,6 +109,32 @@ export interface AuditEvent {
   timestamp: string;
   actor: string;
   action: string;
+  date?: string;
+  actorUsername?: string;
+  actorRole?: Role;
+  actionType?: string;
+  entityType?: string | null;
+  entityId?: string | null;
+  description?: string;
+  status?: string;
+  result?: string;
+  sourceIp?: string | null;
+  sessionId?: string | null;
+  previousHash?: string | null;
+  hashChain?: string | null;
+}
+
+export interface AuditFilters {
+  date_from?: string;
+  date_to?: string;
+  actor?: string;
+  role?: string;
+  action?: string;
+  entity_type?: string;
+  case_id?: string;
+  ticket_id?: string;
+  q?: string;
+  limit?: number;
 }
 
 export interface DocumentItem {
@@ -98,6 +145,7 @@ export interface DocumentItem {
   caseId?: string;
   walletRef?: string;
   uploadedBy?: string;
+  docType?: string;
 }
 
 export interface DashboardSummary {

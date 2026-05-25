@@ -1,4 +1,4 @@
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useMemo, useState } from "react";
 import { useAuth } from "../hooks/useAuth";
 
@@ -27,6 +27,7 @@ function deriveUid(seed: string): string {
 
 export default function Header() {
   const location = useLocation();
+  const navigate = useNavigate();
   const { user } = useAuth();
   const [query, setQuery] = useState("");
 
@@ -36,12 +37,10 @@ export default function Header() {
   }, [user?.role, user?.token, user?.username]);
 
   return (
-    <header className="h-16 border-b border-slate-700/50 bg-dark-panel px-6 flex items-center gap-4">
+    <header className="h-16 px-6 flex items-center gap-4 theme-panel" style={{ borderBottom: "1px solid var(--scfca-border)" }}>
       <div className="flex items-baseline gap-3 min-w-0">
-        <h2 className="text-lg font-semibold tracking-tight text-slate-100 truncate">
-          {titleFromPath(location.pathname)}
-        </h2>
-        <div className="hidden lg:block text-xs text-slate-500">Institutional custody PoC</div>
+        <h2 className="text-lg font-semibold tracking-tight theme-text truncate">{titleFromPath(location.pathname)}</h2>
+        <div className="hidden lg:block text-xs theme-muted">Institutional custody PoC</div>
       </div>
 
       <div className="flex-1 hidden md:block">
@@ -49,33 +48,25 @@ export default function Header() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search cases, wallet refs, documents…"
-          className="w-full max-w-xl rounded-md bg-dark-card/40 border border-slate-600/30 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:border-slate-400/60 transition"
+          className="w-full max-w-xl px-3 py-2 text-sm transition theme-card"
         />
       </div>
 
       <div className="ml-auto flex items-center gap-3">
         <div className="hidden sm:flex items-center gap-2">
-          <button
-            type="button"
-            className="px-3 py-2 text-sm rounded-md border border-slate-600/40 bg-slate-700/10 hover:bg-slate-700/25 transition text-slate-100"
-          >
+          <button type="button" className="px-3 py-2 text-sm border transition theme-card theme-text" onClick={() => navigate("/help/chat")}>
             Help
           </button>
-          <button
-            type="button"
-            className="px-3 py-2 text-sm rounded-md border border-slate-600/40 bg-slate-700/10 hover:bg-slate-700/25 transition text-slate-100"
-          >
+          <button type="button" className="px-3 py-2 text-sm border transition theme-card theme-text" onClick={() => navigate("/help/chat")}>
             Chat
           </button>
         </div>
 
         <div className="text-right leading-tight">
-          <div className="text-sm font-semibold text-slate-100">
-            {user?.username ?? "demo"}
-          </div>
-          <div className="text-[11px] text-slate-500">
+          <div className="text-sm font-semibold theme-text">{user?.username ?? "demo"}</div>
+          <div className="text-[11px] theme-muted">
             <span>UID </span>
-            <span className="text-slate-300 font-semibold">{uid}</span>
+            <span className="font-mono">{uid}</span>
             <span className="mx-1">·</span>
             <span>{user?.role ?? "unknown"}</span>
           </div>
