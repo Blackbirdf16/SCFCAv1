@@ -17,16 +17,18 @@ Frontend dependency source: frontend/package.json and frontend/package-lock.json
 | --- | --- | --- |
 | Backend | `backend/requirements.txt` | Present and suitable for SBOM generation |
 | Frontend | `frontend/package.json` and `frontend/package-lock.json` | Present and suitable for SBOM generation |
-| Containers | Dockerfile files | None found in the repository |
-| Compose | `docker-compose.yml` | None found in the repository |
+| Containers | `backend/Dockerfile` and `frontend/Dockerfile` | Present for optional PoC container execution |
+| Compose | `docker-compose.yml` | Present with PostgreSQL, backend, and frontend services |
 | CI | `.gitlab-ci.yml` | None found in the repository |
 | GitHub Actions | `.github/workflows/` | Not configured; no workflows directory is currently present |
 | Dependabot | `.github/dependabot.yml` | Present; covers pip dependencies in `/backend` and npm dependencies in `/frontend` |
-| Docker dependency monitoring | Dockerfile or Compose files | Not configured because no Dockerfile or docker-compose file is currently present |
+| Docker dependency monitoring | Dockerfile or Compose files | Not configured in Dependabot for this phase |
 
 Dependabot provides dependency update visibility for the declared backend and frontend dependency sources. It is not currently paired with a GitHub Actions workflow in this repository.
 
 The SBOM and SCA files under `docs/evidence/sbom/` are local repository evidence for transparency and thesis review. They are not currently generated, validated, or retained by an automated CI/CD pipeline.
+
+Container scanning commands are documented under `docs/evidence/container-security/` and `scripts/container_scan.md`. Trivy scan results may be saved there as local evidence, but container scanning is not currently enforced by CI/CD.
 
 ## Practical SBOM generation commands
 

@@ -3,6 +3,7 @@ uvicorn
 sqlalchemy
 pydantic
 passlib[bcrypt]
+bcrypt<4
 pydantic-settings
 psycopg2-binary
 python-multipart
