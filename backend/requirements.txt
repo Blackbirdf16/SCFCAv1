@@ -5,3 +5,5 @@ pydantic
 passlib[bcrypt]
 pydantic-settings
 psycopg2-binary
+python-multipart
+websockets

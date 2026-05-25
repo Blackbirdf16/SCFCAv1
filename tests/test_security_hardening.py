@@ -49,7 +49,7 @@ def test_ticket_mutation_requires_csrf_token():
     response = client.patch(
         "/api/v1/tickets/T-201/assign",
         cookies=cookies,
-        json={"assignedTo": "admin_team"},
+        json={"assignedTo": "bob"},
     )
 
     assert response.status_code == 403
@@ -62,7 +62,7 @@ def test_ticket_mutation_accepts_valid_csrf_token():
         "/api/v1/tickets/T-201/assign",
         cookies=cookies,
         headers=headers,
-        json={"assignedTo": "admin_team"},
+        json={"assignedTo": "bob"},
     )
 
     assert response.status_code == 200

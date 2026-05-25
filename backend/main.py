@@ -3,7 +3,7 @@ SCFCA FastAPI application entry point.
 """
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from backend.api.v1.routes import health, auth, cases, tickets, documents, audit
+from backend.api.v1.routes import health, auth, cases, tickets, documents, audit, chat
 
 app = FastAPI(title="SCFCA - Secure Custody Framework for Cryptocurrency Assets")
 
@@ -22,3 +22,4 @@ app.include_router(cases.router, prefix="/api/v1/cases", tags=["cases"])
 app.include_router(tickets.router, prefix="/api/v1/tickets", tags=["tickets"])
 app.include_router(documents.router, prefix="/api/v1/documents", tags=["documents"])
 app.include_router(audit.router, prefix="/api/v1/audit", tags=["audit"])
+app.include_router(chat.router, prefix="/api/v1/chat", tags=["chat"])

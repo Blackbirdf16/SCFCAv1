@@ -21,7 +21,7 @@ class PocAuditEvent:
 _EVENTS: list[PocAuditEvent] = [
     PocAuditEvent(id="AU-001", timestamp="2026-03-19 10:05", actor="auditor01", action="Checked signature chain"),
     PocAuditEvent(id="AU-002", timestamp="2026-03-19 10:25", actor="admin01", action="Updated ticket policy"),
-    PocAuditEvent(id="AU-003", timestamp="2026-03-19 11:20", actor="ops_team", action="Opened transfer request (PoC)"),
+    PocAuditEvent(id="AU-003", timestamp="2026-03-19 11:20", actor="mark", action="Opened transfer request (PoC)"),
 ]
 
 

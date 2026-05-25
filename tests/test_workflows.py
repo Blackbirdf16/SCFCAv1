@@ -70,3 +70,143 @@ def test_admin_can_create_ticket_with_csrf():
 
     assert response.status_code == 200
     assert response.json()["ticket"]["status"] == "pending_review"
+
+
+def test_admin_can_create_case_creation_request_and_no_case_is_created():
+    cookies, headers = login("bob", "bob123", "administrator")
+
+    before = client.get("/api/v1/cases/", cookies=cookies)
+    assert before.status_code == 200
+    before_ids = {c["id"] for c in before.json().get("cases", [])}
+
+    proposed_case_id = "SCFCA-CASE-2026-9001"
+    assert proposed_case_id not in before_ids
+
+    create = client.post(
+        "/api/v1/tickets/",
+        cookies=cookies,
+        headers=headers,
+        json={
+            "ticketType": "case_creation_request",
+            "description": "Request creation of a new custody case (ticket only).",
+            "proposedCaseId": proposed_case_id,
+            "assignedHandler": "handler1@scfca.local",
+            "linkedDocumentIds": [],
+        },
+    )
+    assert create.status_code == 200
+    ticket = create.json()["ticket"]
+    assert ticket["ticketType"] == "case_creation_request"
+    assert ticket["status"] == "pending_review"
+    assert ticket["proposedCaseId"] == proposed_case_id
+    assert ticket["assignedHandler"] == "handler1@scfca.local"
+
+    tickets = client.get("/api/v1/tickets/", cookies=cookies)
+    assert tickets.status_code == 200
+    assert any(t.get("id") == ticket["id"] for t in tickets.json().get("tickets", []))
+
+    after = client.get("/api/v1/cases/", cookies=cookies)
+    assert after.status_code == 200
+    after_ids = {c["id"] for c in after.json().get("cases", [])}
+    assert after_ids == before_ids
+    assert proposed_case_id not in after_ids
+
+    audit = client.get("/api/v1/audit/", cookies=cookies)
+    assert audit.status_code == 200
+    assert any(e.get("action") == "case_creation_request_submitted" for e in audit.json().get("events", []))
+
+
+def test_regular_user_cannot_create_case_creation_request():
+    cookies, headers = login("alice", "alice123", "regular")
+
+    response = client.post(
+        "/api/v1/tickets/",
+        cookies=cookies,
+        headers=headers,
+        json={
+            "ticketType": "case_creation_request",
+            "description": "Attempt case creation request (should fail).",
+            "proposedCaseId": "SCFCA-CASE-2026-9002",
+            "assignedHandler": "handler2@scfca.local",
+        },
+    )
+    assert response.status_code == 403
+
+
+def test_auditor_cannot_create_case_creation_request():
+    cookies, headers = login("carol", "carol123", "auditor")
+
+    response = client.post(
+        "/api/v1/tickets/",
+        cookies=cookies,
+        headers=headers,
+        json={
+            "ticketType": "case_creation_request",
+            "description": "Attempt case creation request (should fail).",
+            "proposedCaseId": "SCFCA-CASE-2026-9003",
+            "assignedHandler": "handler3@scfca.local",
+        },
+    )
+    assert response.status_code == 403
+
+
+def test_admin_cannot_assign_case_creation_request_to_self():
+    cookies, headers = login("bob", "bob123", "administrator")
+
+    response = client.post(
+        "/api/v1/tickets/",
+        cookies=cookies,
+        headers=headers,
+        json={
+            "ticketType": "case_creation_request",
+            "description": "Invalid self-assignment.",
+            "proposedCaseId": "SCFCA-CASE-2026-9004",
+            "assignedHandler": "bob",
+        },
+    )
+    assert response.status_code == 400
+    assert "self" in (response.json().get("detail") or "").lower()
+
+
+def test_admin_cannot_assign_case_creation_request_to_admin_like_values():
+    cookies, headers = login("bob", "bob123", "administrator")
+
+    invalid = [
+        "admin",
+        "administrator",
+        "bob",
+        "admin1",
+        "admin2",
+        "admin1@scfca.local",
+        "admin2@scfca.local",
+    ]
+    for value in invalid:
+        response = client.post(
+            "/api/v1/tickets/",
+            cookies=cookies,
+            headers=headers,
+            json={
+                "ticketType": "case_creation_request",
+                "description": "Invalid assigned handler.",
+                "proposedCaseId": "SCFCA-CASE-2026-9005",
+                "assignedHandler": value,
+            },
+        )
+        assert response.status_code == 400
+
+
+def test_admin_must_assign_case_creation_request_to_one_of_allowed_handlers():
+    cookies, headers = login("bob", "bob123", "administrator")
+
+    response = client.post(
+        "/api/v1/tickets/",
+        cookies=cookies,
+        headers=headers,
+        json={
+            "ticketType": "case_creation_request",
+            "description": "Invalid handler outside allow-list.",
+            "proposedCaseId": "SCFCA-CASE-2026-9006",
+            "assignedHandler": "mark",
+        },
+    )
+    assert response.status_code == 400
