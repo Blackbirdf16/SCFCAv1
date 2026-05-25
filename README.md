@@ -5,7 +5,13 @@ SCFCA is a thesis-oriented proof of concept for institutional crypto custody ope
 ## Setup & Run (Local Demo)
 
 ### 1. Backend (FastAPI)
-Prereqs: Python 3.10+
+Prereqs: Python 3.10+ and a reachable PostgreSQL database.
+
+Default local database URL:
+
+```
+postgresql://user:password@localhost:5432/scfca
+```
 
 From the repository root:
 
@@ -15,9 +21,9 @@ python -m uvicorn backend.main:app --reload --host 127.0.0.1 --port 8000
 ```
 
 - API docs: http://127.0.0.1:8000/docs
-- Health: http://127.0.0.1:8000/api/v1/health
+- Health: http://127.0.0.1:8000/api/v1/health/
 
-Optional: seed demo data (if you want to reset):
+Optional: seed demo data (requires the PostgreSQL database above to be reachable):
 
 ```
 python scripts/seed_demo_data.py
@@ -92,7 +98,7 @@ Important values:
 - `POSTGRES_PASSWORD`
 - `POSTGRES_DB`
 - `SECRET_KEY`
-- `DEBUG`
+- `SCFCA_DEBUG` externally in Docker Compose; the backend container receives it as `DEBUG`
 
 ### Container scanning with Trivy
 
@@ -107,6 +113,8 @@ trivy fs .
 Optional evidence commands are documented in `docs/evidence/container-security/README.md` and `scripts/container_scan.md`.
 
 The Docker setup is for proof-of-concept reproducibility. It is not production-certified and does not include Kubernetes deployment policy, image signing, runtime monitoring, or CI/CD enforcement.
+
+SBOM/SCA documentation and evidence are kept in `docs/sbom.md` and `docs/evidence/sbom/`. Dependabot is configured at `.github/dependabot.yml` for backend pip dependencies and frontend npm dependencies.
 
 ---
 
@@ -134,7 +142,7 @@ The Docker setup is for proof-of-concept reproducibility. It is not production-c
 
 ---
 
-## Key Workflows (Tested)
+## Key Demo Workflows Verified
 - Login (all roles)
 - Case listing and case details
 - Document registration + integrity check
@@ -148,5 +156,5 @@ The Docker setup is for proof-of-concept reproducibility. It is not production-c
 ## Notes
 - This PoC is for academic demonstration only.
 - All credentials and data are for demo use.
-- In-browser persistence (localStorage) is used for demo realism and is not tamper-resistant.
+- Business data is backend/PostgreSQL-backed. Any localStorage usage is non-authoritative and limited to UI, profile, or preference-style state where applicable.
 - For thesis, see `docs/` and `docs/diagrams/` for architecture diagrams and rationale.
