@@ -1,0 +1,188 @@
+@startuml backend_domain_api_structure
+title SCFCA Backend Domain and API Structure
+
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam linetype ortho
+hide empty methods
+
+package "FastAPI Application" {
+  class FastAPIApp <<entrypoint>> {
+    +title: str
+  }
+
+  class AuthRouter <<router>>
+  class CasesRouter <<router>>
+  class TicketsRouter <<router>>
+  class DocumentsRouter <<router>>
+  class AuditRouter <<router>>
+  class ChatRouter <<router>>
+  class HealthRouter <<router>>
+
+  FastAPIApp --> AuthRouter : /api/v1/auth
+  FastAPIApp --> CasesRouter : /api/v1/cases
+  FastAPIApp --> TicketsRouter : /api/v1/tickets
+  FastAPIApp --> DocumentsRouter : /api/v1/documents
+  FastAPIApp --> AuditRouter : /api/v1/audit
+  FastAPIApp --> ChatRouter : /api/v1/chat
+  FastAPIApp --> HealthRouter : /api/v1/health
+}
+
+package "Auth and Dependencies" {
+  enum Role <<enum>> {
+    regular
+    administrator
+    auditor
+  }
+
+  class Principal <<dataclass>> {
+    +username: str
+    +role: Role
+  }
+
+  class LoginRequest <<Pydantic>> {
+    +username: str
+    +password: str
+    +role: Role | None
+  }
+}
+
+package "SQLAlchemy Domain Models" {
+  class User <<SQLAlchemy>> {
+    +id: int
+    +username: str
+    +role: Role
+    +is_active: bool
+  }
+
+  class Case <<SQLAlchemy>> {
+    +case_id: str
+    +wallet_ref: str
+    +custody_status: str
+  }
+
+  class CaseAssignment <<SQLAlchemy>>
+  class Asset <<SQLAlchemy>>
+  class FrozenValuationSnapshot <<SQLAlchemy>>
+  class Ticket <<SQLAlchemy>> {
+    +ticket_ref: str
+    +ticket_type: str
+    +status: str
+    +linked_document_ids: json | None
+  }
+  class TicketApproval <<SQLAlchemy>> {
+    +stage: int
+    +decision: str
+  }
+  class Document <<SQLAlchemy>> {
+    +doc_ref: str
+    +hash: str
+  }
+  class CustodyAction <<SQLAlchemy>>
+  class AuditEvent <<SQLAlchemy>> {
+    +event_ref: str
+    +action: str
+    +entity_type: str | None
+    +entity_id: str | None
+    +previous_hash: str | None
+    +hash_chain: str | None
+  }
+}
+
+package "Pydantic API DTOs and PoC Records" {
+  class TicketCreate <<Pydantic>>
+  class TicketRecord <<Pydantic>> {
+    +id: str
+    +caseId: str
+    +ticketType: TicketType
+    +status: TicketStatus
+    +approvalHistory: list[TicketApprovalEvent]
+  }
+  class TicketApprovalEvent <<Pydantic>> {
+    +stage: 1 | 2
+    +decision: approved | rejected
+  }
+  class TicketStatusUpdate <<Pydantic>>
+  class TicketAssignUpdate <<Pydantic>>
+
+  class DocumentCreate <<Pydantic>>
+  class DocumentRecord <<Pydantic>> {
+    +id: str
+    +name: str
+    +hash: str
+    +caseId: str | None
+    +walletRef: str | None
+  }
+
+  class AuditEventRecord <<Pydantic>> {
+    +id: str
+    +timestamp: str
+    +actor_username: str
+    +actor_role: str
+    +action_type: str
+    +entity_id: str | None
+    +previous_hash: str | None
+    +hash_chain: str | None
+  }
+  class AuditQuery <<Pydantic>>
+
+  class ChatMessage <<Pydantic>> {
+    +id: str
+    +timestamp: str
+    +author: str
+    +role: str
+    +text: str
+  }
+  class ChatMessageCreate <<Pydantic>>
+}
+
+package "Backend Runtime Services" {
+  class ConnectionManager <<service>> {
+    -_connections: set[WebSocket]
+    +connect(websocket)
+    +disconnect(websocket)
+    +broadcast(payload)
+  }
+
+  class AuditRecorder <<function>> {
+    +record_audit_event(...)
+  }
+}
+
+User --> Role
+Principal --> Role
+LoginRequest --> Role
+
+Case "1" o-- "0..*" CaseAssignment
+Case "1" <-- "0..*" Asset
+Case "1" <-- "0..*" FrozenValuationSnapshot
+Case "1" <-- "0..*" Document
+Ticket "1" <-- "0..*" TicketApproval
+Ticket "1" <-- "0..*" CustodyAction
+User "1" <-- "0..*" AuditEvent : actor
+
+AuthRouter ..> LoginRequest
+AuthRouter ..> Principal
+CasesRouter ..> Principal
+TicketsRouter ..> Principal
+TicketsRouter ..> TicketCreate
+TicketsRouter ..> TicketRecord
+TicketsRouter ..> TicketStatusUpdate
+TicketsRouter ..> TicketAssignUpdate
+TicketsRouter ..> AuditRecorder : record_audit_event
+DocumentsRouter ..> Principal
+DocumentsRouter ..> DocumentCreate
+DocumentsRouter ..> DocumentRecord
+DocumentsRouter ..> AuditRecorder : record_audit_event
+AuditRouter ..> Principal
+AuditRouter ..> AuditQuery
+AuditRouter ..> AuditEventRecord
+AuditRouter ..> AuditRecorder : record/list/export
+ChatRouter ..> Principal
+ChatRouter ..> ChatMessage
+ChatRouter ..> ChatMessageCreate
+ChatRouter ..> ConnectionManager
+ChatRouter ..> AuditRecorder : record_audit_event
+
+@enduml

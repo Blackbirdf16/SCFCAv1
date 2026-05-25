@@ -1,0 +1,166 @@
+@startuml core_domain_class_diagram
+title SCFCA Core Domain Class Diagram
+
+left to right direction
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam linetype ortho
+hide empty methods
+
+package "SCFCA Core Domain" {
+  enum Role <<enum>> {
+    regular
+    administrator
+    auditor
+  }
+
+  class User <<domain>> {
+    +id: int
+    +username: str
+    +role: Role
+    +is_active: bool
+  }
+
+  class Case <<domain>> {
+    +id: int
+    +case_id: str
+    +wallet_ref: str
+    +title: str | None
+    +custody_status: str
+    +created_at: datetime
+  }
+
+  class CaseAssignment <<domain>> {
+    +id: int
+    +assigned_to_username: str
+    +assigned_at: datetime
+    +unassigned_at: datetime | None
+    +notes: text | None
+  }
+
+  class Asset <<domain>> {
+    +id: int
+    +asset_id: str
+    +symbol: str
+    +network: str | None
+    +wallet_ref: str | None
+    +balance: numeric | None
+    +asset_type: str | None
+    +protocol: str | None
+    +status: str
+  }
+
+  class FrozenValuationSnapshot <<domain>> {
+    +id: int
+    +snapshot_time: datetime
+    +valuation: json
+  }
+
+  class Document <<domain>> {
+    +id: int
+    +doc_ref: str
+    +name: str
+    +hash: str
+    +created_at: datetime
+    +wallet_ref: str | None
+    +size_bytes: int | None
+  }
+
+  class Ticket <<domain>> {
+    +id: int
+    +ticket_ref: str
+    +ticket_type: str
+    +description: text | None
+    +status: str
+    +created_at: datetime
+    +proposed_case_id: str | None
+    +assigned_handler_username: str | None
+    +linked_document_ids: json | None
+  }
+
+  class TicketApproval <<domain>> {
+    +id: int
+    +stage: 1 | 2
+    +decision: approved | rejected
+    +decided_at: datetime
+  }
+
+  class CustodyAction <<domain>> {
+    +id: int
+    +action_ref: str
+    +type: str
+    +status: str
+    +created_at: datetime
+    +executed_at: datetime | None
+    +details: json | None
+  }
+
+  class AuditEvent <<domain>> {
+    +id: int
+    +event_ref: str
+    +timestamp: datetime
+    +action: str
+    +entity_type: str | None
+    +entity_id: str | None
+    +details: text | None
+    +previous_hash: str | None
+    +hash_chain: str | None
+  }
+
+}
+
+' Layout anchors for thesis readability:
+' left: User/Role, center: Case and governed resources,
+' lower center: Ticket, right: approval/action/audit.
+Role -[hidden]down-> User
+User -[hidden]right-> CaseAssignment
+CaseAssignment -[hidden]right-> Case
+Case -[hidden]right-> AuditEvent
+Case -[hidden]down-> Ticket
+Case -[hidden]up-> Asset
+Case -[hidden]right-> Document
+Document -[hidden]right-> FrozenValuationSnapshot
+Ticket -[hidden]right-> TicketApproval
+TicketApproval -[hidden]right-> CustodyAction
+
+User --> Role : has
+User "1" <-- "0..*" Case : created by
+User "1" <-- "0..*" AuditEvent : actor
+
+Case "1" o-- "0..*" CaseAssignment : assignments
+CaseAssignment --> User : assigned handler
+CaseAssignment --> User : assigned by
+Case "1" o-- "0..*" Asset : assets
+Case "1" o-- "0..*" Document : documents
+Case "1" o-- "0..*" FrozenValuationSnapshot : frozen valuations
+Case "1" <-- "0..*" Ticket : belongs to
+
+Ticket "1" o-- "0..2" TicketApproval : approvals
+TicketApproval --> User : administrator approver
+Ticket "0..*" -- "0..*" Document : linked documents
+Ticket "1" --> "0..*" CustodyAction : may lead to
+CustodyAction --> User : requested by
+
+note right of TicketApproval
+  Two-person governance is represented
+  through TicketApproval stages 1 and 2.
+  These are administrator approvals.
+end note
+
+note right of AuditEvent
+  AuditEvent references affected objects
+  through entity_type and entity_id.
+
+  entity_id is string-compatible because
+  audit events reference IDs such as
+  T-401, SCFCA-CASE-2026-0101,
+  json-export, and html-export.
+end note
+
+note left of User
+  Auditor is represented by
+  User.role = auditor.
+end note
+
+@enduml

@@ -71,6 +71,10 @@ If PowerShell shows `npm is not recognized`, install Node.js and reopen the term
 - Review audit events and traceability
 - Read-only (no case/asset/ticket modifications)
 
+### Additional Regular Demo Users
+- Login as: `mark` / `mark123` or `john` / `john123`
+- These are extra regular users for testing assignment and access boundaries
+
 ---
 
 ## Key Workflows (Tested)
@@ -88,4 +92,4 @@ If PowerShell shows `npm is not recognized`, install Node.js and reopen the term
 - This PoC is for academic demonstration only.
 - All credentials and data are for demo use.
 - In-browser persistence (localStorage) is used for demo realism and is not tamper-resistant.
-- For thesis, see `docs/` and `diagrams/` for architecture and rationale.
+- For thesis, see `docs/` and `docs/diagrams/` for architecture diagrams and rationale.

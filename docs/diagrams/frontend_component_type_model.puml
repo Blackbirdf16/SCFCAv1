@@ -1,0 +1,252 @@
+@startuml frontend_component_type_model
+title SCFCA Frontend Component and Type Model
+
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam linetype ortho
+hide empty methods
+
+package "React Application Shell" {
+  class App <<component>>
+  class AppRoutes <<router>>
+  class ProtectedLayout <<component>>
+  class DashboardLayout <<layout>>
+  class Header <<component>>
+  class Sidebar <<component>>
+  class RoleGuard <<component>>
+
+  App --> AppRoutes
+  AppRoutes --> ProtectedLayout
+  ProtectedLayout --> DashboardLayout
+  DashboardLayout --> Header
+  DashboardLayout --> Sidebar
+}
+
+package "Authentication Model" {
+  class AuthContext <<React Context>> {
+    +user: User | null
+    +isAuthenticated: boolean
+    +login(...)
+    +logout()
+  }
+
+  class AuthProvider <<component>>
+  class useAuth <<hook>>
+  class authService <<service>>
+
+  AuthProvider --> AuthContext
+  useAuth --> AuthContext
+  AuthContext --> authService
+  RoleGuard ..> AuthContext
+  ProtectedLayout ..> useAuth
+}
+
+package "Pages" {
+  class Login <<page>>
+  class Dashboard <<page>>
+  class Cases <<page>>
+  class CaseDetails <<page>>
+  class Assets <<page>>
+  class Tickets <<page>>
+  class Documents <<page>>
+  class Audit <<page>>
+  class Chat <<page>>
+  class Account <<page>>
+  class Settings <<page>>
+}
+
+package "Frontend Type Model" {
+  enum Role <<enum>> {
+    regular
+    administrator
+    auditor
+  }
+
+  interface User <<type>> {
+    +username: string
+    +role: Role
+    +token?: string
+  }
+
+  interface UserProfile <<type>> {
+    +fullName: string
+    +nickname: string
+  }
+
+  interface CaseItem <<type>> {
+    +id: string
+    +walletRef: string
+    +title: string
+    +handler: string
+    +custodyStatus: open | in_review | closed
+    +holdings: Holding[]
+  }
+
+  interface Holding <<type>> {
+    +symbol: string
+    +balance: number
+  }
+
+  interface AssetItem <<type>> {
+    +id: string
+    +symbol: string
+    +network: string
+    +status: AssetStatus
+    +walletRef?: string
+    +balance?: number
+    +assetType?: AssetType
+    +protocol?: string
+    +caseId?: string
+  }
+
+  interface CustodyAction <<type>> {
+    +id: string
+    +createdAt: string
+    +type: CustodyActionType
+    +status: CustodyActionStatus
+    +walletRef: string
+    +symbol: string
+    +amount: number
+    +caseId?: string
+  }
+
+  interface Ticket <<type>> {
+    +id: string
+    +caseId: string
+    +ticketType: TicketType
+    +description: string
+    +status: TicketStatus
+    +linkedDocumentIds?: string[]
+    +approvalHistory?: TicketApprovalEvent[]
+    +createdBy?: string
+    +assignedTo?: string
+  }
+
+  interface TicketApprovalEvent <<type>> {
+    +stage: 1 | 2
+    +decision: approved | rejected
+    +decidedBy: string
+    +decidedAt: string
+  }
+
+  interface DocumentItem <<type>> {
+    +id: string
+    +name: string
+    +hash: string
+    +createdAt: string
+    +caseId?: string
+    +walletRef?: string
+    +uploadedBy?: string
+    +docType?: string
+  }
+
+  interface AuditEvent <<type>> {
+    +id: string
+    +timestamp: string
+    +actor: string
+    +action: string
+    +actorRole?: Role
+    +entityType?: string | null
+    +entityId?: string | null
+    +previousHash?: string | null
+    +hashChain?: string | null
+  }
+
+  interface AuditFilters <<type>> {
+    +date_from?: string
+    +date_to?: string
+    +actor?: string
+    +role?: string
+    +action?: string
+    +entity_type?: string
+    +case_id?: string
+    +ticket_id?: string
+    +q?: string
+    +limit?: number
+  }
+
+  interface ChatMessage <<type>> {
+    +id: string
+    +timestamp: string
+    +author: string
+    +role: Role
+    +text: string
+  }
+
+  interface DashboardSummary <<type>> {
+    +totalCases: number
+    +registeredAssets: number
+    +pendingTickets: number
+    +approvedTickets: number
+  }
+}
+
+package "Services and Stores" {
+  class http <<axios>> {
+    +baseURL: /api/v1
+    +withCredentials: true
+  }
+
+  class dashboardService <<service>>
+  class auditService <<service>>
+  class chatService <<service>>
+  class pocStore <<store>>
+  class demoData <<fixtures>>
+  class roleUtils <<utility>>
+}
+
+AppRoutes --> Login
+AppRoutes --> Dashboard
+AppRoutes --> Cases
+AppRoutes --> CaseDetails
+AppRoutes --> Assets
+AppRoutes --> Tickets
+AppRoutes --> Documents
+AppRoutes --> Audit
+AppRoutes --> Chat
+AppRoutes --> Account
+AppRoutes --> Settings
+
+User --> Role
+CaseItem "1" o-- "0..*" Holding
+Ticket "1" o-- "0..*" TicketApprovalEvent
+AuditEvent --> Role
+ChatMessage --> Role
+
+Login ..> authService
+Dashboard ..> DashboardSummary
+Dashboard ..> dashboardService
+Cases ..> CaseItem
+Cases ..> demoData
+CaseDetails ..> CaseItem
+CaseDetails ..> DocumentItem
+Assets ..> AssetItem
+Assets ..> CustodyAction
+Tickets ..> Ticket
+Tickets ..> pocStore
+Tickets ..> roleUtils
+Documents ..> DocumentItem
+Documents ..> http
+Audit ..> AuditEvent
+Audit ..> AuditFilters
+Audit ..> auditService
+Chat ..> ChatMessage
+Chat ..> chatService
+Account ..> UserProfile
+Settings ..> UserProfile
+
+authService --> http
+auditService --> http
+chatService --> http
+dashboardService --> http
+pocStore ..> Ticket
+demoData ..> CaseItem
+demoData ..> AssetItem
+demoData ..> CustodyAction
+demoData ..> Ticket
+demoData ..> AuditEvent
+demoData ..> DocumentItem
+roleUtils ..> Role
+
+@enduml
