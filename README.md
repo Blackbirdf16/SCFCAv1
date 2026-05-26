@@ -46,7 +46,13 @@ GitLab CI/CD Phase 4 adds Trivy image scanning jobs for the backend and frontend
 
 These jobs are `allow_failure` visibility checks in this phase. They support container supply-chain visibility, but they are not production certification, image signing, runtime monitoring, or a blocking release gate.
 
-Security scanners such as DAST and IaC scanning are planned for later phases. This repository does not yet claim mature DevSecOps automation, production security gates, or broader CI security scanning.
+### IaC / Configuration Scanning
+
+GitLab CI/CD Phase 5 adds Checkov-based scanning for Docker and CI configuration. The report is retained as a CI artifact, and findings are visibility-first and non-blocking in this phase.
+
+This supports DevSecOps configuration security by checking infrastructure and pipeline definitions early. Strict policy gates are future work.
+
+Security scanners such as DAST are planned for later phases. This repository does not yet claim mature DevSecOps automation, production security gates, compliance certification, or broader CI security scanning.
 
 ### A. Docker Compose Recommended
 

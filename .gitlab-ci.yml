@@ -165,3 +165,17 @@ container_scan_frontend_trivy:
     paths:
       - trivy-frontend-report.json
     expire_in: 1 week
+
+iac_scan_checkov:
+  stage: security
+  image:
+    name: bridgecrew/checkov:latest
+    entrypoint: [""]
+  allow_failure: true
+  script:
+    - checkov -d . --framework dockerfile,docker_compose,gitlab_ci --output json --output-file-path checkov-report.json
+  artifacts:
+    when: always
+    paths:
+      - checkov-report.json
+    expire_in: 1 week

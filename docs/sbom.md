@@ -32,6 +32,8 @@ The SBOM and SCA files under `docs/evidence/sbom/` remain local repository evide
 
 Container scanning commands are documented under `docs/evidence/container-security/` and `scripts/container_scan.md`. GitLab CI also includes non-blocking Trivy image scanning jobs for the backend and frontend images. Container scanning complements SBOM/SCA evidence, but it is separate from dependency SBOM generation and is not a production release gate in this phase.
 
+IaC and configuration scanning complements dependency analysis by checking Docker, Compose, and CI configuration. It is separate from SBOM generation and does not imply compliance certification or a production policy gate.
+
 ## Practical SBOM generation commands
 
 Run these from the repository root unless noted otherwise.
