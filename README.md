@@ -34,7 +34,13 @@ GitLab CI Phase 2 adds Software Composition Analysis visibility for declared bac
 
 These SCA jobs are allowed to fail in this phase to provide vulnerability visibility without blocking development. Dependabot provides complementary dependency update monitoring on GitHub. SCA supports DevSecOps by identifying inherited vulnerabilities in external components early in the development lifecycle, but this is not full supply-chain assurance.
 
-Security scanners such as SAST, DAST, container scanning, and IaC scanning are planned for later phases. This repository does not yet claim mature DevSecOps automation, production security gates, or broader CI security scanning.
+### SAST and Secret Scanning
+
+GitLab CI/CD includes Bandit for Python SAST, Semgrep for broader static analysis, and Gitleaks for accidental secret detection. Reports are retained as CI artifacts, and the jobs are non-blocking in this phase.
+
+These controls support shift-left security by detecting weaknesses early in the development lifecycle. Strict blocking gates are future work.
+
+Security scanners such as DAST, container scanning, and IaC scanning are planned for later phases. This repository does not yet claim mature DevSecOps automation, production security gates, or broader CI security scanning.
 
 ### A. Docker Compose Recommended
 
