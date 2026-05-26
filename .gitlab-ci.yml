@@ -2,6 +2,7 @@ stages:
   - validate
   - test
   - build
+  - security
 
 variables:
   PYTHONPATH: "."
@@ -59,4 +60,32 @@ frontend_build:
     when: on_success
     paths:
       - frontend/dist/
+    expire_in: 1 week
+
+backend_dependency_audit:
+  stage: security
+  image: python:3.11-slim
+  allow_failure: true
+  script:
+    - python -m pip install --upgrade pip
+    - pip install pip-audit
+    - pip-audit -r backend/requirements.txt -f json -o pip-audit-report.json
+  artifacts:
+    when: always
+    paths:
+      - pip-audit-report.json
+    expire_in: 1 week
+
+frontend_dependency_audit:
+  stage: security
+  image: node:20
+  allow_failure: true
+  script:
+    - cd frontend
+    - npm ci
+    - npm audit --json > npm-audit-frontend.json
+  artifacts:
+    when: always
+    paths:
+      - frontend/npm-audit-frontend.json
     expire_in: 1 week

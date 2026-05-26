@@ -26,9 +26,15 @@ It demonstrates backend-enforced access control, PostgreSQL-backed custody recor
 
 ## CI/CD
 
-`.gitlab-ci.yml` provides a basic GitLab CI foundation for this PoC. The current Phase 1 pipeline validates backend import and compilation, runs the backend test suite, builds the frontend, and checks the Docker Compose configuration syntax.
+`.gitlab-ci.yml` provides a basic GitLab CI foundation for this PoC. The pipeline validates backend import and compilation, runs the backend test suite, builds the frontend, checks the Docker Compose configuration syntax, and runs Phase 2 dependency analysis jobs.
 
-Security scanners such as SAST, SCA, DAST, container scanning, and IaC scanning are planned for later phases. This repository does not yet claim mature DevSecOps automation, production security gates, or implemented CI security scanning.
+### SCA / Dependency Analysis
+
+GitLab CI Phase 2 adds Software Composition Analysis visibility for declared backend and frontend dependencies. Backend dependencies are checked with `pip-audit`, frontend dependencies are checked with `npm audit`, and both JSON reports are retained as CI artifacts.
+
+These SCA jobs are allowed to fail in this phase to provide vulnerability visibility without blocking development. Dependabot provides complementary dependency update monitoring on GitHub. SCA supports DevSecOps by identifying inherited vulnerabilities in external components early in the development lifecycle, but this is not full supply-chain assurance.
+
+Security scanners such as SAST, DAST, container scanning, and IaC scanning are planned for later phases. This repository does not yet claim mature DevSecOps automation, production security gates, or broader CI security scanning.
 
 ### A. Docker Compose Recommended
 
