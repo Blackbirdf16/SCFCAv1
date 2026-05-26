@@ -36,10 +36,23 @@ docker_compose_config:
 backend_tests:
   stage: test
   image: python:3.11-slim
+  services:
+    - name: postgres:16-alpine
+      alias: postgres
+  variables:
+    POSTGRES_USER: "user"
+    POSTGRES_PASSWORD: "password"
+    POSTGRES_DB: "scfca"
+    DATABASE_URL: "postgresql://user:password@postgres:5432/scfca"
+    PYTHONPATH: "."
+    DEBUG: "false"
   script:
+    - apt-get update && apt-get install -y --no-install-recommends postgresql-client
     - python -m pip install --upgrade pip
     - pip install -r backend/requirements.txt
     - pip install pytest httpx
+    - until pg_isready -h postgres -U user -d scfca; do sleep 1; done
+    - python scripts/seed_demo_data.py
     - pytest -q --junitxml=pytest-report.xml
   artifacts:
     when: always
