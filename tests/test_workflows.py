@@ -53,7 +53,7 @@ def test_regular_user_cannot_see_audit_log():
     assert response.status_code == 403
 
 
-def test_admin_can_create_ticket_with_csrf():
+def test_admin_cannot_create_regular_custody_ticket():
     cookies, headers = login("bob", "bob123", "administrator")
 
     response = client.post(
@@ -68,8 +68,8 @@ def test_admin_can_create_ticket_with_csrf():
         },
     )
 
-    assert response.status_code == 200
-    assert response.json()["ticket"]["status"] == "pending_review"
+    assert response.status_code == 403
+    assert "Administrators cannot initiate custody workflow tickets" in response.json()["detail"]
 
 
 def test_admin_can_create_case_creation_request_and_no_case_is_created():
@@ -206,7 +206,7 @@ def test_admin_must_assign_case_creation_request_to_one_of_allowed_handlers():
             "ticketType": "case_creation_request",
             "description": "Invalid handler outside allow-list.",
             "proposedCaseId": "SCFCA-CASE-2026-9006",
-            "assignedHandler": "mark",
+            "assignedHandler": "mallory",
         },
     )
     assert response.status_code == 400

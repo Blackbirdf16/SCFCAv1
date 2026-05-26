@@ -55,14 +55,28 @@ def test_ticket_mutation_requires_csrf_token():
     assert response.status_code == 403
 
 
-def test_ticket_mutation_accepts_valid_csrf_token():
+def test_ticket_approval_mutation_accepts_valid_csrf_token():
     cookies, headers = login()
 
-    response = client.patch(
-        "/api/v1/tickets/T-201/assign",
+    create = client.post(
+        "/api/v1/tickets/",
         cookies=cookies,
         headers=headers,
-        json={"assignedTo": "bob"},
+        json={
+            "ticketType": "case_creation_request",
+            "description": "CSRF assignment fixture ticket.",
+            "proposedCaseId": "SCFCA-CASE-2026-9101",
+            "assignedHandler": "alice",
+            "linkedDocumentIds": [],
+        },
+    )
+    assert create.status_code == 200
+    ticket_id = create.json()["ticket"]["id"]
+
+    response = client.post(
+        f"/api/v1/tickets/{ticket_id}/approve",
+        cookies=cookies,
+        headers=headers,
     )
 
     assert response.status_code == 200
