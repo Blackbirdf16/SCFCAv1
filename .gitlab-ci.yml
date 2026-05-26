@@ -122,7 +122,7 @@ semgrep_sast:
   image: semgrep/semgrep:latest
   allow_failure: true
   script:
-    - semgrep scan --config auto --json --output semgrep-report.json
+    - semgrep scan --config p/default --json --output semgrep-report.json .
   artifacts:
     when: always
     paths:
@@ -186,7 +186,7 @@ iac_scan_checkov:
     entrypoint: [""]
   allow_failure: true
   script:
-    - checkov -d . --framework dockerfile,docker_compose,gitlab_ci --output json --output-file-path checkov-report.json
+    - checkov -d . --framework dockerfile yaml gitlab_ci --output json --output-file-path checkov-report.json
   artifacts:
     when: always
     paths:
