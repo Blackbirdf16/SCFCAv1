@@ -40,7 +40,13 @@ GitLab CI/CD includes Bandit for Python SAST, Semgrep for broader static analysi
 
 These controls support shift-left security by detecting weaknesses early in the development lifecycle. Strict blocking gates are future work.
 
-Security scanners such as DAST, container scanning, and IaC scanning are planned for later phases. This repository does not yet claim mature DevSecOps automation, production security gates, or broader CI security scanning.
+### Container Image Scanning
+
+GitLab CI/CD Phase 4 adds Trivy image scanning jobs for the backend and frontend Docker images. The jobs build the images in CI, scan them with Trivy, and retain JSON reports as CI artifacts.
+
+These jobs are `allow_failure` visibility checks in this phase. They support container supply-chain visibility, but they are not production certification, image signing, runtime monitoring, or a blocking release gate.
+
+Security scanners such as DAST and IaC scanning are planned for later phases. This repository does not yet claim mature DevSecOps automation, production security gates, or broader CI security scanning.
 
 ### A. Docker Compose Recommended
 

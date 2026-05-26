@@ -30,7 +30,7 @@ GitLab CI SCA jobs run `pip-audit` for backend dependencies and `npm audit` for 
 
 The SBOM and SCA files under `docs/evidence/sbom/` remain local repository evidence for transparency and thesis review. Dependabot provides complementary dependency update visibility through GitHub.
 
-Container scanning commands are documented under `docs/evidence/container-security/` and `scripts/container_scan.md`. Trivy scan results may be saved there as local evidence, but container scanning is not currently enforced by CI/CD.
+Container scanning commands are documented under `docs/evidence/container-security/` and `scripts/container_scan.md`. GitLab CI also includes non-blocking Trivy image scanning jobs for the backend and frontend images. Container scanning complements SBOM/SCA evidence, but it is separate from dependency SBOM generation and is not a production release gate in this phase.
 
 ## Practical SBOM generation commands
 

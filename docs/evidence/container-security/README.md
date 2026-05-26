@@ -4,6 +4,17 @@ This folder is reserved for optional local container scanning evidence for the S
 
 The Docker setup is intended for reproducible thesis demonstration. It is not production-certified and does not include image signing, Kubernetes policies, runtime monitoring, or CI enforcement.
 
+## GitLab CI Container Scanning
+
+GitLab CI/CD builds the backend and frontend Docker images and scans them with Trivy in the security stage.
+
+Configured CI jobs:
+
+- `container_scan_backend_trivy` builds the backend image and stores `trivy-backend-report.json`.
+- `container_scan_frontend_trivy` builds the frontend image and stores `trivy-frontend-report.json`.
+
+The reports are retained as GitLab CI artifacts. The jobs are non-blocking in this phase and do not claim a production image gate, image certification, image signing, or runtime protection.
+
 ## Local Trivy Commands
 
 Install Trivy separately if needed, then run from the repository root after building the Docker images:
