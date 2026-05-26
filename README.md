@@ -24,6 +24,12 @@ It demonstrates backend-enforced access control, PostgreSQL-backed custody recor
 
 ## Quick Start
 
+## CI/CD
+
+`.gitlab-ci.yml` provides a basic GitLab CI foundation for this PoC. The current Phase 1 pipeline validates backend import and compilation, runs the backend test suite, builds the frontend, and checks the Docker Compose configuration syntax.
+
+Security scanners such as SAST, SCA, DAST, container scanning, and IaC scanning are planned for later phases. This repository does not yet claim mature DevSecOps automation, production security gates, or implemented CI security scanning.
+
 ### A. Docker Compose Recommended
 
 Prerequisite: Docker Desktop or Docker Engine with Compose support.

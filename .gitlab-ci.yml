@@ -1,0 +1,62 @@
+stages:
+  - validate
+  - test
+  - build
+
+variables:
+  PYTHONPATH: "."
+  DEBUG: "false"
+  DATABASE_URL: "sqlite:///:memory:"
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+  NPM_CONFIG_CACHE: "$CI_PROJECT_DIR/.npm"
+
+cache:
+  key: "$CI_COMMIT_REF_SLUG"
+  paths:
+    - .cache/pip/
+    - .npm/
+
+backend_compile_import:
+  stage: validate
+  image: python:3.11-slim
+  script:
+    - python -m pip install --upgrade pip
+    - pip install -r backend/requirements.txt
+    - python -m compileall backend
+    - python -c "import sys; sys.path.insert(0, '.'); from backend.main import app; print('APP_IMPORT_OK')"
+
+docker_compose_config:
+  stage: validate
+  image: docker:27-cli
+  script:
+    - docker compose version
+    - docker compose -f docker-compose.yml config
+
+backend_tests:
+  stage: test
+  image: python:3.11-slim
+  script:
+    - python -m pip install --upgrade pip
+    - pip install -r backend/requirements.txt
+    - pip install pytest httpx
+    - pytest -q --junitxml=pytest-report.xml
+  artifacts:
+    when: always
+    reports:
+      junit: pytest-report.xml
+    paths:
+      - pytest-report.xml
+    expire_in: 1 week
+
+frontend_build:
+  stage: build
+  image: node:20
+  script:
+    - cd frontend
+    - npm ci
+    - npm run build
+  artifacts:
+    when: on_success
+    paths:
+      - frontend/dist/
+    expire_in: 1 week
