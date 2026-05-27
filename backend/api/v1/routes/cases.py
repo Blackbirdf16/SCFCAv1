@@ -18,17 +18,17 @@ handler_usernames = [
     "handler3@scfca.local",
 ]
 asset_symbols = ["BTC", "ETH", "USDT", "USDC", "BNB", "SOL", "XMR", "ADA", "TRX", "AVAX", "LINK"]
-import random
+custody_statuses = ["open", "in_review", "closed"]
 for i in range(50):
     handler = "alice" if i < 10 else handler_usernames[(i - 10) % len(handler_usernames)]
     case_id = f"SCFCA-CASE-2026-{i+1:04d}"
     wallet_ref = f"WLT-{1000+i:04d}"
     title = f"Seized Asset Case {i+1}"
-    custody_status = random.choice(["open", "in_review", "closed"])
+    custody_status = custody_statuses[i % len(custody_statuses)]
     holdings = []
-    for _ in range(random.randint(1, 3)):
-        symbol = random.choice(asset_symbols)
-        balance = round(random.uniform(0.5, 1000), 4)
+    for offset in range((i % 3) + 1):
+        symbol = asset_symbols[(i + offset) % len(asset_symbols)]
+        balance = round(0.5 + ((i + 1) * (offset + 1) * 17.25), 4)
         holdings.append({"symbol": symbol, "balance": balance})
     DEMO_CASES.append({
         "id": case_id,
