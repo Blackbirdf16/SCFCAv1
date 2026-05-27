@@ -1,0 +1,73 @@
+@startuml scfca_poc_architecture
+
+title SCFCA PoC — Implementation Architecture (High Level)
+
+skinparam shadowing false
+skinparam componentStyle rectangle
+
+actor "Investigator / Analyst\n(User)" as user
+
+rectangle "User Environment" as user_env {
+  node "Web Browser" as browser
+}
+
+rectangle "Application (PoC)" as app {
+  [React/Vite Frontend\n(UI)] as fe
+
+  [FastAPI Backend\n(API + RBAC + CSRF)] as be
+
+  database "PostgreSQL\n(users, cases, tickets, documents metadata,\naudit events, hash chain)" as db
+
+  rectangle "Security-sensitive functions" as secfun {
+    [Document metadata + SHA-256 hash handling] as doc_hash
+    [Audit/report export + hash verification] as audit_verify
+  }
+}
+
+rectangle "DevSecOps (GitLab CI/CD)" as ci {
+  [Pipeline stages\n(validate/test/build/security)] as pipeline
+
+  rectangle "Security visibility scanners" as scanners {
+    [SCA\n(pip-audit, npm audit)] as sca
+    [SAST\n(Bandit, Semgrep)] as sast
+    [Secrets\n(Gitleaks)] as secrets
+    [IaC/Config\n(Checkov)] as iac
+    [Container image scan\n(Trivy)] as trivy
+    [DAST\n(OWASP ZAP baseline)] as dast
+  }
+
+  folder "CI artifacts (evidence)\nJSON / HTML / MD reports" as artifacts
+}
+
+browser --> fe : HTTP (5173)
+fe --> be : REST API calls
+be --> db : SQL queries
+
+be --> doc_hash
+be --> audit_verify
+
+doc_hash --> db : store hash metadata
+
+audit_verify --> db : read audit events + hashes
+
+pipeline --> sca
+pipeline --> sast
+pipeline --> secrets
+pipeline --> iac
+pipeline --> trivy
+pipeline --> dast
+
+sca --> artifacts
+sast --> artifacts
+secrets --> artifacts
+iac --> artifacts
+trivy --> artifacts
+dast --> artifacts
+
+note right of artifacts
+Artifacts are produced by CI visibility jobs
+and retained for thesis evidence.
+They are not production certifications.
+end note
+
+@enduml

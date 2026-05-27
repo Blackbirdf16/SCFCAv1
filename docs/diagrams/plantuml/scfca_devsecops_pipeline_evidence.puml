@@ -1,0 +1,78 @@
+@startuml scfca_devsecops_pipeline_evidence
+
+title SCFCA PoC — DevSecOps Pipeline and Evidence Outputs (GitLab CI/CD)
+
+skinparam shadowing false
+skinparam componentStyle rectangle
+
+rectangle "GitLab CI/CD Pipeline" as pipeline {
+
+  rectangle "validate" as stage_validate {
+    [backend_compile_import\n(compileall + app import)] as validate_backend
+    [docker_compose_config\n(compose config)] as validate_compose
+  }
+
+  rectangle "test" as stage_test {
+    [backend_tests\n(pytest + Hypothesis\n(PostgreSQL service))] as test_backend
+  }
+
+  rectangle "build" as stage_build {
+    [frontend_build\n(npm ci + vite build)] as build_frontend
+  }
+
+  rectangle "security (visibility-first)" as stage_security {
+    [SCA\nbackend_dependency_audit (pip-audit)] as sca_backend
+    [SCA\nfrontend_dependency_audit (npm audit)] as sca_frontend
+
+    [SAST\nbackend_sast_bandit (Bandit)] as sast_bandit
+    [SAST\nsemgrep_sast (Semgrep)] as sast_semgrep
+
+    [Secrets\nsecret_scan_gitleaks (Gitleaks)] as secrets_gitleaks
+
+    [Config/IaC\niac_scan_checkov (Checkov)] as iac_checkov
+
+    [Container\ncontainer_scan_backend_trivy (Trivy)] as trivy_backend
+    [Container\ncontainer_scan_frontend_trivy (Trivy)] as trivy_frontend
+
+    [DAST\ndast_zap_baseline (OWASP ZAP baseline)] as dast_zap
+
+    note bottom of stage_security
+    Jobs in the security stage are configured for
+    visibility-first evidence collection and are non-blocking
+    (allow_failure).
+    end note
+  }
+}
+
+folder "CI Artifacts\n(JSON / HTML / MD evidence)" as artifacts
+
+validate_backend --> artifacts
+validate_compose --> artifacts
+test_backend --> artifacts
+build_frontend --> artifacts
+
+sca_backend --> artifacts
+sca_frontend --> artifacts
+sast_bandit --> artifacts
+sast_semgrep --> artifacts
+secrets_gitleaks --> artifacts
+iac_checkov --> artifacts
+trivy_backend --> artifacts
+trivy_frontend --> artifacts
+dast_zap --> artifacts
+
+rectangle "Manual validation + triage" as manual {
+  [Local verification checklist\n(compile/import/tests/build/compose)] as checklist
+  [Evidence folders under docs/evidence/] as evidence_docs
+}
+
+artifacts --> evidence_docs
+checklist --> evidence_docs
+
+note right of manual
+Artifacts and documentation are used as thesis evidence.
+They do not prove production security,
+authenticated security posture, or compliance.
+end note
+
+@enduml

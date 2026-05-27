@@ -1,0 +1,55 @@
+@startuml scfca_docker_compose_container_model
+
+title SCFCA PoC — Docker Compose Container Execution Model
+
+skinparam shadowing false
+skinparam componentStyle rectangle
+
+rectangle "Host" as host {
+  node "Developer / CI Runner Host" as hostnode
+  rectangle "Published ports" as ports {
+    [5432/tcp] as p5432
+    [8000/tcp] as p8000
+    [5173/tcp] as p5173
+  }
+}
+
+rectangle "Docker Compose Runtime" as compose {
+  database "postgres\n(postgres:16-alpine)" as postgres
+  [backend\n(python:3.12-slim + uvicorn)] as backend
+  [frontend\n(node:20-alpine + vite dev)] as frontend
+
+  postgres <-down- backend : DATABASE_URL\npostgres:5432
+  backend <-down- frontend : depends_on\nbackend
+}
+
+p5432 --> postgres : host:5432 -> container:5432
+p8000 --> backend : host:8000 -> container:8000
+p5173 --> frontend : host:5173 -> container:5173
+
+note right of backend
+Hardening (Compose/Dockerfile):
+- runs as non-root user
+- read_only filesystem
+- /tmp as tmpfs
+- cap_drop: ALL
+- security_opt: no-new-privileges
+Healthcheck:
+- HTTP GET /api/v1/health/
+end note
+
+note right of frontend
+Hardening (Compose/Dockerfile):
+- runs as non-root user
+- cap_drop: ALL
+- security_opt: no-new-privileges
+end note
+
+note left of postgres
+Hardening (Compose):
+- security_opt: no-new-privileges
+Healthcheck:
+- pg_isready
+end note
+
+@enduml
