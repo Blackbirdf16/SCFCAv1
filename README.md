@@ -1,8 +1,8 @@
 # SCFCA — Secure Custody Framework for Cryptocurrency Assets
 
-SCFCA is a thesis-oriented proof of concept for institutional custody, management, preservation, and auditing of cryptocurrency assets in criminal investigations.
+SCFCA is a thesis-oriented proof of concept for institutional custody, management, preservation, and auditing of cryptocurrency assets in criminal-investigation and institutional contexts.
 
-It demonstrates backend-enforced access control, PostgreSQL-backed custody records, document metadata integrity, audit evidence, and containerized local execution. It is not production custody software and does not execute live blockchain transactions or manage real private keys.
+It demonstrates a FastAPI backend, a React/Vite frontend, backend-enforced access control, PostgreSQL-backed custody records, document metadata integrity, audit evidence, Docker Compose execution, and automated security evidence in GitLab CI/CD. It is not production custody software and does not execute live blockchain transactions or manage real private keys.
 
 ## Current Implemented Capabilities
 
@@ -17,44 +17,14 @@ It demonstrates backend-enforced access control, PostgreSQL-backed custody recor
 - Audit events include `previous_hash` and `hash_chain` integrity fields.
 - Backend-restricted auditor JSON and HTML audit report export endpoints.
 - Backend-restricted auditor hash verification for known document hashes and audit event hashes.
+- FastAPI backend and React/Vite frontend for the PoC workflow.
 - Docker Compose local runtime with PostgreSQL, backend, and frontend services.
 - Docker hardening for the application containers: non-root users, `no-new-privileges`, dropped Linux capabilities, backend read-only filesystem, and `/tmp` mounted as `tmpfs`.
 - SBOM/SCA evidence files and Dependabot configuration for backend pip and frontend npm dependencies.
-- Trivy scanning guidance is documented, but executed Trivy scan results are not included unless generated locally.
+- GitLab CI/CD validation with backend tests, frontend build verification, Docker Compose configuration validation, security scanners, and retained evidence artifacts.
 
 ## Quick Start
-
-## CI/CD
-
-`.gitlab-ci.yml` provides a basic GitLab CI foundation for this PoC. The pipeline validates backend import and compilation, runs the backend test suite, builds the frontend, checks the Docker Compose configuration syntax, and runs Phase 2 dependency analysis jobs.
-
-### SCA / Dependency Analysis
-
-GitLab CI Phase 2 adds Software Composition Analysis visibility for declared backend and frontend dependencies. Backend dependencies are checked with `pip-audit`, frontend dependencies are checked with `npm audit`, and both JSON reports are retained as CI artifacts.
-
-These SCA jobs are allowed to fail in this phase to provide vulnerability visibility without blocking development. Dependabot provides complementary dependency update monitoring on GitHub. SCA supports DevSecOps by identifying inherited vulnerabilities in external components early in the development lifecycle, but this is not full supply-chain assurance.
-
-### SAST and Secret Scanning
-
-GitLab CI/CD includes Bandit for Python SAST, Semgrep for broader static analysis, and Gitleaks for accidental secret detection. Reports are retained as CI artifacts, and the jobs are non-blocking in this phase.
-
-These controls support shift-left security by detecting weaknesses early in the development lifecycle. Strict blocking gates are future work.
-
-### Container Image Scanning
-
-GitLab CI/CD Phase 4 adds Trivy image scanning jobs for the backend and frontend Docker images. The jobs build the images in CI, scan them with Trivy, and retain JSON reports as CI artifacts.
-
-These jobs are `allow_failure` visibility checks in this phase. They support container supply-chain visibility, but they are not production certification, image signing, runtime monitoring, or a blocking release gate.
-
-### IaC / Configuration Scanning
-
-GitLab CI/CD Phase 5 adds Checkov-based scanning for Docker and CI configuration. The report is retained as a CI artifact, and findings are visibility-first and non-blocking in this phase.
-
-This supports DevSecOps configuration security by checking infrastructure and pipeline definitions early. Strict policy gates are future work.
-
-Security scanners such as DAST are planned for later phases. This repository does not yet claim mature DevSecOps automation, production security gates, compliance certification, or broader CI security scanning.
-
-### A. Docker Compose Recommended
+### Docker Compose Recommended
 
 Prerequisite: Docker Desktop or Docker Engine with Compose support.
 
@@ -82,7 +52,7 @@ Stop the local runtime:
 docker compose down
 ```
 
-### B. Local Execution
+### Local Execution
 
 Prerequisites:
 
@@ -128,6 +98,41 @@ Optional local checks:
 npm --prefix frontend run typecheck
 pytest
 ```
+
+## Validation and Testing
+
+The GitLab CI/CD pipeline validates the PoC with:
+
+- backend import and compilation checks,
+- PostgreSQL-backed backend tests with `pytest`,
+- Hypothesis property-based security input tests for malformed backend inputs,
+- frontend production build verification with `npm run build`,
+- Docker Compose configuration validation.
+
+These checks support repeatable PoC validation, but they do not prove the system is production-ready or vulnerability-free.
+
+## DevSecOps Security Pipeline
+
+The GitLab CI/CD security stage currently provides non-blocking, visibility-first automated security evidence:
+
+- SCA / dependency analysis: `pip-audit` for backend Python dependencies and `npm audit` for frontend dependencies.
+- SAST: Bandit for Python backend checks and Semgrep for broader static analysis.
+- Secret scanning: Gitleaks.
+- Container image scanning: Trivy scans for backend and frontend Docker images.
+- IaC / configuration scanning: Checkov for Docker, Compose, and GitLab CI configuration.
+- DAST: OWASP ZAP baseline scan against the running PoC stack.
+
+Security findings are not hidden or reclassified by the pipeline. Findings require human triage and, where appropriate, remediation. The jobs are intentionally non-blocking at this stage so the thesis evidence can show scanner output without claiming a production release gate.
+
+## Evidence Artifacts
+
+GitLab CI retains security evidence artifacts for review:
+
+- JSON artifacts are machine-readable evidence for traceability and future automation.
+- HTML artifacts are human-readable evidence for thesis/professor review, screenshots, and manual interpretation.
+- The OWASP ZAP baseline job also emits a Markdown report.
+
+Real GitLab pipeline artifacts and screenshots can be used as PoC validation evidence. These artifacts demonstrate automated security testing coverage for the thesis; they are not production certification and do not prove the absence of vulnerabilities.
 
 ## Demo Accounts
 
@@ -214,21 +219,28 @@ Implemented controls in the current repository:
 
 Relevant files:
 
+- `.gitlab-ci.yml`
 - `docs/sbom.md`
 - `docs/evidence/sbom/`
+- `docs/evidence/security-testing/README.md`
+- `docs/evidence/security-reports/README.md`
 - `docs/evidence/container-security/README.md`
+- `docs/evidence/iac-security/README.md`
+- `docs/evidence/dast/README.md`
 - `scripts/container_scan.md`
+- `scripts/security_reports_to_html.py`
 - `.github/dependabot.yml`
 
 Current scope:
 
-- Trivy commands are documented for optional local execution.
-- Trivy result files are not included unless generated locally.
-- SBOM and SCA evidence files are present under `docs/evidence/sbom/`.
+- GitLab CI runs validation, tests, builds, security scanners, and DAST evidence jobs for the PoC.
+- Security jobs produce JSON artifacts for machine-readable evidence and HTML artifacts for human-readable review where supported by the reporting converter.
+- OWASP ZAP produces JSON, HTML, and Markdown DAST artifacts directly.
+- SBOM and SCA evidence files are present under `docs/evidence/sbom/` for repository-level transparency.
 - Dependabot is configured for backend pip and frontend npm dependencies.
 - No GitHub Actions workflow directory is present in this repository.
-- No CI/CD security gate enforcement is currently configured.
-- No production container certification is claimed.
+- CI security jobs are visibility-first and non-blocking; findings require triage and remediation.
+- No production container certification, compliance certification, or vulnerability-free claim is made.
 
 ## Suggested Thesis Defense Walkthrough
 
@@ -307,8 +319,10 @@ Current top-level repository structure:
 ├── infra/
 ├── scripts/
 │   ├── container_scan.md
+│   ├── security_reports_to_html.py
 │   └── seed_demo_data.py
 ├── tests/
+│   ├── test_fuzz_security_inputs.py
 │   ├── test_models.py
 │   ├── test_security_hardening.py
 │   └── test_workflows.py
@@ -325,8 +339,11 @@ Current top-level repository structure:
 - No live blockchain execution.
 - No HSM, MPC, wallet signing, or private-key custody integration.
 - No production secret manager integration.
-- No CI security gates are currently configured.
-- Trivy scanning commands are documented, but scans are not executed by the repository unless run locally.
+- CI security jobs are non-blocking visibility checks, not production release gates.
+- Security findings require triage and remediation; scanner output is not a claim that all findings are fixed.
+- The OWASP ZAP baseline scan is unauthenticated and does not replace deeper authenticated DAST or manual assessment.
+- Automated scanners do not prove complete security or compliance.
+- Manual validation evidence still needs to be documented separately.
 - No image signing or signed provenance.
 - No Kubernetes deployment policy or runtime monitoring.
 - Seeded documents are metadata-backed; original binary content for seeded records is not persisted.
