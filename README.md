@@ -225,6 +225,7 @@ Relevant files:
 - `docs/evidence/security-testing/README.md`
 - `docs/evidence/security-reports/README.md`
 - `docs/evidence/manual-validation/README.md`
+- `docs/evidence/security-triage/README.md`
 - `docs/evidence/container-security/README.md`
 - `docs/evidence/iac-security/README.md`
 - `docs/evidence/dast/README.md`
