@@ -82,11 +82,18 @@ backend_dependency_audit:
   script:
     - python -m pip install --upgrade pip
     - pip install pip-audit
-    - pip-audit -r backend/requirements.txt -f json -o pip-audit-report.json
+    - |
+      set +e
+      pip-audit -r backend/requirements.txt -f json -o pip-audit-report.json
+      scan_exit=$?
+      set -e
+      python3 scripts/security_reports_to_html.py --input pip-audit-report.json --output pip-audit-report.html --title "Backend pip-audit SCA Report" --tool pip-audit
+      exit $scan_exit
   artifacts:
     when: always
     paths:
       - pip-audit-report.json
+      - pip-audit-report.html
     expire_in: 1 week
 
 frontend_dependency_audit:
@@ -94,13 +101,23 @@ frontend_dependency_audit:
   image: node:20
   allow_failure: true
   script:
+    - apt-get update
+    - apt-get install -y --no-install-recommends python3
     - cd frontend
     - npm ci
-    - npm audit --json > npm-audit-frontend.json
+    - |
+      set +e
+      npm audit --json > npm-audit-frontend.json
+      scan_exit=$?
+      set -e
+      cd ..
+      python3 scripts/security_reports_to_html.py --input frontend/npm-audit-frontend.json --output frontend/npm-audit-frontend.html --title "Frontend npm audit SCA Report" --tool npm-audit
+      exit $scan_exit
   artifacts:
     when: always
     paths:
       - frontend/npm-audit-frontend.json
+      - frontend/npm-audit-frontend.html
     expire_in: 1 week
 
 backend_sast_bandit:
@@ -110,11 +127,18 @@ backend_sast_bandit:
   script:
     - python -m pip install --upgrade pip
     - pip install bandit
-    - bandit -r backend -f json -o bandit-backend-report.json
+    - |
+      set +e
+      bandit -r backend -f json -o bandit-backend-report.json
+      scan_exit=$?
+      set -e
+      python3 scripts/security_reports_to_html.py --input bandit-backend-report.json --output bandit-backend-report.html --title "Backend Bandit SAST Report" --tool bandit
+      exit $scan_exit
   artifacts:
     when: always
     paths:
       - bandit-backend-report.json
+      - bandit-backend-report.html
     expire_in: 1 week
 
 semgrep_sast:
@@ -122,11 +146,18 @@ semgrep_sast:
   image: semgrep/semgrep:latest
   allow_failure: true
   script:
-    - semgrep scan --config p/default --json --output semgrep-report.json .
+    - |
+      set +e
+      semgrep scan --config p/default --json --output semgrep-report.json .
+      scan_exit=$?
+      set -e
+      python3 scripts/security_reports_to_html.py --input semgrep-report.json --output semgrep-report.html --title "Semgrep SAST Report" --tool semgrep
+      exit $scan_exit
   artifacts:
     when: always
     paths:
       - semgrep-report.json
+      - semgrep-report.html
     expire_in: 1 week
 
 secret_scan_gitleaks:
@@ -136,11 +167,19 @@ secret_scan_gitleaks:
     entrypoint: [""]
   allow_failure: true
   script:
-    - gitleaks detect --source . --report-format json --report-path gitleaks-report.json --no-git
+    - apk add --no-cache python3
+    - |
+      set +e
+      gitleaks detect --source . --report-format json --report-path gitleaks-report.json --no-git
+      scan_exit=$?
+      set -e
+      python3 scripts/security_reports_to_html.py --input gitleaks-report.json --output gitleaks-report.html --title "Gitleaks Secret Scan Report" --tool gitleaks
+      exit $scan_exit
   artifacts:
     when: always
     paths:
       - gitleaks-report.json
+      - gitleaks-report.html
     expire_in: 1 week
 
 container_scan_backend_trivy:
@@ -153,18 +192,25 @@ container_scan_backend_trivy:
     DOCKER_TLS_CERTDIR: ""
   allow_failure: true
   script:
-    - apk add --no-cache curl tar gzip ca-certificates
+    - apk add --no-cache curl tar gzip ca-certificates python3
     - TRIVY_VERSION="0.70.0"
     - curl -sfL "https://github.com/aquasecurity/trivy/releases/download/v${TRIVY_VERSION}/trivy_${TRIVY_VERSION}_Linux-64bit.tar.gz" -o trivy.tar.gz
     - tar -xzf trivy.tar.gz trivy
     - mv trivy /usr/local/bin/trivy
     - trivy --version
     - docker build -t scfca-backend-ci:latest -f backend/Dockerfile .
-    - trivy image --scanners vuln --format json --output trivy-backend-report.json scfca-backend-ci:latest
+    - |
+      set +e
+      trivy image --scanners vuln --format json --output trivy-backend-report.json scfca-backend-ci:latest
+      scan_exit=$?
+      set -e
+      python3 scripts/security_reports_to_html.py --input trivy-backend-report.json --output trivy-backend-report.html --title "Backend Trivy Container Scan Report" --tool trivy
+      exit $scan_exit
   artifacts:
     when: always
     paths:
       - trivy-backend-report.json
+      - trivy-backend-report.html
     expire_in: 1 week
 
 container_scan_frontend_trivy:
@@ -177,18 +223,25 @@ container_scan_frontend_trivy:
     DOCKER_TLS_CERTDIR: ""
   allow_failure: true
   script:
-    - apk add --no-cache curl tar gzip ca-certificates
+    - apk add --no-cache curl tar gzip ca-certificates python3
     - TRIVY_VERSION="0.70.0"
     - curl -sfL "https://github.com/aquasecurity/trivy/releases/download/v${TRIVY_VERSION}/trivy_${TRIVY_VERSION}_Linux-64bit.tar.gz" -o trivy.tar.gz
     - tar -xzf trivy.tar.gz trivy
     - mv trivy /usr/local/bin/trivy
     - trivy --version
     - docker build -t scfca-frontend-ci:latest -f frontend/Dockerfile frontend
-    - trivy image --scanners vuln --format json --output trivy-frontend-report.json scfca-frontend-ci:latest
+    - |
+      set +e
+      trivy image --scanners vuln --format json --output trivy-frontend-report.json scfca-frontend-ci:latest
+      scan_exit=$?
+      set -e
+      python3 scripts/security_reports_to_html.py --input trivy-frontend-report.json --output trivy-frontend-report.html --title "Frontend Trivy Container Scan Report" --tool trivy
+      exit $scan_exit
   artifacts:
     when: always
     paths:
       - trivy-frontend-report.json
+      - trivy-frontend-report.html
     expire_in: 1 week
 
 iac_scan_checkov:
@@ -198,11 +251,18 @@ iac_scan_checkov:
     entrypoint: [""]
   allow_failure: true
   script:
-    - checkov -d . --framework dockerfile yaml gitlab_ci --output json --output-file-path checkov-report.json
+    - |
+      set +e
+      checkov -d . --framework dockerfile yaml gitlab_ci --output json --output-file-path checkov-report.json
+      scan_exit=$?
+      set -e
+      python3 scripts/security_reports_to_html.py --input checkov-report.json --output checkov-report.html --title "Checkov IaC Security Report" --tool checkov
+      exit $scan_exit
   artifacts:
     when: always
     paths:
       - checkov-report.json
+      - checkov-report.html
     expire_in: 1 week
 
 dast_zap_baseline:
