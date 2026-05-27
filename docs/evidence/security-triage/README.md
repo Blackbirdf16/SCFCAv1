@@ -42,7 +42,7 @@ Latest GitLab artifacts should be treated as the source of truth. Only older loc
 | Gitleaks | No findings observed in current evidence. | None observed | `gitleaks-report.html`, `gitleaks-report.json` | No current action | Keep Gitleaks in CI and continue reviewing artifacts. | Not required |
 | Checkov | Latest report must be confirmed after output and parser fixes. | Requires artifact review | `checkov-report.html`, `checkov-report.json` | Configuration scan evidence / Requires manual review | Keep Checkov in CI; review failed checks if any appear in the latest artifact. | Not started |
 | Bandit | B311 standard pseudo-random generator use in `backend/api/v1/routes/cases.py`. | Low to medium, context-dependent | `bandit-backend-report.html`, `bandit-backend-report.json` | Requires manual review | Determine whether randomness is demo-only or security-sensitive before changing. | Not started |
-| OWASP ZAP | Missing browser security headers such as CSP, anti-clickjacking, `X-Content-Type-Options`, `Permissions-Policy`, COOP, COEP, and CORP. | Low to medium, header-dependent | `zap-baseline-report.html`, `zap-baseline-report.json`, `zap-baseline-report.md` | Configuration hardening issue | Add simple safe headers first; design CSP carefully to avoid breaking the frontend. | Not started |
+| OWASP ZAP | Missing browser security headers such as CSP, anti-clickjacking, `X-Content-Type-Options`, `Permissions-Policy`, COOP, COEP, and CORP. | Low to medium, header-dependent | `zap-baseline-report.html`, `zap-baseline-report.json`, `zap-baseline-report.md` | Configuration hardening issue | Add simple safe headers first; design CSP carefully to avoid breaking the frontend. | Partially remediated |
 | npm audit | Frontend dependency vulnerabilities observed in local npm audit evidence. | Moderate and high in local evidence | `frontend/npm-audit-frontend.html`, `frontend/npm-audit-frontend.json` | Dependency vulnerability | Inspect latest npm audit details; prefer non-breaking updates; run frontend build after changes. | Not started |
 | Trivy backend | Backend container image vulnerabilities require latest artifact review. | Requires artifact review | `trivy-backend-report.html`, `trivy-backend-report.json` | Container/base-image vulnerability / Dependency vulnerability | Distinguish OS package findings from Python dependency findings before updating. | Not started |
 | Trivy frontend | Frontend container image and dependency vulnerabilities require latest artifact review. | Requires artifact review | `trivy-frontend-report.html`, `trivy-frontend-report.json` | Container/base-image vulnerability / Dependency vulnerability | Separate base image findings from `node_modules` findings; coordinate with npm remediation. | Not started |
@@ -82,6 +82,14 @@ Proposed action:
 - Add `Permissions-Policy`, COOP, COEP, and CORP only after checking frontend/API behavior.
 - Treat CSP as a separate careful change because an overly strict policy can break Vite or frontend runtime behavior.
 - Do not remediate until the specific header set is approved.
+
+Phase 11C remediation note:
+
+- Backend FastAPI responses now add `X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`, `Permissions-Policy`, `Cross-Origin-Opener-Policy`, and `Cross-Origin-Resource-Policy`.
+- Frontend Vite development and preview responses now add the same low-risk baseline headers because the current DAST target is the frontend service on port `5173`.
+- `Content-Security-Policy` is deferred because a strict CSP needs separate testing against Vite development behavior, frontend runtime assets, and API calls.
+- `Cross-Origin-Embedder-Policy` is deferred because it can break cross-origin integrations unless every required resource is compatible.
+- Latest ZAP artifacts should be reviewed after the next GitLab pipeline run to confirm which header findings remain.
 
 ### npm Audit Frontend Vulnerabilities
 
