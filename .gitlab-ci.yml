@@ -204,3 +204,52 @@ iac_scan_checkov:
     paths:
       - checkov-report.json
     expire_in: 1 week
+
+dast_zap_baseline:
+  stage: security
+  image: docker:27
+  services:
+    - docker:27-dind
+  variables:
+    DOCKER_HOST: "tcp://docker:2375"
+    DOCKER_TLS_CERTDIR: ""
+    COMPOSE_PROJECT_NAME: "ci"
+  allow_failure: true
+  script:
+    - apk add --no-cache curl
+    - docker compose version
+    - docker compose up -d --build
+    - |
+      echo "Waiting for backend health endpoint..."
+      i=0
+      until docker run --rm --network "${COMPOSE_PROJECT_NAME}_default" curlimages/curl:8.7.1 -sf http://backend:8000/api/v1/health/ > /dev/null; do
+        i=$((i+1))
+        if [ "$i" -ge 60 ]; then
+          echo "Backend did not become healthy in time"
+          docker compose ps
+          exit 1
+        fi
+        sleep 2
+      done
+    - |
+      echo "Waiting for frontend..."
+      i=0
+      until docker run --rm --network "${COMPOSE_PROJECT_NAME}_default" curlimages/curl:8.7.1 -sf http://frontend:5173/ > /dev/null; do
+        i=$((i+1))
+        if [ "$i" -ge 60 ]; then
+          echo "Frontend did not become reachable in time"
+          docker compose ps
+          exit 1
+        fi
+        sleep 2
+      done
+    - docker run --rm --network "${COMPOSE_PROJECT_NAME}_default" -v "$PWD:/zap/wrk/:rw" -w /zap/wrk ghcr.io/zaproxy/zaproxy:stable zap-baseline.py -t http://frontend:5173 -J zap-baseline-report.json -r zap-baseline-report.html -w zap-baseline-report.md -I
+  artifacts:
+    when: always
+    paths:
+      - zap-baseline-report.json
+      - zap-baseline-report.html
+      - zap-baseline-report.md
+    expire_in: 1 week
+  after_script:
+    - docker compose down -v || true
