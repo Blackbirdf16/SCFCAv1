@@ -214,6 +214,7 @@ dast_zap_baseline:
     DOCKER_HOST: "tcp://docker:2375"
     DOCKER_TLS_CERTDIR: ""
     COMPOSE_PROJECT_NAME: "ci"
+    DAST_TARGET_URL: "http://localhost:5173"
   allow_failure: true
   script:
     - apk add --no-cache curl
@@ -234,16 +235,18 @@ dast_zap_baseline:
     - |
       echo "Waiting for frontend..."
       i=0
-      until docker run --rm --network "${COMPOSE_PROJECT_NAME}_default" curlimages/curl:8.7.1 -sf http://frontend:5173/ > /dev/null; do
+      until docker run --rm --network host curlimages/curl:8.7.1 -sf "${DAST_TARGET_URL}/" > /dev/null; do
         i=$((i+1))
         if [ "$i" -ge 60 ]; then
           echo "Frontend did not become reachable in time"
           docker compose ps
+          docker compose logs frontend --tail=80
+          docker compose logs backend --tail=80
           exit 1
         fi
         sleep 2
       done
-    - docker run --rm --network "${COMPOSE_PROJECT_NAME}_default" -v "$PWD:/zap/wrk/:rw" -w /zap/wrk ghcr.io/zaproxy/zaproxy:stable zap-baseline.py -t http://frontend:5173 -J zap-baseline-report.json -r zap-baseline-report.html -w zap-baseline-report.md -I
+    - docker run --rm --network host -v "$PWD:/zap/wrk/:rw" -w /zap/wrk ghcr.io/zaproxy/zaproxy:stable zap-baseline.py -t "${DAST_TARGET_URL}" -J zap-baseline-report.json -r zap-baseline-report.html -w zap-baseline-report.md -I
   artifacts:
     when: always
     paths:
