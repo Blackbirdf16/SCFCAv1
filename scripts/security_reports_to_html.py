@@ -137,16 +137,29 @@ def _gitleaks(data: Any) -> tuple[list[tuple[str, Any]], list[str], list[list[An
 
 
 def _checkov(data: Any) -> tuple[list[tuple[str, Any]], list[str], list[list[Any]]]:
-    results = data.get("results", {}) if isinstance(data, dict) else {}
-    failed = results.get("failed_checks", []) if isinstance(results, dict) else []
-    passed = results.get("passed_checks", []) if isinstance(results, dict) else []
-    skipped = results.get("skipped_checks", []) if isinstance(results, dict) else []
-    summary_data = data.get("summary", {}) if isinstance(data, dict) else {}
+    entries = data if isinstance(data, list) else [data] if isinstance(data, dict) else []
+    failed: list[dict[str, Any]] = []
+    passed: list[dict[str, Any]] = []
+    skipped: list[dict[str, Any]] = []
+    summary_data: dict[str, Any] = {}
+
+    for entry in entries:
+        if not isinstance(entry, dict):
+            continue
+        results = entry.get("results", {})
+        if not isinstance(results, dict):
+            continue
+        failed.extend(results.get("failed_checks", []) or [])
+        passed.extend(results.get("passed_checks", []) or [])
+        skipped.extend(results.get("skipped_checks", []) or [])
+        if isinstance(entry.get("summary"), dict):
+            summary_data.update(entry["summary"])
+
     rows = [
         [
             item.get("check_id"),
             item.get("check_name"),
-            item.get("file_path"),
+            item.get("file_path") or item.get("repo_file_path"),
             item.get("file_line_range"),
             item.get("resource"),
             item.get("guideline"),
@@ -218,9 +231,9 @@ def _render_summary(summary: list[tuple[str, Any]]) -> str:
     return "\n".join(cards)
 
 
-def _render_table(columns: list[str], rows: list[list[Any]]) -> str:
+def _render_table(columns: list[str], rows: list[list[Any]], empty_message: str = "No findings were present in the parsed report section.") -> str:
     if not rows:
-        return "<p class=\"empty\">No findings were present in the parsed report section.</p>"
+        return f"<p class=\"empty\">{html.escape(empty_message)}</p>"
     header = "".join(f"<th>{html.escape(column)}</th>" for column in columns)
     body_rows = []
     for row in rows[:MAX_ROWS]:
@@ -274,7 +287,7 @@ def render_html(title: str, tool: str, source: Path, data: Any | None, error: st
         content = (
             f"<section class=\"summary\">{_render_summary(summary)}</section>"
             "<h2>Parsed Findings</h2>"
-            f"{_render_table(columns, rows)}"
+            f"{_render_table(columns, rows, 'No failed Checkov checks were present in the parsed report.' if tool == 'checkov' else 'No findings were present in the parsed report section.')}"
         )
         if handler is _generic:
             content += f"<h2>Pretty JSON</h2><pre>{html.escape(json.dumps(data, indent=2, ensure_ascii=False, sort_keys=True))}</pre>"
