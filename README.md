@@ -38,8 +38,8 @@ URLs:
 
 - Frontend: http://127.0.0.1:5173
 - Backend API: http://127.0.0.1:8000
-- Swagger/API docs: http://127.0.0.1:8000/docs
-- Health endpoint: http://127.0.0.1:8000/api/v1/health/
+ - Swagger/API docs: http://127.0.0.1:8000/docs
+ - Health endpoint: http://127.0.0.1:8000/api/v1/health/
 
 Important: Use `127.0.0.1` consistently for both frontend and backend during local Docker Compose demos. Do not mix `localhost` and `127.0.0.1`, because browser cookies are host-specific and CSRF/session cookies may not be visible across different hostnames.
 
