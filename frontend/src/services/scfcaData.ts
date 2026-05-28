@@ -15,6 +15,19 @@ export async function listCases(): Promise<CaseItem[]> {
   return response.data?.cases ?? [];
 }
 
+export async function createCase(payload: {
+  walletRef: string;
+  title?: string;
+  assignedHandler?: string;
+  caseId?: string;
+}): Promise<CaseItem> {
+  const csrf = getCsrfToken();
+  const response = await http.post("/api/v1/cases/", payload, {
+    headers: csrf ? { "x-csrf-token": csrf } : undefined
+  });
+  return response.data?.case;
+}
+
 export async function listTickets(): Promise<Ticket[]> {
   const response = await http.get("/api/v1/tickets/");
   return response.data?.tickets ?? [];

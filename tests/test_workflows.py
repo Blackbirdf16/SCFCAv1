@@ -1,5 +1,7 @@
 """Basic tests for active SCFCA PoC workflows."""
 
+from uuid import uuid4
+
 from fastapi.testclient import TestClient
 
 from backend.main import app
@@ -210,3 +212,88 @@ def test_admin_must_assign_case_creation_request_to_one_of_allowed_handlers():
         },
     )
     assert response.status_code == 400
+
+
+def test_admin_can_create_case_and_case_is_visible_to_admin_and_assignee():
+    cookies, headers = login("bob", "bob123", "administrator")
+
+    case_id = f"SCFCA-CASE-TEST-{uuid4().hex[:10].upper()}"
+    wallet_ref = f"WLT-TEST-{uuid4().hex[:10].upper()}"
+
+    create = client.post(
+        "/api/v1/cases/",
+        cookies=cookies,
+        headers=headers,
+        json={
+            "caseId": case_id,
+            "walletRef": wallet_ref,
+            "title": "Workflow created custody case",
+            "assignedHandler": "alice",
+        },
+    )
+    assert create.status_code == 201
+    created = create.json()["case"]
+    assert created["id"] == case_id
+    assert created["walletRef"] == wallet_ref
+
+    cases_admin = client.get("/api/v1/cases/", cookies=cookies)
+    assert cases_admin.status_code == 200
+    assert any(item.get("id") == case_id for item in cases_admin.json().get("cases", []))
+
+    alice_cookies, _alice_headers = login("alice", "alice123", "regular")
+    cases_alice = client.get("/api/v1/cases/", cookies=alice_cookies)
+    assert cases_alice.status_code == 200
+    assert any(item.get("id") == case_id for item in cases_alice.json().get("cases", []))
+
+    audit = client.get("/api/v1/audit/", cookies=cookies)
+    assert audit.status_code == 200
+    assert any(
+        e.get("action") == "case_created" and (e.get("entityId") == case_id or e.get("entity_id") == case_id)
+        for e in audit.json().get("events", [])
+    )
+
+
+def test_regular_user_cannot_create_case():
+    cookies, headers = login("alice", "alice123", "regular")
+    response = client.post(
+        "/api/v1/cases/",
+        cookies=cookies,
+        headers=headers,
+        json={"walletRef": f"WLT-TEST-{uuid4().hex[:8].upper()}", "title": "Should fail"},
+    )
+    assert response.status_code == 403
+
+
+def test_auditor_cannot_create_case():
+    cookies, headers = login("carol", "carol123", "auditor")
+    response = client.post(
+        "/api/v1/cases/",
+        cookies=cookies,
+        headers=headers,
+        json={"walletRef": f"WLT-TEST-{uuid4().hex[:8].upper()}", "title": "Should fail"},
+    )
+    assert response.status_code == 403
+
+
+def test_admin_cannot_create_duplicate_case_id():
+    cookies, headers = login("bob", "bob123", "administrator")
+
+    case_id = f"SCFCA-CASE-TEST-{uuid4().hex[:10].upper()}"
+    wallet_ref_1 = f"WLT-TEST-{uuid4().hex[:10].upper()}"
+    wallet_ref_2 = f"WLT-TEST-{uuid4().hex[:10].upper()}"
+
+    first = client.post(
+        "/api/v1/cases/",
+        cookies=cookies,
+        headers=headers,
+        json={"caseId": case_id, "walletRef": wallet_ref_1, "assignedHandler": "alice"},
+    )
+    assert first.status_code == 201
+
+    second = client.post(
+        "/api/v1/cases/",
+        cookies=cookies,
+        headers=headers,
+        json={"caseId": case_id, "walletRef": wallet_ref_2, "assignedHandler": "alice"},
+    )
+    assert second.status_code == 409
