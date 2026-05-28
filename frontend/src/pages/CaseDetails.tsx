@@ -20,6 +20,8 @@ export default function CaseDetails() {
   const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
+    if (!user || user.role === "auditor") return;
+
     let mounted = true;
     Promise.all([listCases(), listDocuments(), listTickets()])
       .then(([caseItems, documentItems, ticketItems]) => {
@@ -36,7 +38,7 @@ export default function CaseDetails() {
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [user?.role]);
 
   const visibleCases = cases;
 
@@ -131,6 +133,14 @@ export default function CaseDetails() {
       setUploading(false);
     }
   };
+
+  if (user?.role === "auditor") {
+    return (
+      <div className="panel p-5 text-sm text-slate-300">
+        Operational case details are not available to auditors. Use Audit Events for case references, ticket references, action status, and timestamps.
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

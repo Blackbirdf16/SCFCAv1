@@ -20,6 +20,8 @@ export default function Documents() {
   const { user } = useAuth();
 
   useEffect(() => {
+    if (!user || user.role === "auditor") return;
+
     let mounted = true;
     Promise.all([listDocuments(), listCases()])
       .then(([documentItems, caseItems]) => {
@@ -34,7 +36,7 @@ export default function Documents() {
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [user?.role]);
 
   const assignedCaseIds = useMemo(() => {
     if (!user) return new Set<string>();
@@ -118,6 +120,14 @@ export default function Documents() {
     const exists = documents.some((item) => item.hash === hash);
     setVerificationResult(exists ? "Integrity verified: matching hash found." : "No matching hash found.");
   };
+
+  if (user?.role === "auditor") {
+    return (
+      <div className="panel p-5 text-sm text-slate-300">
+        Operational document records and downloads are not available to auditors. Use Audit Events and hash verification in the audit view for evidence review.
+      </div>
+    );
+  }
 
   return (
     <div className="grid gap-6 lg:grid-cols-3">

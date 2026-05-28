@@ -9,7 +9,7 @@ export function isReadOnlyRole(role: Role): boolean {
 }
 
 export function canCreateTickets(role: Role): boolean {
-  return role === "regular" || role === "administrator";
+  return role === "regular";
 }
 
 export function canUploadDocuments(role: Role): boolean {
@@ -17,5 +17,5 @@ export function canUploadDocuments(role: Role): boolean {
 }
 
 export function canViewAudit(role: Role): boolean {
-  return role === "administrator" || role === "auditor";
+  return role === "auditor";
 }

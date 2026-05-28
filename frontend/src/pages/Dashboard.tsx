@@ -18,16 +18,22 @@ export default function Dashboard() {
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const { user } = useAuth();
   const navigate = useNavigate();
+  const canShowAuditActivity = user?.role === "auditor";
+  const canShowOperational = Boolean(user && user.role !== "auditor");
 
   useEffect(() => {
+    if (!user) return;
     const load = async () => {
-      const data = await dashboardService.getDashboardData();
+      const data = await dashboardService.getDashboardData({
+        includeAudit: user.role === "auditor",
+        includeOperational: user.role !== "auditor"
+      });
       setSummary(data.summary);
       setAuditEvents(data.audit);
       setTickets(data.tickets);
     };
     void load();
-  }, []);
+  }, [user]);
 
   const username = user?.username ?? "demo";
   const initials = username
@@ -95,7 +101,7 @@ export default function Dashboard() {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
-        <section className="panel p-5 xl:col-span-5">
+        <section className={`panel p-5 ${canShowOperational ? "xl:col-span-5" : "xl:col-span-12"}`}>
           <div className="flex items-center gap-4">
             <div className="h-12 w-12 rounded-full bg-slate-700/70 border border-slate-600/40 flex items-center justify-center text-slate-100 font-semibold">
               {initials || "U"}
@@ -113,31 +119,44 @@ export default function Dashboard() {
 
           {metricsSection}
 
-          <div className="mt-5 flex flex-wrap gap-2">
-            <button
-              type="button"
-              className="accent-button px-3 py-2 text-sm"
-              onClick={() => navigate("/assets")}
-            >
-              Register Asset
-            </button>
-            <button
-              type="button"
-              className="px-3 py-2 text-sm rounded-md border border-slate-600/60 bg-slate-700/30 hover:bg-slate-700/50 transition"
-              onClick={() => navigate("/tickets")}
-            >
-              Create Ticket
-            </button>
-            <button
-              type="button"
-              className="px-3 py-2 text-sm rounded-md border border-slate-600/60 bg-slate-700/30 hover:bg-slate-700/50 transition"
-              onClick={() => navigate("/cases")}
-            >
-              View Cases
-            </button>
-          </div>
+          {canShowOperational ? (
+            <div className="mt-5 flex flex-wrap gap-2">
+              <button
+                type="button"
+                className="accent-button px-3 py-2 text-sm"
+                onClick={() => navigate("/assets")}
+              >
+                View Assets
+              </button>
+              <button
+                type="button"
+                className="px-3 py-2 text-sm rounded-md border border-slate-600/60 bg-slate-700/30 hover:bg-slate-700/50 transition"
+                onClick={() => navigate(user?.role === "regular" ? "/tickets/create" : "/tickets/open")}
+              >
+                {user?.role === "regular" ? "Create Ticket" : "Review Tickets"}
+              </button>
+              <button
+                type="button"
+                className="px-3 py-2 text-sm rounded-md border border-slate-600/60 bg-slate-700/30 hover:bg-slate-700/50 transition"
+                onClick={() => navigate("/cases")}
+              >
+                View Cases
+              </button>
+            </div>
+          ) : (
+            <div className="mt-5">
+              <button
+                type="button"
+                className="accent-button px-3 py-2 text-sm"
+                onClick={() => navigate("/audit")}
+              >
+                Open Audit Events
+              </button>
+            </div>
+          )}
         </section>
 
+        {canShowOperational ? (
         <section className="xl:col-span-7">
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
             <KpiCard title="Total Cases" value={summary.totalCases} />
@@ -146,8 +165,10 @@ export default function Dashboard() {
             <KpiCard title="Approved Tickets" value={summary.approvedTickets} />
           </div>
         </section>
+        ) : null}
       </div>
 
+      {canShowOperational ? (
       <section>
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-base font-semibold text-slate-100">Get Started</h3>
@@ -215,16 +236,16 @@ export default function Dashboard() {
           </div>
         </div>
       </section>
+      ) : null}
 
+      {canShowOperational ? (
       <section className="panel p-5">
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
           <div>
-            <div className="text-sm text-slate-300">Estimated Balance</div>
-            <div className="mt-2 text-4xl font-bold text-slate-100">
-              0.00 <span className="text-base font-semibold text-slate-400">BTC</span>
-            </div>
+            <div className="text-sm text-slate-300">Holdings Metadata</div>
+            <div className="mt-2 text-4xl font-bold text-slate-100">{summary.registeredAssets}</div>
             <div className="mt-2 text-xs text-slate-400">
-              Registry assets: <span className="text-slate-200 font-semibold">{summary.registeredAssets}</span>
+              Asset records are case metadata only. Custody changes are requested through tickets.
             </div>
           </div>
 
@@ -234,48 +255,52 @@ export default function Dashboard() {
               className="accent-button px-3 py-2 text-sm"
               onClick={() => navigate("/assets")}
             >
-              Deposit
+              View Holdings
             </button>
             <button
               type="button"
               className="px-3 py-2 text-sm rounded-md border border-slate-600/60 bg-slate-700/30 hover:bg-slate-700/50 transition"
-              onClick={() => navigate("/tickets")}
+              onClick={() => navigate(user?.role === "regular" ? "/tickets/create" : "/tickets/open")}
             >
-              Withdraw
+              Custody Request Tickets
             </button>
             <button
               type="button"
               className="px-3 py-2 text-sm rounded-md border border-slate-600/60 bg-slate-700/30 hover:bg-slate-700/50 transition"
               onClick={() => navigate("/cases")}
             >
-              Cash In
+              Case List
             </button>
           </div>
         </div>
       </section>
+      ) : null}
 
-      <div className="grid gap-6 xl:grid-cols-2">
-        <TableWrapper title="Recent Activity">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="text-left text-slate-400 border-b border-slate-700">
-                <th className="py-2">Timestamp</th>
-                <th className="py-2">Actor</th>
-                <th className="py-2">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {auditEvents.map((event) => (
-                <tr key={event.id} className="border-b border-slate-800">
-                  <td className="py-2">{event.timestamp}</td>
-                  <td className="py-2">{event.actor}</td>
-                  <td className="py-2">{event.action}</td>
+      <div className={`grid gap-6 ${canShowAuditActivity ? "xl:grid-cols-2" : "xl:grid-cols-1"}`}>
+        {canShowAuditActivity ? (
+          <TableWrapper title="Recent Activity">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-left text-slate-400 border-b border-slate-700">
+                  <th className="py-2">Timestamp</th>
+                  <th className="py-2">Actor</th>
+                  <th className="py-2">Action</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </TableWrapper>
+              </thead>
+              <tbody>
+                {auditEvents.map((event) => (
+                  <tr key={event.id} className="border-b border-slate-800">
+                    <td className="py-2">{event.timestamp}</td>
+                    <td className="py-2">{event.actor}</td>
+                    <td className="py-2">{event.action}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </TableWrapper>
+        ) : null}
 
+        {canShowOperational ? (
         <TableWrapper title="Open Tickets">
           <table className="w-full text-sm">
             <thead>
@@ -298,6 +323,7 @@ export default function Dashboard() {
             </tbody>
           </table>
         </TableWrapper>
+        ) : null}
       </div>
     </div>
   );

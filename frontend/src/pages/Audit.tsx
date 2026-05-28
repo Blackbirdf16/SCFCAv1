@@ -6,7 +6,8 @@ import { AuditEvent, AuditFilters } from "../types";
 
 type AuditTab = "all" | "case" | "user" | "export";
 
-const initialFilters: AuditFilters = { limit: 250 };
+const AUDIT_PAGE_SIZE = 15;
+const initialFilters: AuditFilters = {};
 const tabTitles: Record<AuditTab, string> = {
   all: "All Audit Events",
   case: "Case Audit Report",
@@ -32,6 +33,10 @@ function entityName(event: AuditEvent): string {
 
 function entityId(event: AuditEvent): string {
   return event.entityId || "—";
+}
+
+function eventSortKey(event: AuditEvent): string {
+  return event.timestamp || event.date || "";
 }
 
 function isCaseReportEvent(event: AuditEvent): boolean {
@@ -141,6 +146,7 @@ export default function Audit() {
   const [hashResult, setHashResult] = useState<HashVerificationResponse | null>(null);
   const [hashLoading, setHashLoading] = useState(false);
   const [hashError, setHashError] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(0);
 
   useEffect(() => {
     const load = async () => {
@@ -168,21 +174,31 @@ export default function Audit() {
     void load();
   }, [filters]);
 
-  const caseEvents = useMemo(() => events.filter(isCaseReportEvent), [events]);
-  const userEvents = useMemo(() => events.filter(isUserReportEvent), [events]);
   const visibleEvents = useMemo(() => {
+    const sortedEvents = [...events].sort((a, b) => eventSortKey(b).localeCompare(eventSortKey(a)) || b.id.localeCompare(a.id));
+    const sortedCaseEvents = sortedEvents.filter(isCaseReportEvent);
+    const sortedUserEvents = sortedEvents.filter(isUserReportEvent);
+
     switch (activeTab) {
       case "case":
-        return caseEvents;
+        return sortedCaseEvents;
       case "user":
-        return userEvents;
+        return sortedUserEvents;
       default:
-        return events;
+        return sortedEvents;
     }
-  }, [activeTab, caseEvents, events, userEvents]);
+  }, [activeTab, events]);
 
-  const applyFilters = () => setFilters({ ...draftFilters, limit: 250 });
+  useEffect(() => {
+    setCurrentPage(0);
+  }, [activeTab, filters]);
+
+  const applyFilters = () => {
+    setCurrentPage(0);
+    setFilters({ ...draftFilters });
+  };
   const clearFilters = () => {
+    setCurrentPage(0);
     setDraftFilters(initialFilters);
     setFilters(initialFilters);
   };
@@ -219,13 +235,20 @@ export default function Audit() {
   };
 
   if (!user || !canViewAudit(user.role)) {
-    return <div className="panel p-5 text-sm text-slate-300">Audit view is restricted to administrator and auditor roles.</div>;
+    return <div className="panel p-5 text-sm text-slate-300">Audit Events are restricted to auditor users.</div>;
   }
 
   const totalVisible = visibleEvents.length;
   const distinctActors = new Set(events.map(actorName)).size;
   const distinctActions = new Set(events.map(actionName)).size;
   const tabHeading = tabTitles[activeTab];
+  const totalPages = Math.max(1, Math.ceil(totalVisible / AUDIT_PAGE_SIZE));
+  const safePage = Math.min(currentPage, totalPages - 1);
+  const pageStart = safePage * AUDIT_PAGE_SIZE;
+  const pageEnd = Math.min(pageStart + AUDIT_PAGE_SIZE, totalVisible);
+  const pagedEvents = visibleEvents.slice(pageStart, pageEnd);
+  const canGoNewer = safePage > 0;
+  const canGoOlder = pageEnd < totalVisible;
 
   return (
     <div className="space-y-6">
@@ -446,9 +469,32 @@ export default function Audit() {
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <h2 className="text-lg font-semibold text-slate-50">{tabHeading}</h2>
-                <p className="text-sm text-slate-400">{loading ? "Loading audit events…" : `${totalVisible} events currently visible`}</p>
+                <p className="text-sm text-slate-400">
+                  {loading
+                    ? "Loading audit events…"
+                    : totalVisible > 0
+                      ? `Showing ${pageStart + 1}-${pageEnd} of ${totalVisible} audit events`
+                      : "No audit events available."}
+                </p>
               </div>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setCurrentPage((page) => Math.max(0, page - 1))}
+                  disabled={!canGoNewer || loading}
+                  className="rounded-xl border border-slate-700 bg-slate-800/60 px-3 py-2 text-xs text-slate-100 transition hover:bg-slate-700/70 disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  Newer / Previous
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setCurrentPage((page) => Math.min(totalPages - 1, page + 1))}
+                  disabled={!canGoOlder || loading}
+                  className="rounded-xl border border-slate-700 bg-slate-800/60 px-3 py-2 text-xs text-slate-100 transition hover:bg-slate-700/70 disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  Older / Next
+                </button>
+                <span className="px-2 text-xs text-slate-400">Page {safePage + 1}</span>
                 <button type="button" onClick={() => void downloadReport("json")} className="rounded-xl border border-slate-700 bg-slate-800/60 px-3 py-2 text-xs text-slate-100 transition hover:bg-slate-700/70">
                   JSON
                 </button>
@@ -459,9 +505,9 @@ export default function Audit() {
             </div>
           </div>
 
-          <AuditEventsTable events={loading ? [] : visibleEvents} />
+          <AuditEventsTable events={loading ? [] : pagedEvents} />
           {!loading && visibleEvents.length === 0 ? (
-            <div className="px-5 py-8 text-center text-slate-400">No audit events match the selected filters.</div>
+            <div className="px-5 py-8 text-center text-slate-400">No audit events available.</div>
           ) : null}
         </section>
       )}
