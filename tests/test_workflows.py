@@ -63,6 +63,30 @@ def test_regular_user_cannot_see_audit_log():
     assert response.status_code == 403
 
 
+def test_auditor_can_run_audit_hash_chain_verification_endpoint():
+    cookies, _headers = login("carol", "carol123", "auditor")
+
+    response = client.get("/api/v1/audit/chain/verify", cookies=cookies)
+
+    assert response.status_code == 200
+    body = response.json()
+    assert isinstance(body["verified"], bool)
+    assert "eventCount" in body
+    assert "issueCount" in body
+    assert "issues" in body
+
+
+def test_non_auditors_cannot_verify_audit_hash_chain():
+    admin_cookies, _admin_headers = login("bob", "bob123", "administrator")
+    regular_cookies, _regular_headers = login("alice", "alice123", "regular")
+
+    admin_response = client.get("/api/v1/audit/chain/verify", cookies=admin_cookies)
+    regular_response = client.get("/api/v1/audit/chain/verify", cookies=regular_cookies)
+
+    assert admin_response.status_code == 403
+    assert regular_response.status_code == 403
+
+
 def test_admin_cannot_create_regular_custody_ticket():
     cookies, headers = login("bob", "bob123", "administrator")
 

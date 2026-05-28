@@ -66,6 +66,14 @@ class HashVerifyRequest(BaseModel):
     hash: str
 
 
+class AuditChainIssue(BaseModel):
+    eventId: str
+    check: str
+    detail: str
+    expected: str | None = None
+    actual: str | None = None
+
+
 def _utc_now_iso() -> str:
     return datetime.now(tz=timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z")
 
@@ -212,6 +220,66 @@ def _filter_events(db: Session, query: AuditQuery) -> list[AuditEventRecord]:
     records = [_audit_event_to_record(db, row) for row in rows]
     filtered = [record for record in records if _matches_query(record, query)]
     return filtered[: query.limit] if query.limit is not None else filtered
+
+
+def _raw_event_hash(row: AuditEvent, previous_hash: str | None) -> str:
+    payload = "|".join(
+        [
+            row.event_ref,
+            row.timestamp.isoformat(timespec="seconds"),
+            str(row.actor_id or ""),
+            row.action,
+            row.entity_type or "",
+            str(row.entity_id or ""),
+            row.details or "",
+            previous_hash or "",
+        ]
+    )
+    return sha256(payload.encode("utf-8")).hexdigest()
+
+
+def verify_audit_chain(db: Session) -> dict[str, Any]:
+    rows = db.query(AuditEvent).order_by(AuditEvent.timestamp.asc(), AuditEvent.id.asc()).all()
+    issues: list[AuditChainIssue] = []
+    expected_previous_hash: str | None = None
+
+    for row in rows:
+        record = _audit_event_to_record(db, row)
+        expected_hashes = {
+            _event_hash(record, row.previous_hash),
+            _raw_event_hash(row, row.previous_hash),
+        }
+
+        if row.previous_hash != expected_previous_hash:
+            issues.append(
+                AuditChainIssue(
+                    eventId=record.id,
+                    check="previous_hash",
+                    detail="Stored previous_hash does not match the previous audit event hash.",
+                    expected=expected_previous_hash,
+                    actual=row.previous_hash,
+                )
+            )
+
+        if row.hash_chain not in expected_hashes:
+            issues.append(
+                AuditChainIssue(
+                    eventId=record.id,
+                    check="hash_chain",
+                    detail="Stored hash_chain does not match the audit event content.",
+                    expected=" or ".join(sorted(expected_hashes)),
+                    actual=row.hash_chain,
+                )
+            )
+
+        expected_previous_hash = row.hash_chain
+
+    return {
+        "verified": not issues,
+        "eventCount": len(rows),
+        "issueCount": len(issues),
+        "issues": [issue.model_dump() for issue in issues],
+    }
 
 
 def _summary(events: list[AuditEventRecord]) -> dict[str, Any]:
@@ -372,6 +440,15 @@ def list_audit_events(
     query = _query_from_params(date_from=date_from, date_to=date_to, actor=actor, role=role, action=action, entity_type=entity_type, case_id=case_id, ticket_id=ticket_id, q=q, limit=limit)
     events = _filter_events(db, query)
     return {"events": [_record_to_dict(event) for event in events], "summary": _summary(events)}
+
+
+@router.get("/chain/verify", summary="Verify audit hash-chain continuity", tags=["audit"])
+def verify_audit_chain_endpoint(
+    principal: Principal = Depends(require_role(Role.auditor)),
+    db: Session = Depends(get_db),
+):
+    _ = principal
+    return verify_audit_chain(db)
 
 
 @router.get("/reports/json", summary="Export audit report as JSON", tags=["audit"])
