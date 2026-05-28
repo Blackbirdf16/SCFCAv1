@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
+import { useLocation } from "react-router-dom";
 import FormContainer from "../components/FormContainer";
 import RoleGuard from "../components/RoleGuard";
 import StatusBadge from "../components/StatusBadge";
@@ -14,7 +15,7 @@ import {
   rejectTicket as rejectTicketApi
 } from "../services/scfcaData";
 import { CaseItem, DocumentItem, Ticket, TicketType } from "../types";
-import { canApproveTickets, canCreateTickets, isReadOnlyRole } from "../utils/roles";
+import { canApproveTickets, canCreateTickets } from "../utils/roles";
 
 const TICKET_TYPE_LABELS: Record<TicketType, string> = {
   transfer_request: "Transfer request",
@@ -23,33 +24,53 @@ const TICKET_TYPE_LABELS: Record<TicketType, string> = {
   administrative_metadata_update: "Administrative metadata update",
   case_creation_request: "Case creation request",
   custody_change: "Custody change",
-  release_request: "Release request",
+  release_request: "Release request"
 };
 
-const CASE_CREATION_HANDLERS = [
-  "alice",
-  "mark",
-  "john",
+const CUSTODY_REQUEST_TYPES: TicketType[] = [
+  "transfer_request",
+  "conversion_request",
+  "reassignment_request",
+  "administrative_metadata_update"
 ];
 
+const CLOSED_TICKET_STATUSES = new Set<string>(["approved", "rejected", "closed"]);
+
+function isClosedTicket(ticket: Ticket) {
+  return CLOSED_TICKET_STATUSES.has(ticket.status);
+}
+
+function latestDecisionTime(ticket: Ticket) {
+  return ticket.approvalHistory?.[0]?.decidedAt ?? "";
+}
+
 export default function Tickets() {
+  const location = useLocation();
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [cases, setCases] = useState<CaseItem[]>([]);
   const [documents, setDocuments] = useState<DocumentItem[]>([]);
-  const [caseId, setCaseId] = useState("");
-  const [ticketType, setTicketType] = useState<TicketType | "">("");
-  const [description, setDescription] = useState("");
   const [error, setError] = useState("");
-  const [proposedCaseId, setProposedCaseId] = useState("");
-  const [assignedHandler, setAssignedHandler] = useState("");
+  const [createSuccess, setCreateSuccess] = useState("");
+  const [createBusy, setCreateBusy] = useState(false);
 
   const [assignTicketId, setAssignTicketId] = useState("");
   const [assignTo, setAssignTo] = useState("");
+  const [createCaseId, setCreateCaseId] = useState("");
+  const [createTicketType, setCreateTicketType] = useState<TicketType>("transfer_request");
+  const [createDescription, setCreateDescription] = useState("");
+  const [linkedDocumentIds, setLinkedDocumentIds] = useState("");
   const { user } = useAuth();
 
   useEffect(() => {
+    if (!user || user.role === "auditor") return;
     void refreshTicketData();
-  }, []);
+  }, [user?.role]);
+
+  useEffect(() => {
+    if (!createCaseId && cases.length > 0) {
+      setCreateCaseId(cases[0].id);
+    }
+  }, [cases, createCaseId]);
 
   const refreshTicketData = async () => {
     try {
@@ -57,6 +78,7 @@ export default function Tickets() {
       setTickets(ticketItems);
       setCases(caseItems);
       setDocuments(documentItems);
+      setError("");
     } catch (err) {
       console.error(err);
       setError("Unable to load tickets from the backend.");
@@ -65,14 +87,21 @@ export default function Tickets() {
 
   const canApprove = user ? canApproveTickets(user.role) : false;
   const canCreate = user ? canCreateTickets(user.role) : false;
-  const readOnly = user ? isReadOnlyRole(user.role) : true;
+  const isClosedView = location.pathname.startsWith("/tickets/approvals");
+  const isCreateView = location.pathname.startsWith("/tickets/create");
 
-  const assignedCaseIds = useMemo(() => {
-    if (!user) return new Set<string>();
-    return new Set(cases.map((c) => c.id));
-  }, [cases, user]);
+  const visibleTickets = useMemo(() => {
+    const filtered = tickets.filter((ticket) => (isClosedView ? isClosedTicket(ticket) : !isClosedTicket(ticket)));
+    if (!isClosedView) return filtered;
 
-  const visibleTickets = tickets;
+    return filtered
+      .map((ticket, index) => ({ ticket, index }))
+      .sort((a, b) => {
+        const timeCompare = latestDecisionTime(b.ticket).localeCompare(latestDecisionTime(a.ticket));
+        return timeCompare || a.index - b.index;
+      })
+      .map(({ ticket }) => ticket);
+  }, [isClosedView, tickets]);
 
   const ticketRows = useMemo(() => {
     const caseById = new Map(cases.map((c) => [c.id, c] as const));
@@ -103,89 +132,50 @@ export default function Tickets() {
     });
   }, [cases, documents, visibleTickets]);
 
-  const createTicket = async (event: React.FormEvent) => {
+  const recentOpenTickets = useMemo(() => {
+    return tickets.filter((ticket) => !isClosedTicket(ticket)).slice(0, 5);
+  }, [tickets]);
+
+  const createTicket = async (event: FormEvent) => {
     event.preventDefault();
     setError("");
-    if (!user) return;
-    if (readOnly || !canCreate) {
-      setError("Your role is read-only and cannot create tickets.");
+    setCreateSuccess("");
+    if (!canCreate) return;
+
+    const normalizedCaseId = createCaseId.trim().toUpperCase();
+    if (!normalizedCaseId) {
+      setError("Select an assigned case before creating a ticket.");
       return;
     }
-    if (!ticketType || !description.trim()) return;
-
-    if (ticketType === "case_creation_request") {
-      if (user.role !== "administrator") {
-        setError("Only administrators can request case creation.");
-        return;
-      }
-
-      const normalizedProposedCaseId = proposedCaseId.trim().toUpperCase();
-      if (!normalizedProposedCaseId) {
-        setError("Proposed case ID is required.");
-        return;
-      }
-
-      if (!assignedHandler) {
-        setError("Assigned handler is required.");
-        return;
-      }
-
-      if (!CASE_CREATION_HANDLERS.includes(assignedHandler)) {
-        setError("Assigned handler must be handler1/handler2/handler3.");
-        return;
-      }
-
-      try {
-        await createTicketApi({
-          caseId: normalizedProposedCaseId,
-          proposedCaseId: normalizedProposedCaseId,
-          assignedHandler,
-          ticketType,
-          description: description.trim(),
-          linkedDocumentIds: []
-        });
-        await refreshTicketData();
-      } catch (err: any) {
-        console.error(err);
-        setError(err?.response?.data?.detail ?? "Ticket creation failed.");
-        return;
-      }
-      setProposedCaseId("");
-      setAssignedHandler("");
-      setTicketType("");
-      setDescription("");
+    const description = createDescription.trim();
+    if (!description) {
+      setError("Describe the requested custody change.");
       return;
     }
 
-    if (!caseId) return;
+    const linkedIds = linkedDocumentIds
+      .split(",")
+      .map((item) => item.trim())
+      .filter(Boolean);
 
-    const normalizedCaseId = caseId.trim().toUpperCase();
-    const relatedCase = cases.find((c) => c.id === normalizedCaseId);
-    if (!relatedCase) {
-      setError("Unknown custody case ID. Tickets must be linked to an existing case.");
-      return;
-    }
-    if (user.role === "regular" && !assignedCaseIds.has(normalizedCaseId)) {
-      setError("Regular users can only open tickets for assigned custody cases.");
-      return;
-    }
-
+    setCreateBusy(true);
     try {
-      await createTicketApi({
+      const ticket = await createTicketApi({
         caseId: normalizedCaseId,
-        ticketType,
-        description: description.trim(),
-        linkedDocumentIds: []
+        ticketType: createTicketType,
+        description,
+        linkedDocumentIds: linkedIds
       });
       await refreshTicketData();
+      setCreateDescription("");
+      setLinkedDocumentIds("");
+      setCreateSuccess(ticket?.id ? `Created ticket ${ticket.id}.` : "Ticket created.");
     } catch (err: any) {
       console.error(err);
       setError(err?.response?.data?.detail ?? "Ticket creation failed.");
-      return;
+    } finally {
+      setCreateBusy(false);
     }
-    setCaseId("");
-    setTicketType("");
-    setDescription("");
   };
 
   const approveTicket = async (id: string) => {
@@ -230,10 +220,127 @@ export default function Tickets() {
     setAssignTo("");
   };
 
+  if (user?.role === "auditor") {
+    return (
+      <div className="panel p-5 text-sm text-slate-300">
+        Operational ticket details are not available to auditors. Use Audit Events for ticket metadata and governance review.
+      </div>
+    );
+  }
+
+  if (isCreateView) {
+    if (!canCreate) {
+      return (
+        <div className="panel p-5 text-sm text-slate-300">
+          Only assigned case handlers can create custody request tickets. Administrators review and decide tickets through the approval workflow.
+        </div>
+      );
+    }
+
+    return (
+      <div className="grid gap-6 lg:grid-cols-3">
+        <div className="lg:col-span-2">
+          <FormContainer title="Create Ticket-Based Custody Request">
+            <form className="space-y-4" onSubmit={createTicket}>
+              {error ? <div className="text-xs text-rose-300">{error}</div> : null}
+              {createSuccess ? <div className="text-xs text-emerald-300">{createSuccess}</div> : null}
+              <label className="block">
+                <span className="mb-1 block text-xs uppercase tracking-wide text-slate-400">Assigned case</span>
+                <select
+                  value={createCaseId}
+                  onChange={(event) => setCreateCaseId(event.target.value)}
+                  className="w-full rounded-md border border-slate-700 bg-dark px-3 py-2"
+                >
+                  {cases.map((caseItem) => (
+                    <option key={caseItem.id} value={caseItem.id}>
+                      {caseItem.id} - {caseItem.walletRef}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="block">
+                <span className="mb-1 block text-xs uppercase tracking-wide text-slate-400">Request type</span>
+                <select
+                  value={createTicketType}
+                  onChange={(event) => setCreateTicketType(event.target.value as TicketType)}
+                  className="w-full rounded-md border border-slate-700 bg-dark px-3 py-2"
+                >
+                  {CUSTODY_REQUEST_TYPES.map((type) => (
+                    <option key={type} value={type}>{TICKET_TYPE_LABELS[type]}</option>
+                  ))}
+                </select>
+              </label>
+              <label className="block">
+                <span className="mb-1 block text-xs uppercase tracking-wide text-slate-400">Description</span>
+                <textarea
+                  value={createDescription}
+                  onChange={(event) => setCreateDescription(event.target.value)}
+                  placeholder="Describe the requested change, scope, asset references, and reason."
+                  className="min-h-32 w-full rounded-md border border-slate-700 bg-dark px-3 py-2"
+                />
+              </label>
+              <label className="block">
+                <span className="mb-1 block text-xs uppercase tracking-wide text-slate-400">Linked document IDs</span>
+                <input
+                  value={linkedDocumentIds}
+                  onChange={(event) => setLinkedDocumentIds(event.target.value)}
+                  placeholder="Optional, comma-separated document IDs"
+                  className="w-full rounded-md border border-slate-700 bg-dark px-3 py-2"
+                />
+              </label>
+              <button className="accent-button w-full py-2" type="submit" disabled={createBusy || cases.length === 0}>
+                {createBusy ? "Creating..." : "Create Ticket"}
+              </button>
+              {cases.length === 0 ? (
+                <p className="text-xs text-slate-500">No assigned cases are available for ticket creation.</p>
+              ) : null}
+            </form>
+          </FormContainer>
+        </div>
+
+        <div className="space-y-6">
+          <FormContainer title="Ticket-Based Custody Requests">
+            <div className="space-y-2 text-sm text-slate-400">
+              <p>Transfer, conversion, reassignment, and administrative metadata changes are submitted as tickets.</p>
+              <p>Administrators approve or reject requests. This form does not sign transactions, touch private keys, or broadcast to a blockchain.</p>
+            </div>
+          </FormContainer>
+
+          <TableWrapper title="Recent Open Tickets">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-left text-slate-400 border-b border-slate-700">
+                  <th className="py-2">Ticket</th>
+                  <th className="py-2">Case</th>
+                  <th className="py-2">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {recentOpenTickets.map((ticket) => (
+                  <tr key={ticket.id} className="border-b border-slate-800">
+                    <td className="py-2">{ticket.id}</td>
+                    <td className="py-2">{ticket.caseId}</td>
+                    <td className="py-2"><StatusBadge status={ticket.status} /></td>
+                  </tr>
+                ))}
+                {recentOpenTickets.length === 0 ? (
+                  <tr>
+                    <td className="py-4 text-slate-400" colSpan={3}>No open tickets returned by the backend.</td>
+                  </tr>
+                ) : null}
+              </tbody>
+            </table>
+          </TableWrapper>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="grid gap-6 lg:grid-cols-3">
-      <div className="lg:col-span-2">
-        <TableWrapper title="Ticket List">
+    <div className="space-y-6">
+      <div>
+        <TableWrapper title={isClosedView ? "Closed Tickets" : "Ticket List"}>
+          {error ? <div className="text-xs text-rose-300 mb-3">{error}</div> : null}
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
@@ -248,7 +355,7 @@ export default function Tickets() {
                   <th className="py-2">Current Status</th>
                   <th className="py-2">Approval History</th>
                   <th className="py-2">Assigned</th>
-                  <th className="py-2">Actions</th>
+                  {!isClosedView ? <th className="py-2">Actions</th> : null}
                 </tr>
               </thead>
               <tbody>
@@ -256,7 +363,7 @@ export default function Tickets() {
                   <tr key={ticket.id} className="border-b border-slate-800 align-top">
                     <td className="py-2 whitespace-nowrap">{ticket.id}</td>
                     <td className="py-2 whitespace-nowrap">{ticket.caseId}</td>
-                    <td className="py-2 font-mono text-xs text-slate-300 whitespace-nowrap">{walletRef ?? "—"}</td>
+                    <td className="py-2 font-mono text-xs text-slate-300 whitespace-nowrap">{walletRef ?? "-"}</td>
                     <td className="py-2 whitespace-nowrap">{TICKET_TYPE_LABELS[ticket.ticketType]}</td>
                     <td className="py-2 text-slate-200 max-w-[360px]">
                       <div className="truncate" title={ticket.description}>{ticket.description}</div>
@@ -272,10 +379,10 @@ export default function Tickets() {
                           ) : null}
                         </div>
                       ) : (
-                        <span className="text-xs text-slate-500">—</span>
+                        <span className="text-xs text-slate-500">-</span>
                       )}
                     </td>
-                    <td className="py-2 text-slate-300 whitespace-nowrap">{ticket.createdBy ?? "—"}</td>
+                    <td className="py-2 text-slate-300 whitespace-nowrap">{ticket.createdBy ?? "-"}</td>
                     <td className="py-2">
                       <div className="space-y-1">
                         <StatusBadge status={ticket.status} />
@@ -298,112 +405,52 @@ export default function Tickets() {
                             ))}
                         </div>
                       ) : (
-                        <span className="text-xs text-slate-500">—</span>
+                        <span className="text-xs text-slate-500">-</span>
                       )}
                     </td>
-                    <td className="py-2 text-slate-300 whitespace-nowrap">{ticket.assignedTo ?? "—"}</td>
-                    <td className="py-2 whitespace-nowrap">
-                      {canApprove ? (
-                        <div className="flex gap-2">
-                          <button
-                            type="button"
-                            className="px-2 py-1 rounded bg-emerald-500/20 text-emerald-300 disabled:opacity-40"
-                            onClick={() => approveTicket(ticket.id)}
-                            disabled={ticket.status === "approved" || ticket.status === "rejected"}
-                          >
-                            {approvals.length === 0 ? "Approve 1" : "Approve 2"}
-                          </button>
-                          <button
-                            type="button"
-                            className="px-2 py-1 rounded bg-rose-500/20 text-rose-300 disabled:opacity-40"
-                            onClick={() => rejectTicket(ticket.id)}
-                            disabled={ticket.status === "approved" || ticket.status === "rejected"}
-                          >
-                            Reject
-                          </button>
-                        </div>
-                      ) : (
-                        <span className="text-xs text-slate-500">Read-only</span>
-                      )}
-                    </td>
+                    <td className="py-2 text-slate-300 whitespace-nowrap">{ticket.assignedTo ?? "-"}</td>
+                    {!isClosedView ? (
+                      <td className="py-2 whitespace-nowrap">
+                        {canApprove ? (
+                          <div className="flex gap-2">
+                            <button
+                              type="button"
+                              className="px-2 py-1 rounded bg-emerald-500/20 text-emerald-300 disabled:opacity-40"
+                              onClick={() => approveTicket(ticket.id)}
+                              disabled={ticket.status === "approved" || ticket.status === "rejected"}
+                            >
+                              {approvals.length === 0 ? "Approve 1" : "Approve 2"}
+                            </button>
+                            <button
+                              type="button"
+                              className="px-2 py-1 rounded bg-rose-500/20 text-rose-300 disabled:opacity-40"
+                              onClick={() => rejectTicket(ticket.id)}
+                              disabled={ticket.status === "approved" || ticket.status === "rejected"}
+                            >
+                              Reject
+                            </button>
+                          </div>
+                        ) : (
+                          <span className="text-xs text-slate-500">Read-only</span>
+                        )}
+                      </td>
+                    ) : null}
                   </tr>
                 ))}
+                {ticketRows.length === 0 ? (
+                  <tr>
+                    <td className="py-4 text-slate-400" colSpan={isClosedView ? 10 : 11}>
+                      {isClosedView ? "No closed tickets returned by the backend." : "No open tickets returned by the backend."}
+                    </td>
+                  </tr>
+                ) : null}
               </tbody>
             </table>
           </div>
         </TableWrapper>
       </div>
 
-      <div className="space-y-6">
-        {user && canCreate && !readOnly ? (
-          <FormContainer title="Create Ticket">
-            <form className="space-y-3" onSubmit={createTicket}>
-              {ticketType === "case_creation_request" ? (
-                <>
-                  <input
-                    value={proposedCaseId}
-                    onChange={(e) => setProposedCaseId(e.target.value)}
-                    placeholder="Proposed case ID (e.g., SCFCA-CASE-2026-0051)"
-                    className="w-full rounded-md border border-slate-700 bg-dark px-3 py-2"
-                  />
-                  <select
-                    value={assignedHandler}
-                    onChange={(e) => setAssignedHandler(e.target.value)}
-                    className="w-full rounded-md border border-slate-700 bg-dark px-3 py-2"
-                  >
-                    <option value="" disabled>Select assigned handler</option>
-                    {CASE_CREATION_HANDLERS.map((h) => (
-                      <option key={h} value={h}>{h}</option>
-                    ))}
-                  </select>
-                </>
-              ) : (
-                <input
-                  value={caseId}
-                  onChange={(e) => setCaseId(e.target.value)}
-                  placeholder={user.role === "regular" ? "Assigned case ID" : "Case ID"}
-                  className="w-full rounded-md border border-slate-700 bg-dark px-3 py-2"
-                />
-              )}
-              <select
-                value={ticketType}
-                onChange={(e) => setTicketType(e.target.value as TicketType)}
-                className="w-full rounded-md border border-slate-700 bg-dark px-3 py-2"
-              >
-                <option value="" disabled>Select ticket type</option>
-                <option value="transfer_request">Transfer request</option>
-                <option value="conversion_request">Conversion request</option>
-                <option value="reassignment_request">Reassignment request</option>
-                <option value="administrative_metadata_update">Administrative metadata update</option>
-                {user.role === "administrator" ? (
-                  <option value="case_creation_request">Case creation request</option>
-                ) : null}
-                <option value="custody_change">Custody change</option>
-                <option value="release_request">Release request</option>
-              </select>
-              <textarea
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="Description (what action is requested, what assets/scope, why)"
-                rows={4}
-                className="w-full rounded-md border border-slate-700 bg-dark px-3 py-2"
-              />
-              {error ? <p className="text-xs text-rose-300">{error}</p> : null}
-              <button className="accent-button w-full py-2" type="submit">Create</button>
-              {user.role === "regular" ? (
-                <p className="text-xs text-slate-500">Regular users can only open tickets for assigned custody cases.</p>
-              ) : null}
-              {user.role === "administrator" && ticketType === "case_creation_request" ? (
-                <p className="text-xs text-slate-500">This ticket requests case creation only; it does not create a case yet.</p>
-              ) : null}
-            </form>
-          </FormContainer>
-        ) : (
-          <FormContainer title="Create Ticket">
-            <p className="text-sm text-slate-400">Ticket creation is restricted for this role.</p>
-          </FormContainer>
-        )}
-
+      {isClosedView ? (
         <RoleGuard
           allow={["administrator"]}
           fallback={
@@ -440,7 +487,7 @@ export default function Tickets() {
             </form>
           </FormContainer>
         </RoleGuard>
-      </div>
+      ) : null}
     </div>
   );
 }

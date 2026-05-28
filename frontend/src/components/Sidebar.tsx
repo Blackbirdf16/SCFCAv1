@@ -15,6 +15,7 @@ interface NavGroup {
 }
 
 const ALL_ROLES: Role[] = ["regular", "administrator", "auditor"];
+const OPERATIONAL_ROLES: Role[] = ["regular", "administrator"];
 
 const dashboardItem: NavItem = { label: "Dashboard", path: "/dashboard", roles: ALL_ROLES };
 
@@ -22,34 +23,35 @@ const navGroups: NavGroup[] = [
   {
     label: "Cases",
     items: [
-      { label: "Case List", path: "/cases", roles: ALL_ROLES },
-      { label: "Case Details", path: "/cases/details", roles: ALL_ROLES }
+      { label: "Case List", path: "/cases", roles: OPERATIONAL_ROLES },
+      { label: "Case Details", path: "/cases/details", roles: OPERATIONAL_ROLES }
     ]
   },
   {
     label: "Assets",
     items: [
-      { label: "Overview", path: "/assets", roles: ALL_ROLES },
-      { label: "Wallet Holdings", path: "/assets/holdings", roles: ALL_ROLES },
-      { label: "Transfers", path: "/assets/transfers", roles: ALL_ROLES }
+      { label: "Overview", path: "/assets", roles: OPERATIONAL_ROLES },
+      { label: "Wallet Holdings", path: "/assets/holdings", roles: OPERATIONAL_ROLES },
+      { label: "Custody Requests", path: "/assets/transfers", roles: OPERATIONAL_ROLES }
     ]
   },
   {
     label: "Tickets",
     items: [
-      { label: "Open Tickets", path: "/tickets/open", roles: ALL_ROLES },
-      { label: "Approvals", path: "/tickets/approvals", roles: ["administrator"] }
+      { label: "Open Tickets", path: "/tickets/open", roles: OPERATIONAL_ROLES },
+      { label: "Create Ticket", path: "/tickets/create", roles: ["regular"] },
+      { label: "Closed Tickets", path: "/tickets/approvals", roles: ["administrator"] }
     ]
   },
   {
     label: "Audit",
-    items: [{ label: "Audit Events", path: "/audit", roles: ["administrator", "auditor"] }]
+    items: [{ label: "Audit Events", path: "/audit", roles: ["auditor"] }]
   },
   {
     label: "Documents",
     items: [
-      { label: "Registered Documents", path: "/documents/registered", roles: ALL_ROLES },
-      { label: "Integrity Verification", path: "/documents/integrity", roles: ALL_ROLES }
+      { label: "Registered Documents", path: "/documents/registered", roles: OPERATIONAL_ROLES },
+      { label: "Integrity Verification", path: "/documents/integrity", roles: OPERATIONAL_ROLES }
     ]
   },
   {

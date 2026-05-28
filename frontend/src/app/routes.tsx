@@ -38,6 +38,7 @@ export default function AppRoutes() {
 
         <Route path="/tickets" element={<Tickets />} />
         <Route path="/tickets/open" element={<Tickets />} />
+        <Route path="/tickets/create" element={<Tickets />} />
         <Route path="/tickets/approvals" element={<Tickets />} />
 
         <Route path="/documents" element={<Documents />} />
