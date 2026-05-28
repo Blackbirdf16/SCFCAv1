@@ -10,7 +10,7 @@ It demonstrates a FastAPI backend, a React/Vite frontend, backend-enforced acces
 - Backend-enforced role-based access control for regular users, administrators, and auditors.
 - Regular users see only cases, tickets, and documents linked to their assigned cases.
 - Administrators see all cases and tickets, can assign tickets, can approve or reject tickets, and can review audit event metadata.
-- Administrators cannot initiate regular custody workflow tickets; those are restricted to regular users assigned to the case. Administrators can submit case creation request tickets, but there is no direct case creation endpoint in this phase.
+- Case creation is implemented as an administrator-only workflow. Administrators may register new custody cases through the frontend, while case handlers and auditors are denied direct case creation. Custody actions such as transfers, conversions, reassignment, and administrative metadata updates remain governed by the ticket approval workflow.
 - Auditors have a read-only audit/report/hash verification view.
 - Document metadata includes stored SHA-256 hash values.
 - Uploaded PDF files are hashed by the backend when uploaded through the file upload endpoint.
@@ -36,9 +36,12 @@ docker compose up --build
 
 URLs:
 
-- Frontend: http://localhost:5173
-- Backend API: http://localhost:8000
-- Backend docs: http://localhost:8000/docs
+- Frontend: http://127.0.0.1:5173
+- Backend API: http://127.0.0.1:8000
+- Swagger/API docs: http://127.0.0.1:8000/docs
+- Health endpoint: http://127.0.0.1:8000/api/v1/health/
+
+Important: Use `127.0.0.1` consistently for both frontend and backend during local Docker Compose demos. Do not mix `localhost` and `127.0.0.1`, because browser cookies are host-specific and CSRF/session cookies may not be visible across different hostnames.
 
 Seed or reset the PostgreSQL demo data:
 
@@ -92,7 +95,6 @@ npm --prefix frontend install
 npm --prefix frontend run dev -- --host 127.0.0.1 --port 5173
 ```
 
-<<<<<<< HEAD
 Optional local checks:
 
 ```bash
@@ -259,7 +261,7 @@ Current scope:
    docker compose exec backend python scripts/seed_demo_data.py
    ```
 
-3. Open the frontend at http://localhost:5173.
+3. Open the frontend at http://127.0.0.1:5173.
 4. Log in as `alice` and show that only assigned cases are visible.
 5. Log in as `mark`, then `john`, and show the shared Mark/John case is visible to both assigned users.
 6. Log in as `bob` or `eve` and show administrator visibility across all tickets.
@@ -413,7 +415,7 @@ Start the backend (`python3 -m uvicorn backend.main:app --reload`), then follow 
 ### Step 1 — Login as admin
 
 ```bash
-curl -X POST http://localhost:8000/api/v1/auth/login \
+curl -X POST http://127.0.0.1:8000/api/v1/auth/login \
   -H "Content-Type: application/json" \
   -d '{"username":"bob","password":"bob123"}' \
   -c cookies.txt
@@ -425,7 +427,7 @@ CSRF=$(grep scfca_csrf_token cookies.txt | awk '{print $NF}')
 ### Step 2 — Create a case
 
 ```bash
-curl -X POST http://localhost:8000/api/v1/cases/ \
+curl -X POST http://127.0.0.1:8000/api/v1/cases/ \
   -H "Content-Type: application/json" \
   -H "X-CSRF-Token: $CSRF" \
   -d '{"title":"Seized BTC wallet","wallet_ref":"WLT-001","handler_username":"alice"}' \
@@ -436,7 +438,7 @@ curl -X POST http://localhost:8000/api/v1/cases/ \
 ### Step 3 — Register an asset
 
 ```bash
-curl -X POST http://localhost:8000/api/v1/assets/ \
+curl -X POST http://127.0.0.1:8000/api/v1/assets/ \
   -H "Content-Type: application/json" \
   -H "X-CSRF-Token: $CSRF" \
   -d '{"caseId":"C-7A3F","symbol":"BTC","assetType":"native","quantity":12.5}' \
@@ -446,14 +448,14 @@ curl -X POST http://localhost:8000/api/v1/assets/ \
 ### Step 4 — Login as alice, create a ticket
 
 ```bash
-curl -X POST http://localhost:8000/api/v1/auth/login \
+curl -X POST http://127.0.0.1:8000/api/v1/auth/login \
   -H "Content-Type: application/json" \
   -d '{"username":"alice","password":"alice123"}' \
   -c alice.txt
 
 ALICE_CSRF=$(grep scfca_csrf_token alice.txt | awk '{print $NF}')
 
-curl -X POST http://localhost:8000/api/v1/tickets/ \
+curl -X POST http://127.0.0.1:8000/api/v1/tickets/ \
   -H "Content-Type: application/json" \
   -H "X-CSRF-Token: $ALICE_CSRF" \
   -d '{"caseId":"C-7A3F","ticketType":"transfer_request","description":"Transfer to cold storage"}' \
@@ -465,21 +467,21 @@ curl -X POST http://localhost:8000/api/v1/tickets/ \
 
 ```bash
 # Bob approves (stage 1)
-curl -X POST http://localhost:8000/api/v1/tickets/T-482/approve \
+curl -X POST http://127.0.0.1:8000/api/v1/tickets/T-482/approve \
   -H "Content-Type: application/json" \
   -H "X-CSRF-Token: $CSRF" \
   -d '{"notes":"Documentation verified."}' \
   -b cookies.txt
 
 # Eve approves (stage 2)
-curl -X POST http://localhost:8000/api/v1/auth/login \
+curl -X POST http://127.0.0.1:8000/api/v1/auth/login \
   -H "Content-Type: application/json" \
   -d '{"username":"eve","password":"eve123"}' \
   -c eve.txt
 
 EVE_CSRF=$(grep scfca_csrf_token eve.txt | awk '{print $NF}')
 
-curl -X POST http://localhost:8000/api/v1/tickets/T-482/approve \
+curl -X POST http://127.0.0.1:8000/api/v1/tickets/T-482/approve \
   -H "Content-Type: application/json" \
   -H "X-CSRF-Token: $EVE_CSRF" \
   -d '{"notes":"Confirmed. Approved for execution."}' \
@@ -490,21 +492,21 @@ curl -X POST http://localhost:8000/api/v1/tickets/T-482/approve \
 
 ```bash
 # Assign to bob
-curl -X PATCH http://localhost:8000/api/v1/tickets/T-482/assign \
+curl -X PATCH http://127.0.0.1:8000/api/v1/tickets/T-482/assign \
   -H "Content-Type: application/json" \
   -H "X-CSRF-Token: $CSRF" \
   -d '{"assignedTo":"bob"}' \
   -b cookies.txt
 
 # Get re-auth token (SR-6)
-REAUTH=$(curl -s -X POST http://localhost:8000/api/v1/auth/reauth \
+REAUTH=$(curl -s -X POST http://127.0.0.1:8000/api/v1/auth/reauth \
   -H "Content-Type: application/json" \
   -H "X-CSRF-Token: $CSRF" \
   -d '{"password":"bob123"}' \
   -b cookies.txt | python3 -c "import sys,json; print(json.load(sys.stdin)['reauth_token'])")
 
 # Execute
-curl -X POST http://localhost:8000/api/v1/tickets/T-482/execute \
+curl -X POST http://127.0.0.1:8000/api/v1/tickets/T-482/execute \
   -H "X-CSRF-Token: $CSRF" \
   -H "Idempotency-Key: exec-001" \
   -H "X-Reauth-Token: $REAUTH" \
@@ -514,15 +516,15 @@ curl -X POST http://localhost:8000/api/v1/tickets/T-482/execute \
 ### Step 7 — Verify audit chain
 
 ```bash
-curl http://localhost:8000/api/v1/audit/verify -b cookies.txt
+curl http://127.0.0.1:8000/api/v1/audit/verify -b cookies.txt
 # {"ok": true, "count": N}
 ```
 
 ### Step 8 — Download reports
 
 ```bash
-curl http://localhost:8000/api/v1/reports/audit -b cookies.txt -o audit_report.pdf
-curl http://localhost:8000/api/v1/reports/case/C-7A3F -b cookies.txt -o case_report.pdf
+curl http://127.0.0.1:8000/api/v1/reports/audit -b cookies.txt -o audit_report.pdf
+curl http://127.0.0.1:8000/api/v1/reports/case/C-7A3F -b cookies.txt -o case_report.pdf
 ```
 
 ---
@@ -532,7 +534,7 @@ curl http://localhost:8000/api/v1/reports/case/C-7A3F -b cookies.txt -o case_rep
 ### CSRF protection
 ```bash
 # POST without CSRF token → 403
-curl -X POST http://localhost:8000/api/v1/tickets/ \
+curl -X POST http://127.0.0.1:8000/api/v1/tickets/ \
   -H "Content-Type: application/json" \
   -d '{"caseId":"C-100","ticketType":"transfer_request","description":"test"}' \
   -b cookies.txt
@@ -544,7 +546,7 @@ curl -X POST http://localhost:8000/api/v1/tickets/ \
 # 9 rapid failed logins → last ones get 429
 for i in $(seq 1 9); do
   curl -s -o /dev/null -w "%{http_code} " \
-    -X POST http://localhost:8000/api/v1/auth/login \
+    -X POST http://127.0.0.1:8000/api/v1/auth/login \
     -H "Content-Type: application/json" \
     -d '{"username":"alice","password":"wrong"}'
 done
@@ -555,12 +557,12 @@ echo
 ### MFA enrollment
 ```bash
 # As admin bob (already logged in)
-curl -X POST http://localhost:8000/api/v1/auth/mfa/setup \
+curl -X POST http://127.0.0.1:8000/api/v1/auth/mfa/setup \
   -H "X-CSRF-Token: $CSRF" \
   -b cookies.txt
 # Returns: {"secret":"BASE32...","provisioning_uri":"otpauth://..."}
 # Scan QR with authenticator app, then verify:
-curl -X POST http://localhost:8000/api/v1/auth/mfa/verify \
+curl -X POST http://127.0.0.1:8000/api/v1/auth/mfa/verify \
   -H "Content-Type: application/json" \
   -H "X-CSRF-Token: $CSRF" \
   -d '{"code":"123456"}' \
@@ -570,7 +572,7 @@ curl -X POST http://localhost:8000/api/v1/auth/mfa/verify \
 ### Re-auth required for execution
 ```bash
 # Execute WITHOUT re-auth token → 403
-curl -X POST http://localhost:8000/api/v1/tickets/T-482/execute \
+curl -X POST http://127.0.0.1:8000/api/v1/tickets/T-482/execute \
   -H "X-CSRF-Token: $CSRF" \
   -H "Idempotency-Key: no-reauth" \
   -b cookies.txt
@@ -653,4 +655,3 @@ See [docs/README.md](docs/README.md) for the full index, or jump directly:
 | `429 Too Many Requests` | Wait 60 seconds (rate limiter resets) |
 | Alice gets "Case not assigned" | Use case ID `C-100` (pre-assigned) or create a case as bob first |
 | No CSRF cookie after login | If MFA is enabled, complete the `/mfa/challenge` step first |
->>>>>>> github-v1/main

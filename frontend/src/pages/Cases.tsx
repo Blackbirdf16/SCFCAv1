@@ -5,7 +5,7 @@ import RoleGuard from "../components/RoleGuard";
 import StatusBadge from "../components/StatusBadge";
 import TableWrapper from "../components/TableWrapper";
 import { CaseItem } from "../types";
-import { listCases } from "../services/scfcaData";
+import { createCase, listCases } from "../services/scfcaData";
 import { useAuth } from "../hooks/useAuth";
 
 export default function Cases() {
@@ -13,6 +13,7 @@ export default function Cases() {
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
   const [createError, setCreateError] = useState("");
+  const [createSuccess, setCreateSuccess] = useState("");
   const [title, setTitle] = useState("");
   const [handler, setHandler] = useState("");
   const [walletRef, setWalletRef] = useState("");
@@ -40,9 +41,33 @@ export default function Cases() {
     };
   }, []);
 
-  const onCreateCase = (event: FormEvent) => {
+  const onCreateCase = async (event: FormEvent) => {
     event.preventDefault();
-    setCreateError("Case creation is not connected in this phase. Existing cases are loaded from PostgreSQL.");
+    setCreateError("");
+    setCreateSuccess("");
+
+    const walletValue = walletRef.trim().toUpperCase();
+    if (!walletValue) {
+      setCreateError("Wallet reference is required.");
+      return;
+    }
+
+    try {
+      const created = await createCase({
+        walletRef: walletValue,
+        title: title.trim() ? title.trim() : undefined,
+        assignedHandler: handler.trim() ? handler.trim() : undefined
+      });
+      const refreshed = await listCases();
+      setCases(refreshed);
+      setWalletRef("");
+      setTitle("");
+      setHandler("");
+      setCreateSuccess(created?.id ? `Created case ${created.id}.` : "Case created.");
+    } catch (error: any) {
+      const message = error?.response?.data?.detail ?? "Unable to create custody case.";
+      setCreateError(String(message));
+    }
   };
 
   const coinsSummary = (item: CaseItem) => {
@@ -128,6 +153,7 @@ export default function Cases() {
               />
               <button className="accent-button w-full py-2" type="submit">Create</button>
               {createError ? <p className="text-xs text-rose-300">{createError}</p> : null}
+              {createSuccess ? <p className="text-xs text-emerald-300">{createSuccess}</p> : null}
             </form>
           </FormContainer>
         </RoleGuard>
