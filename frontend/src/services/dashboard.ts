@@ -3,12 +3,18 @@ import { AuditEvent, DashboardSummary, Ticket } from "../types";
 import { listCases, listDocuments, listTickets } from "./scfcaData";
 
 export const dashboardService = {
-  async getDashboardData(): Promise<{ summary: DashboardSummary; audit: AuditEvent[]; tickets: Ticket[] }> {
+  async getDashboardData(options: { includeAudit?: boolean; includeOperational?: boolean } = {}): Promise<{ summary: DashboardSummary; audit: AuditEvent[]; tickets: Ticket[] }> {
+    const includeAudit = Boolean(options.includeAudit);
+    const includeOperational = options.includeOperational !== false;
+    const casesRequest = includeOperational ? listCases() : Promise.resolve([]);
+    const documentsRequest = includeOperational ? listDocuments() : Promise.resolve([]);
+    const auditRequest = includeAudit ? http.get("/api/v1/audit/events?limit=5") : Promise.resolve({ data: { events: [] } });
+    const ticketsRequest = includeOperational ? listTickets() : Promise.resolve([]);
     const [casesResult, documentsResult, auditResult, ticketsResult] = await Promise.allSettled([
-      listCases(),
-      listDocuments(),
-      http.get("/api/v1/audit/events?limit=5"),
-      listTickets()
+      casesRequest,
+      documentsRequest,
+      auditRequest,
+      ticketsRequest
     ]);
 
     const cases = casesResult.status === "fulfilled" ? casesResult.value : [];

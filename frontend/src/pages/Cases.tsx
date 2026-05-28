@@ -1,7 +1,6 @@
 import { FormEvent, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import FormContainer from "../components/FormContainer";
-import RoleGuard from "../components/RoleGuard";
 import StatusBadge from "../components/StatusBadge";
 import TableWrapper from "../components/TableWrapper";
 import { CaseItem } from "../types";
@@ -19,8 +18,15 @@ export default function Cases() {
   const [walletRef, setWalletRef] = useState("");
   const { user } = useAuth();
   const navigate = useNavigate();
+  const canCreateCase = user?.role === "administrator";
 
   useEffect(() => {
+    if (!user) return;
+    if (user?.role === "auditor") {
+      setLoading(false);
+      return;
+    }
+
     let mounted = true;
     setLoading(true);
     listCases()
@@ -39,7 +45,7 @@ export default function Cases() {
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [user?.role]);
 
   const onCreateCase = async (event: FormEvent) => {
     event.preventDefault();
@@ -73,12 +79,20 @@ export default function Cases() {
   const coinsSummary = (item: CaseItem) => {
     const symbols = (item.holdings ?? []).map((h) => h.symbol);
     if (symbols.length > 0) return symbols.join(", ");
-    return "—";
+    return "-";
   };
 
+  if (user?.role === "auditor") {
+    return (
+      <div className="panel p-5 text-sm text-slate-300">
+        Operational case details are not available to auditors. Use Audit Events for case identifiers, actions, status, and timestamps.
+      </div>
+    );
+  }
+
   return (
-    <div className="grid gap-6 lg:grid-cols-3">
-      <div className="lg:col-span-2">
+    <div className={canCreateCase ? "grid gap-6 lg:grid-cols-3" : "space-y-6"}>
+      <div className={canCreateCase ? "lg:col-span-2" : undefined}>
         <TableWrapper title="Wallet Custody Cases">
           {loadError ? <div className="text-xs text-rose-300 mb-3">{loadError}</div> : null}
           {user?.role === "regular" ? (
@@ -122,15 +136,8 @@ export default function Cases() {
         </TableWrapper>
       </div>
 
-      <div className="space-y-6">
-        <RoleGuard
-          allow={["administrator"]}
-          fallback={
-            <FormContainer title="Case Management">
-              <p className="text-sm text-slate-400">Only administrators can create or assign custody cases in this PoC.</p>
-            </FormContainer>
-          }
-        >
+      {canCreateCase ? (
+        <div className="space-y-6">
           <FormContainer title="Create Wallet Custody Case">
             <form className="space-y-3" onSubmit={onCreateCase}>
               <input
@@ -156,17 +163,8 @@ export default function Cases() {
               {createSuccess ? <p className="text-xs text-emerald-300">{createSuccess}</p> : null}
             </form>
           </FormContainer>
-        </RoleGuard>
-
-        <FormContainer title="Case Details">
-          <p className="text-sm text-slate-400">
-            Open a case to view description, restricted notes, supporting documents, and linked tickets.
-          </p>
-          <p className="text-xs text-slate-500 mt-2">
-            Tip: click a row in the case list to open its details.
-          </p>
-        </FormContainer>
-      </div>
+        </div>
+      ) : null}
     </div>
   );
 }

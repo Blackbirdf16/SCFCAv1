@@ -47,6 +47,14 @@ def test_auditor_can_see_audit_log():
     assert "events" in response.json()
 
 
+def test_admin_cannot_see_audit_log():
+    cookies, _headers = login("bob", "bob123", "administrator")
+
+    response = client.get("/api/v1/audit/", cookies=cookies)
+
+    assert response.status_code == 403
+
+
 def test_regular_user_cannot_see_audit_log():
     cookies, _headers = login("alice", "alice123", "regular")
 
@@ -113,7 +121,8 @@ def test_admin_can_create_case_creation_request_and_no_case_is_created():
     assert after_ids == before_ids
     assert proposed_case_id not in after_ids
 
-    audit = client.get("/api/v1/audit/", cookies=cookies)
+    auditor_cookies, _auditor_headers = login("carol", "carol123", "auditor")
+    audit = client.get("/api/v1/audit/", cookies=auditor_cookies)
     assert audit.status_code == 200
     assert any(e.get("action") == "case_creation_request_submitted" for e in audit.json().get("events", []))
 
@@ -245,7 +254,8 @@ def test_admin_can_create_case_and_case_is_visible_to_admin_and_assignee():
     assert cases_alice.status_code == 200
     assert any(item.get("id") == case_id for item in cases_alice.json().get("cases", []))
 
-    audit = client.get("/api/v1/audit/", cookies=cookies)
+    auditor_cookies, _auditor_headers = login("carol", "carol123", "auditor")
+    audit = client.get("/api/v1/audit/", cookies=auditor_cookies)
     assert audit.status_code == 200
     assert any(
         e.get("action") == "case_created" and (e.get("entityId") == case_id or e.get("entity_id") == case_id)

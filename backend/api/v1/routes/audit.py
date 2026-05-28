@@ -2,7 +2,7 @@
 
 Role intent:
 - regular: no access to system-wide logs
-- administrator: operational log review
+- administrator: no access to general audit review
 - auditor: evidence/traceability focused review
 """
 
@@ -20,7 +20,7 @@ from pydantic import BaseModel, Field
 from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
-from backend.auth.dependencies import Principal, SESSION_COOKIE, require_any_role, require_role
+from backend.auth.dependencies import Principal, SESSION_COOKIE, require_role
 from backend.auth.schemas import Role
 from backend.core.database import SessionLocal, get_db
 from backend.core.models import AuditEvent, Case, Document
@@ -365,7 +365,7 @@ def list_audit_events(
     ticket_id: str | None = None,
     q: str | None = None,
     limit: int | None = None,
-    principal: Principal = Depends(require_any_role([Role.administrator, Role.auditor])),
+    principal: Principal = Depends(require_role(Role.auditor)),
     db: Session = Depends(get_db),
 ):
     _ = principal
