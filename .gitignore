@@ -25,3 +25,7 @@ bom.json
 # OS/editor
 .DS_Store
 Thumbs.db
+__MACOSX/
+
+# Local reference archives
+old-repo-reference/
