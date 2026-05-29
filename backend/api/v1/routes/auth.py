@@ -18,7 +18,8 @@ from backend.auth.login_throttle import (
     record_failed_login,
     reset_login_throttle,
 )
-from backend.auth.schemas import LoginRequest, Role
+from backend.auth.reauth import REAUTH_TOKEN_SECONDS, create_reauth_token
+from backend.auth.schemas import LoginRequest, ReauthRequest, Role
 from backend.api.v1.routes.audit import record_audit_event
 from backend.auth.service import authenticate_user
 
@@ -95,3 +96,22 @@ def logout(response: Response, request: Request, principal: Principal = Depends(
 @router.get("/me", summary="Current principal", tags=["auth"])
 def me(principal: Principal = Depends(get_current_principal)):
     return {"username": principal.username, "role": principal.role.value}
+
+
+@router.post("/reauth", summary="Confirm password for sensitive administrative actions", tags=["auth"])
+def reauth(
+    payload: ReauthRequest,
+    principal: Principal = Depends(get_current_principal),
+    _: None = Depends(require_csrf),
+):
+    if not (payload.password or "").strip():
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Password is required")
+
+    user = authenticate_user(principal.username, payload.password)
+    if user is None:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
+
+    return {
+        "reauthToken": create_reauth_token(principal),
+        "expiresInSeconds": REAUTH_TOKEN_SECONDS,
+    }

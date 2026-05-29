@@ -13,3 +13,7 @@ class LoginRequest(BaseModel):
     username: str
     password: str
     role: Role | None = None
+
+
+class ReauthRequest(BaseModel):
+    password: str

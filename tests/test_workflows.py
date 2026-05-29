@@ -10,6 +10,7 @@ client = TestClient(app)
 
 
 def login(username: str, password: str, role: str):
+    client.cookies.clear()
     response = client.post(
         "/api/v1/auth/login",
         json={"username": username, "password": password, "role": role},
@@ -18,6 +19,12 @@ def login(username: str, password: str, role: str):
     csrf_token = response.cookies.get("scfca_csrf")
     assert csrf_token
     return response.cookies, {"x-csrf-token": csrf_token}
+
+
+def reauth_headers(cookies, headers, password: str = "bob123"):
+    response = client.post("/api/v1/auth/reauth", cookies=cookies, headers=headers, json={"password": password})
+    assert response.status_code == 200
+    return {**headers, "x-reauth-token": response.json()["reauthToken"]}
 
 
 def test_regular_user_can_see_assigned_cases():
@@ -249,6 +256,7 @@ def test_admin_must_assign_case_creation_request_to_one_of_allowed_handlers():
 
 def test_admin_can_create_case_and_case_is_visible_to_admin_and_assignee():
     cookies, headers = login("bob", "bob123", "administrator")
+    headers = reauth_headers(cookies, headers)
 
     case_id = f"SCFCA-CASE-TEST-{uuid4().hex[:10].upper()}"
     wallet_ref = f"WLT-TEST-{uuid4().hex[:10].upper()}"
@@ -341,6 +349,7 @@ def test_no_direct_asset_mutation_route_for_admin_or_case_handler():
 
 def test_admin_cannot_create_duplicate_case_id():
     cookies, headers = login("bob", "bob123", "administrator")
+    headers = reauth_headers(cookies, headers)
 
     case_id = f"SCFCA-CASE-TEST-{uuid4().hex[:10].upper()}"
     wallet_ref_1 = f"WLT-TEST-{uuid4().hex[:10].upper()}"

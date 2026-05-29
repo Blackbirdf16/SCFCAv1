@@ -6,6 +6,7 @@ import TableWrapper from "../components/TableWrapper";
 import { CaseItem } from "../types";
 import { createCase, listCases } from "../services/scfcaData";
 import { useAuth } from "../hooks/useAuth";
+import { authService } from "../services/auth";
 
 export default function Cases() {
   const [cases, setCases] = useState<CaseItem[]>([]);
@@ -59,11 +60,17 @@ export default function Cases() {
     }
 
     try {
+      const password = window.prompt("Confirm administrator password");
+      if (!password) {
+        setCreateError("Administrator password confirmation is required.");
+        return;
+      }
+      const reauthToken = await authService.reauth(password);
       const created = await createCase({
         walletRef: walletValue,
         title: title.trim() ? title.trim() : undefined,
         assignedHandler: handler.trim() ? handler.trim() : undefined
-      });
+      }, reauthToken);
       const refreshed = await listCases();
       setCases(refreshed);
       setWalletRef("");

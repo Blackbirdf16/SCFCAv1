@@ -20,10 +20,13 @@ export async function createCase(payload: {
   title?: string;
   assignedHandler?: string;
   caseId?: string;
-}): Promise<CaseItem> {
+}, reauthToken?: string): Promise<CaseItem> {
   const csrf = getCsrfToken();
   const response = await http.post("/api/v1/cases/", payload, {
-    headers: csrf ? { "x-csrf-token": csrf } : undefined
+    headers: {
+      ...(csrf ? { "x-csrf-token": csrf } : {}),
+      ...(reauthToken ? { "x-reauth-token": reauthToken } : {})
+    }
   });
   return response.data?.case;
 }
@@ -55,32 +58,47 @@ export async function createTicket(payload: {
   return response.data?.ticket;
 }
 
-export async function approveTicket(ticketId: string): Promise<Ticket> {
+export async function approveTicket(ticketId: string, reauthToken?: string): Promise<Ticket> {
   const csrf = getCsrfToken();
   const response = await http.post(
     `/api/v1/tickets/${encodeURIComponent(ticketId)}/approve`,
     {},
-    { headers: csrf ? { "x-csrf-token": csrf } : undefined }
+    {
+      headers: {
+        ...(csrf ? { "x-csrf-token": csrf } : {}),
+        ...(reauthToken ? { "x-reauth-token": reauthToken } : {})
+      }
+    }
   );
   return response.data?.ticket;
 }
 
-export async function rejectTicket(ticketId: string): Promise<Ticket> {
+export async function rejectTicket(ticketId: string, reauthToken?: string): Promise<Ticket> {
   const csrf = getCsrfToken();
   const response = await http.post(
     `/api/v1/tickets/${encodeURIComponent(ticketId)}/reject`,
     {},
-    { headers: csrf ? { "x-csrf-token": csrf } : undefined }
+    {
+      headers: {
+        ...(csrf ? { "x-csrf-token": csrf } : {}),
+        ...(reauthToken ? { "x-reauth-token": reauthToken } : {})
+      }
+    }
   );
   return response.data?.ticket;
 }
 
-export async function assignTicket(ticketId: string, assignedTo: string): Promise<Ticket> {
+export async function assignTicket(ticketId: string, assignedTo: string, reauthToken?: string): Promise<Ticket> {
   const csrf = getCsrfToken();
   const response = await http.patch(
     `/api/v1/tickets/${encodeURIComponent(ticketId)}/assign`,
     { assignedTo },
-    { headers: csrf ? { "x-csrf-token": csrf } : undefined }
+    {
+      headers: {
+        ...(csrf ? { "x-csrf-token": csrf } : {}),
+        ...(reauthToken ? { "x-reauth-token": reauthToken } : {})
+      }
+    }
   );
   return response.data?.ticket;
 }

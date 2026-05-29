@@ -23,6 +23,8 @@ Authentication and session handling & backend/api/v1/routes/auth.py; backend/aut
 \hline
 Login throttling / brute-force reduction & backend/auth/login\_throttle.py; backend/api/v1/routes/auth.py & tests/test\_security\_hardening.py & Implemented & In-memory PoC limiter for failed login attempts only; not global or distributed rate limiting. \\
 \hline
+Re-authentication for sensitive administrator actions & backend/auth/reauth.py; backend/api/v1/routes/auth.py; backend/api/v1/routes/cases.py; backend/api/v1/routes/tickets.py & tests/test\_security\_hardening.py; tests/test\_workflows.py & Implemented & Short-lived signed X-Reauth-Token required for admin case creation and ticket assign/approve/reject actions. \\
+\hline
 CSRF protection & backend/auth/csrf.py; mutation routes in backend/api/v1/routes/ & tests/test_security_hardening.py; tests/test_workflows.py & Implemented & Cookie+header token validation. \\
 \hline
 Admin-only case creation & backend/api/v1/routes/cases.py (POST /cases/) & tests/test_workflows.py & Implemented & require\_role(Role.administrator). \\
@@ -131,6 +133,8 @@ Administrator / case-handler separation & Admin blocked from regular custody tic
 \hline
 Login throttling / brute-force reduction & In-memory failed-login counter keyed by normalized username and client IP & backend/auth/login\_throttle.py; backend/api/v1/routes/auth.py & tests/test\_security\_hardening.py & PoC-only, process-local, not distributed production abuse protection. \\
 \hline
+Sensitive administrative action confirmation & Password re-authentication issues a short-lived signed token bound to the current administrator & backend/auth/reauth.py; backend/api/v1/routes/auth.py; backend/api/v1/routes/cases.py; backend/api/v1/routes/tickets.py; frontend/src/pages/Cases.tsx; frontend/src/pages/Tickets.tsx & tests/test\_security\_hardening.py; tests/test\_workflows.py & PoC-level password confirmation only; not MFA or production privileged access management. \\
+\hline
 CSRF protection & CSRF cookie/header check on state-changing routes & backend/auth/csrf.py; mutation routes & tests/test_security_hardening.py & No global API rate limiting claimed beyond narrow login throttling. \\
 \hline
 Audit hash-chain integrity verification & Auditor-only chain verification validates stored hashes and continuity & backend/api/v1/routes/audit.py (/chain/verify) & tests/test\_audit\_hash\_chain.py; tests/test\_workflows.py & Implemented for persisted audit rows; not a separate append-only audit service. \\
@@ -215,13 +219,13 @@ Final reproducibility check & Documented workflow guidance & README.md; docs/evi
 ## Notes for Overleaf
 
 - `backend/db/` is not present; database integration is in `backend/core/database.py`.
-- Out-of-scope controls are intentionally not claimed: MFA, global API rate limiting, re-authentication prompts, HSM/MPC custody, live blockchain execution, and production deployment assurance.
+- Out-of-scope controls are intentionally not claimed: MFA, global API rate limiting, HSM/MPC custody, live blockchain execution, and production deployment assurance. Re-authentication is implemented only for selected sensitive administrator actions.
 
 ## Comparison with Previous Prototype Scope
 
-The previous prototype included some additional application-level security controls such as MFA, re-authentication, broader rate limiting, and asset immutability tests. The current SCFCAv2 repository focuses on a PostgreSQL-backed proof of concept, Docker Compose execution, GitLab CI/CD validation, security scanner evidence, HTML security reports, DAST/container/IaC scanning, and role-aligned UI/RBAC. Controls not implemented in SCFCAv2 are marked as deferred or out of scope rather than claimed.
+The previous prototype included some additional application-level security controls such as MFA, broader rate limiting, and asset immutability tests. The current SCFCAv2 repository focuses on a PostgreSQL-backed proof of concept, Docker Compose execution, GitLab CI/CD validation, security scanner evidence, HTML security reports, DAST/container/IaC scanning, role-aligned UI/RBAC, login throttling, and selected administrative re-authentication. Controls not implemented in SCFCAv2 are marked as deferred or out of scope rather than claimed.
 
 Current repository-only clarification:
 - Implemented in current code/tests: CSRF protection, dual approval workflow, PDF-only document validation, admin-only case creation, auditor-only audit access, and CI security evidence jobs.
-- Not implemented in current code snapshot: MFA, global API rate limiting, and re-authentication enforcement. Narrow in-memory failed-login throttling is implemented for the login endpoint only.
+- Not implemented in current code snapshot: MFA and global API rate limiting. Narrow in-memory failed-login throttling is implemented for the login endpoint only, and selected sensitive administrator actions require recent password re-authentication.
 - Asset immutability tests are present for ORM-level seized-fact guards and absence of direct asset mutation routes.

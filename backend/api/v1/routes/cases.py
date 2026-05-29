@@ -10,6 +10,7 @@ from sqlalchemy.orm import Session
 from backend.api.v1.routes.audit import record_audit_event
 from backend.auth.csrf import require_csrf
 from backend.auth.dependencies import Principal, get_current_principal
+from backend.auth.reauth import require_recent_admin_reauth
 from backend.auth.schemas import Role
 from backend.auth.dependencies import require_role
 from backend.core.database import get_db
@@ -120,6 +121,7 @@ def create_case(
     payload: CaseCreate,
     request: Request,
     _: None = Depends(require_csrf),
+    __: None = Depends(require_recent_admin_reauth),
     principal: Principal = Depends(require_role(Role.administrator)),
     db: Session = Depends(get_db),
 ):

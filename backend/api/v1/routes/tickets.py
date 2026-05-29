@@ -18,6 +18,7 @@ from sqlalchemy.orm import Session
 from backend.api.v1.routes.audit import record_audit_event
 from backend.auth.csrf import require_csrf
 from backend.auth.dependencies import Principal, get_current_principal, require_any_role
+from backend.auth.reauth import require_recent_admin_reauth
 from backend.auth.schemas import Role
 from backend.core.database import get_db
 from backend.core.models import Case, CaseAssignment, Ticket, TicketApproval
@@ -235,7 +236,7 @@ def _append_ticket_event(
         description=description,
         entity_type="ticket",
         entity_id=entity_id,
-        status=status_value,
+        status=status_value or "success",
         result=result,
         source_ip=_source_ip(request),
     )
@@ -449,6 +450,7 @@ def assign_ticket(
     payload: TicketAssignUpdate,
     request: Request,
     _: None = Depends(require_csrf),
+    __: None = Depends(require_recent_admin_reauth),
     principal: Principal = Depends(require_any_role([Role.administrator])),
     db: Session = Depends(get_db),
 ):
@@ -478,6 +480,7 @@ def approve_ticket(
     ticket_id: str,
     request: Request,
     _: None = Depends(require_csrf),
+    __: None = Depends(require_recent_admin_reauth),
     principal: Principal = Depends(require_any_role([Role.administrator])),
     db: Session = Depends(get_db),
 ):
@@ -489,6 +492,7 @@ def reject_ticket(
     ticket_id: str,
     request: Request,
     _: None = Depends(require_csrf),
+    __: None = Depends(require_recent_admin_reauth),
     principal: Principal = Depends(require_any_role([Role.administrator])),
     db: Session = Depends(get_db),
 ):

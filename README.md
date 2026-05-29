@@ -13,6 +13,7 @@ The current SCFCAv2 repository demonstrates:
 - GitLab CI/CD validation and security evidence collection.
 - Backend-enforced role-based access control for regular users, administrators, and auditors.
 - In-memory PoC login throttling for repeated failed login attempts.
+- Short-lived re-authentication tokens for selected sensitive administrator actions.
 - Audit hash-chain continuity verification for persisted audit events.
 - ORM-level seized asset fact immutability guards.
 
@@ -25,8 +26,8 @@ This is not production custody software. It does not execute live blockchain tra
 | regular | `alice` | `alice123` | View assigned cases, create custody workflow tickets for assigned cases, and upload PDFs for assigned cases. |
 | regular | `mark` | `mark123` | View assigned cases, create custody workflow tickets for assigned cases, and upload PDFs for assigned cases. |
 | regular | `john` | `john123` | View assigned cases, create custody workflow tickets for assigned cases, and upload PDFs for assigned cases. |
-| administrator | `bob` | `bob123` | Create custody cases, view all cases and tickets, assign tickets, and approve or reject tickets. |
-| administrator | `eve` | `eve123` | Create custody cases, view all cases and tickets, assign tickets, and approve or reject tickets. |
+| administrator | `bob` | `bob123` | Create custody cases, view all cases and tickets, assign tickets, and approve or reject tickets. Selected sensitive actions require recent password confirmation. |
+| administrator | `eve` | `eve123` | Create custody cases, view all cases and tickets, assign tickets, and approve or reject tickets. Selected sensitive actions require recent password confirmation. |
 | auditor | `carol` | `carol123` | Read-only audit, report, hash lookup, and audit hash-chain verification view. |
 
 Auditors are audit-focused. They do not receive operational case records through the case list API, and the frontend hides operational navigation for the auditor role.
@@ -108,7 +109,7 @@ npm --prefix frontend run dev -- --host 127.0.0.1 --port 5173
 
 ## 5. Automated Tests
 
-Current local verification result: `46 passed, 193 warnings`.
+Current local verification result: `59 passed, 255 warnings`.
 
 Run backend tests:
 
@@ -168,7 +169,7 @@ Current test files:
 14. Show that the auditor role is audit-focused: operational navigation is hidden, and direct case-list API access is denied.
 15. Show GitLab CI evidence and retained artifacts for tests, builds, scanners, and DAST.
 
-This walkthrough does not include ticket execution, multi-factor authentication, re-authentication, or global API rate limiting because those controls are not implemented in the current PoC.
+This walkthrough does not include ticket execution, multi-factor authentication, or global API rate limiting because those controls are not implemented in the current PoC. Re-authentication is implemented only for selected sensitive administrator actions.
 
 ## 7. Security Controls You Can Demonstrate
 
@@ -177,6 +178,7 @@ Implemented controls in the current repository:
 - Backend RBAC and role-based frontend navigation.
 - CSRF protection for state-changing cookie-authenticated routes.
 - In-memory login throttling for repeated failed login attempts to `/api/v1/auth/login`.
+- Short-lived password re-authentication for selected sensitive administrator actions: case creation, ticket approval, ticket rejection, and ticket assignment.
 - Administrator-only case creation.
 - Assigned-case scoping for regular users.
 - Auditor-only audit access.
@@ -194,7 +196,6 @@ Implemented controls in the current repository:
 Not implemented in the current PoC:
 
 - MFA.
-- Re-authentication prompts.
 - Global API rate limiting.
 - Ticket execution or blockchain transaction execution.
 
@@ -346,7 +347,7 @@ Current top-level repository structure:
 - CI security jobs are non-blocking evidence jobs, not production release gates.
 - OWASP ZAP baseline is unauthenticated and does not replace deeper authenticated DAST or manual assessment.
 - No MFA in the current PoC.
-- No re-authentication in the current PoC.
+- Re-authentication is limited to selected sensitive administrator actions and is not MFA or production privileged access management.
 - No global API rate limiting in the current PoC.
 - Login throttling is in-memory and scoped only to failed `/api/v1/auth/login` attempts; it is not distributed production-grade brute-force protection.
 - Asset immutability is SQLAlchemy ORM-level enforcement, not database-trigger immutable storage and not external immutable storage.

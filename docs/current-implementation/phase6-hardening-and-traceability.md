@@ -119,6 +119,47 @@ Limitations:
 - Does not use Redis or external infrastructure.
 - Does not rate-limit health checks, frontend static assets, audit verification, or all API endpoints.
 
+## Administrative Re-Authentication Hardening
+
+Current re-authentication is implemented as a short-lived signed token for selected sensitive administrator actions.
+
+Protected actions:
+
+- Admin-only case creation: `POST /api/v1/cases/`.
+- Ticket assignment: `PATCH /api/v1/tickets/{ticket_id}/assign`.
+- Ticket approval: `POST /api/v1/tickets/{ticket_id}/approve`.
+- Ticket rejection: `POST /api/v1/tickets/{ticket_id}/reject`.
+
+Policy:
+
+- The administrator must already have a valid session.
+- `POST /api/v1/auth/reauth` verifies the current user's password.
+- A signed `X-Reauth-Token` is valid for 5 minutes.
+- Tokens are bound to the authenticated username and role.
+- Missing, invalid, expired, or cross-user tokens return `403`.
+- Wrong password returns `401` with a generic authentication failure.
+
+Evidence:
+
+- `backend/auth/reauth.py`
+- `backend/api/v1/routes/auth.py`
+- `backend/api/v1/routes/cases.py`
+- `backend/api/v1/routes/tickets.py`
+- `frontend/src/services/auth.ts`
+- `frontend/src/services/scfcaData.ts`
+- `frontend/src/pages/Cases.tsx`
+- `frontend/src/pages/Tickets.tsx`
+- `tests/test_security_hardening.py`
+- `tests/test_workflows.py`
+- `docs/traceability/current-requirements-traceability.md`
+
+Limitations:
+
+- Password confirmation only; not MFA.
+- Stateless token; no server-side revocation list.
+- PoC-level privileged action confirmation, not production privileged access management.
+- Does not implement ticket execution or custody execution.
+
 ## RTM Documents
 
 Current traceability files:
@@ -135,7 +176,6 @@ The previous prototype documentation included broader controls than the current 
 Deferred or not implemented in the current PoC:
 
 - MFA.
-- Re-authentication prompts.
 - Global API rate limiting.
 - Ticket execution.
 - Blockchain transaction execution.

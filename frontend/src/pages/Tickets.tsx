@@ -5,6 +5,7 @@ import RoleGuard from "../components/RoleGuard";
 import StatusBadge from "../components/StatusBadge";
 import TableWrapper from "../components/TableWrapper";
 import { useAuth } from "../hooks/useAuth";
+import { authService } from "../services/auth";
 import {
   approveTicket as approveTicketApi,
   assignTicket as assignTicketApi,
@@ -183,7 +184,13 @@ export default function Tickets() {
     if (!user) return;
     if (!canApprove) return;
     try {
-      await approveTicketApi(id);
+      const password = window.prompt("Confirm administrator password");
+      if (!password) {
+        setError("Administrator password confirmation is required.");
+        return;
+      }
+      const reauthToken = await authService.reauth(password);
+      await approveTicketApi(id, reauthToken);
       await refreshTicketData();
     } catch (err: any) {
       console.error(err);
@@ -196,7 +203,13 @@ export default function Tickets() {
     if (!user) return;
     if (!canApprove) return;
     try {
-      await rejectTicketApi(id);
+      const password = window.prompt("Confirm administrator password");
+      if (!password) {
+        setError("Administrator password confirmation is required.");
+        return;
+      }
+      const reauthToken = await authService.reauth(password);
+      await rejectTicketApi(id, reauthToken);
       await refreshTicketData();
     } catch (err: any) {
       console.error(err);
@@ -209,7 +222,13 @@ export default function Tickets() {
     if (!canApprove) return;
     if (!assignTicketId || !assignTo) return;
     try {
-      await assignTicketApi(assignTicketId, assignTo);
+      const password = window.prompt("Confirm administrator password");
+      if (!password) {
+        setError("Administrator password confirmation is required.");
+        return;
+      }
+      const reauthToken = await authService.reauth(password);
+      await assignTicketApi(assignTicketId, assignTo, reauthToken);
       await refreshTicketData();
     } catch (err: any) {
       console.error(err);

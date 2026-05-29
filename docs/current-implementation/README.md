@@ -12,7 +12,7 @@ This directory documents the current SCFCAv2 repository only. The documents are 
 | [Phase 3 - Role-Based Access and UI](phase3-role-based-access-and-ui.md) | Regular/admin/auditor behavior across backend and frontend UI. |
 | [Phase 4 - Audit and Evidence Integrity](phase4-audit-and-evidence-integrity.md) | Audit events, hash-chain fields, chain verification, pagination, hash lookup, and report exports. |
 | [Phase 5 - DevSecOps Security Evidence](phase5-devsecops-security-evidence.md) | GitLab CI jobs, security scanners, evidence artifacts, manual validation, and triage. |
-| [Phase 6 - Hardening and Traceability](phase6-hardening-and-traceability.md) | Hardening work, audit-chain hardening, asset immutability, RTM, previous prototype comparison, and deferred controls. |
+| [Phase 6 - Hardening and Traceability](phase6-hardening-and-traceability.md) | Hardening work, login throttling, re-authentication, audit-chain hardening, asset immutability, RTM, previous prototype comparison, and deferred controls. |
 | [Testing Guide](testing-guide.md) | Current test files, commands, verification result, and CI test behavior. |
 
 ## Requirements Traceability Matrix
@@ -25,7 +25,6 @@ Current RTM documents:
 ## Explicitly Deferred / Not Implemented in Current PoC
 
 - MFA.
-- Re-authentication prompts.
 - Global API rate limiting.
 - Ticket execution.
 - Live blockchain execution.
