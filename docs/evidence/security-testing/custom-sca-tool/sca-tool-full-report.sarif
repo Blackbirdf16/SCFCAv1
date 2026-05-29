@@ -1,0 +1,715 @@
+{
+  "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "sca_tool",
+          "informationUri": "https://nvd.nist.gov/developers/vulnerabilities",
+          "rules": [
+            {
+              "id": "CVE-2021-32677",
+              "name": "CVE-2021-32677",
+              "shortDescription": {
+                "text": "CVE-2021-32677 vulnerability"
+              },
+              "fullDescription": {
+                "text": "FastAPI is a web framework for building APIs with Python 3.6+ based on standard Python type hints. FastAPI versions lower than 0.65.2 that used cookies for authentication in path operations that received JSON payloads sent by browsers were vulnerable to a Cross-Site Request Forgery (CSRF) attack. In versions lower than 0.65.2, FastAPI would try to read the request payload as JSON even if the content-type header sent was not set to application/json or a compatible JSON media type (e.g. applicatio"
+              },
+              "properties": {
+                "security-severity": "8.2",
+                "severity": "HIGH",
+                "cvssVersion": "3.1"
+              }
+            },
+            {
+              "id": "CVE-2025-53539",
+              "name": "CVE-2025-53539",
+              "shortDescription": {
+                "text": "CVE-2025-53539 vulnerability"
+              },
+              "fullDescription": {
+                "text": "FastAPI Guard is a security library for FastAPI that provides middleware to control IPs, log requests, and detect penetration attempts. fastapi-guard's penetration attempts detection uses regex to scan incoming requests. However, some of the regex patterns used in detection are extremely inefficient and can cause polynomial complexity backtracks when handling specially crafted inputs. This vulnerability is fixed in 3.0.1."
+              },
+              "properties": {
+                "security-severity": "7.5",
+                "severity": "HIGH",
+                "cvssVersion": "3.1"
+              }
+            },
+            {
+              "id": "CVE-2025-54365",
+              "name": "CVE-2025-54365",
+              "shortDescription": {
+                "text": "CVE-2025-54365 vulnerability"
+              },
+              "fullDescription": {
+                "text": "fastapi-guard is a security library for FastAPI that provides middleware to control IPs, log requests, detect penetration attempts and more. In version 3.0.1, the regular expression patched to mitigate the ReDoS vulnerability by limiting the length of string fails to catch inputs that exceed this limit. This type of patch fails to detect cases in which the string representing the attributes of a <script> tag exceeds 100 characters. As a result, most of the regex patterns present in version 3.0.1"
+              },
+              "properties": {
+                "security-severity": "7.5",
+                "severity": "HIGH",
+                "cvssVersion": "3.1"
+              }
+            },
+            {
+              "id": "CVE-2025-68481",
+              "name": "CVE-2025-68481",
+              "shortDescription": {
+                "text": "CVE-2025-68481 vulnerability"
+              },
+              "fullDescription": {
+                "text": "FastAPI Users allows users to quickly add a registration and authentication system to their FastAPI project. Prior to version 15.0.2, the OAuth login state tokens are completely stateless and carry no per-request entropy or any data that could link them to the session that initiated the OAuth flow. `generate_state_token()` is always called with an empty `state_data` dict, so the resulting JWT only contains the fixed audience claim plus an expiration timestamp. On callback, the library merely che"
+              },
+              "properties": {
+                "security-severity": "5.9",
+                "severity": "MEDIUM",
+                "cvssVersion": "3.1"
+              }
+            },
+            {
+              "id": "CVE-2026-23996",
+              "name": "CVE-2026-23996",
+              "shortDescription": {
+                "text": "CVE-2026-23996 vulnerability"
+              },
+              "fullDescription": {
+                "text": "FastAPI Api Key provides a backend-agnostic library that provides an API key system. Version 1.1.0 has a timing side-channel vulnerability in verify_key(). The method applied a random delay only on verification failures, allowing an attacker to statistically distinguish valid from invalid API keys by measuring response latencies. With enough repeated requests, an adversary could infer whether a key_id corresponds to a valid key, potentially accelerating brute-force or enumeration attacks. All us"
+              },
+              "properties": {
+                "security-severity": "3.7",
+                "severity": "LOW",
+                "cvssVersion": "3.1"
+              }
+            },
+            {
+              "id": "CVE-2025-46814",
+              "name": "CVE-2025-46814",
+              "shortDescription": {
+                "text": "CVE-2025-46814 vulnerability"
+              },
+              "fullDescription": {
+                "text": "FastAPI Guard is a security library for FastAPI that provides middleware to control IPs, log requests, and detect penetration attempts. An HTTP header injection vulnerability has been identified in versions prior to 2.0.0. By manipulating the X-Forwarded-For header, an attacker can potentially inject arbitrary IP addresses into the request. This vulnerability can allow attackers to bypass IP-based access controls, mislead logging systems, and impersonate trusted clients. It is especially impactf"
+              },
+              "properties": {
+                "security-severity": "3.4",
+                "severity": "LOW",
+                "cvssVersion": "3.1"
+              }
+            },
+            {
+              "id": "CVE-2026-25580",
+              "name": "CVE-2026-25580",
+              "shortDescription": {
+                "text": "CVE-2026-25580 vulnerability"
+              },
+              "fullDescription": {
+                "text": "Pydantic AI is a Python agent framework for building applications and workflows with Generative AI. From 0.0.26 to before 1.56.0, aServer-Side Request Forgery (SSRF) vulnerability exists in Pydantic AI's URL download functionality. When applications accept message history from untrusted sources, attackers can include malicious URLs that cause the server to make HTTP requests to internal network resources, potentially accessing internal services or cloud credentials. This vulnerability only affec"
+              },
+              "properties": {
+                "security-severity": "8.6",
+                "severity": "HIGH",
+                "cvssVersion": "3.1"
+              }
+            },
+            {
+              "id": "CVE-2026-25640",
+              "name": "CVE-2026-25640",
+              "shortDescription": {
+                "text": "CVE-2026-25640 vulnerability"
+              },
+              "fullDescription": {
+                "text": "Pydantic AI is a Python agent framework for building applications and workflows with Generative AI. From 1.34.0 to before 1.51.0,  a path traversal vulnerability in the Pydantic AI web UI allows an attacker to serve arbitrary JavaScript in the context of the application by crafting a malicious URL. In affected versions, the CDN URL is constructed using a version query parameter from the request URL. This parameter is not validated, allowing path traversal sequences that cause the server to fetch"
+              },
+              "properties": {
+                "security-severity": "7.1",
+                "severity": "HIGH",
+                "cvssVersion": "3.1"
+              }
+            },
+            {
+              "id": "CVE-2021-29510",
+              "name": "CVE-2021-29510",
+              "shortDescription": {
+                "text": "CVE-2021-29510 vulnerability"
+              },
+              "fullDescription": {
+                "text": "Pydantic is a data validation and settings management using Python type hinting. In affected versions passing either `'infinity'`, `'inf'` or `float('inf')` (or their negatives) to `datetime` or `date` fields causes validation to run forever with 100% CPU usage (on one CPU). Pydantic has been patched with fixes available in the following versions: v1.8.2, v1.7.4, v1.6.2. All these versions are available on pypi(https://pypi.org/project/pydantic/#history), and will be available on conda-forge(htt"
+              },
+              "properties": {
+                "security-severity": "3.3",
+                "severity": "LOW",
+                "cvssVersion": "3.1"
+              }
+            },
+            {
+              "id": "CVE-2019-7164",
+              "name": "CVE-2019-7164",
+              "shortDescription": {
+                "text": "CVE-2019-7164 vulnerability"
+              },
+              "fullDescription": {
+                "text": "SQLAlchemy through 1.2.17 and 1.3.x through 1.3.0b2 allows SQL Injection via the order_by parameter."
+              },
+              "properties": {
+                "security-severity": "9.8",
+                "severity": "CRITICAL",
+                "cvssVersion": "3.1"
+              }
+            },
+            {
+              "id": "CVE-2019-7548",
+              "name": "CVE-2019-7548",
+              "shortDescription": {
+                "text": "CVE-2019-7548 vulnerability"
+              },
+              "fullDescription": {
+                "text": "SQLAlchemy 1.2.17 has SQL Injection when the group_by parameter can be controlled."
+              },
+              "properties": {
+                "security-severity": "7.8",
+                "severity": "HIGH",
+                "cvssVersion": "3.1"
+              }
+            },
+            {
+              "id": "CVE-2012-0805",
+              "name": "CVE-2012-0805",
+              "shortDescription": {
+                "text": "CVE-2012-0805 vulnerability"
+              },
+              "fullDescription": {
+                "text": "Multiple SQL injection vulnerabilities in SQLAlchemy before 0.7.0b4, as used in Keystone, allow remote attackers to execute arbitrary SQL commands via the (1) limit or (2) offset keyword to the select function, or unspecified vectors to the (3) select.limit or (4) select.offset function."
+              },
+              "properties": {
+                "security-severity": "7.5",
+                "severity": "HIGH",
+                "cvssVersion": "2.0"
+              }
+            },
+            {
+              "id": "CVE-2022-40023",
+              "name": "CVE-2022-40023",
+              "shortDescription": {
+                "text": "CVE-2022-40023 vulnerability"
+              },
+              "fullDescription": {
+                "text": "Sqlalchemy mako before 1.2.2 is vulnerable to Regular expression Denial of Service when using the Lexer class to parse. This also affects babelplugin and linguaplugin."
+              },
+              "properties": {
+                "security-severity": "7.5",
+                "severity": "HIGH",
+                "cvssVersion": "3.1"
+              }
+            },
+            {
+              "id": "CVE-2022-35918",
+              "name": "CVE-2022-35918",
+              "shortDescription": {
+                "text": "CVE-2022-35918 vulnerability"
+              },
+              "fullDescription": {
+                "text": "Streamlit is a data oriented application development framework for python. Users hosting Streamlit app(s) that use custom components are vulnerable to a directory traversal attack that could leak data from their web server file-system such as: server logs, world readable files, and potentially other sensitive information. An attacker can craft a malicious URL with file paths and the streamlit server would process that URL and return the contents of that file. This issue has been resolved in vers"
+              },
+              "properties": {
+                "security-severity": "6.5",
+                "severity": "MEDIUM",
+                "cvssVersion": "3.1"
+              }
+            },
+            {
+              "id": "CVE-2024-42474",
+              "name": "CVE-2024-42474",
+              "shortDescription": {
+                "text": "CVE-2024-42474 vulnerability"
+              },
+              "fullDescription": {
+                "text": "Streamlit is a data oriented application development framework for python. Snowflake Streamlit open source addressed a security vulnerability via the static file sharing feature. Users of hosted Streamlit app(s) on Windows were vulnerable to a path traversal vulnerability when the static file sharing feature is enabled. An attacker could utilize the vulnerability to leak the password hash of the Windows user running Streamlit. The vulnerability was patched on Jul 25, 2024, as part of Streamlit o"
+              },
+              "properties": {
+                "security-severity": "6.5",
+                "severity": "MEDIUM",
+                "cvssVersion": "3.1"
+              }
+            },
+            {
+              "id": "CVE-2023-27494",
+              "name": "CVE-2023-27494",
+              "shortDescription": {
+                "text": "CVE-2023-27494 vulnerability"
+              },
+              "fullDescription": {
+                "text": "Streamlit, software for turning data scripts into web applications, had a cross-site scripting (XSS) vulnerability in versions 0.63.0 through 0.80.0. Users of hosted Streamlit app(s) were vulnerable to a reflected XSS vulnerability. An attacker could craft a malicious URL with Javascript payloads to a Streamlit app. The attacker could then trick the user into visiting the malicious URL and, if successful, the server would render the malicious javascript payload as-is, leading to XSS. Version 0.8"
+              },
+              "properties": {
+                "security-severity": "5.9",
+                "severity": "MEDIUM",
+                "cvssVersion": "3.1"
+              }
+            },
+            {
+              "id": "CVE-2026-33682",
+              "name": "CVE-2026-33682",
+              "shortDescription": {
+                "text": "CVE-2026-33682 vulnerability"
+              },
+              "fullDescription": {
+                "text": "Streamlit is a data oriented application development framework for python. Streamlit Open Source versions prior to 1.54.0 running on Windows hosts have an unauthenticated Server-Side Request Forgery (SSRF) vulnerability. The vulnerability arises from improper validation of attacker-supplied filesystem paths. In certain code paths, including within the `ComponentRequestHandler`, filesystem paths are resolved using `os.path.realpath()` or `Path.resolve()` before sufficient validation occurs. On Wi"
+              },
+              "properties": {
+                "security-severity": "4.7",
+                "severity": "MEDIUM",
+                "cvssVersion": "3.1"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "CVE-2021-32677",
+          "level": "error",
+          "message": {
+            "text": "fastapi unknown is affected by CVE-2021-32677 (CVSS 8.2, HIGH)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "unknown"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "dependency": "fastapi",
+            "version": "unknown",
+            "ecosystem": "python",
+            "scope": "production",
+            "cvss_score": 8.2,
+            "cvss_version": "3.1",
+            "severity": "HIGH",
+            "risk_score": 7.54
+          }
+        },
+        {
+          "ruleId": "CVE-2025-53539",
+          "level": "error",
+          "message": {
+            "text": "fastapi unknown is affected by CVE-2025-53539 (CVSS 7.5, HIGH)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "unknown"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "dependency": "fastapi",
+            "version": "unknown",
+            "ecosystem": "python",
+            "scope": "production",
+            "cvss_score": 7.5,
+            "cvss_version": "3.1",
+            "severity": "HIGH",
+            "risk_score": 7.54
+          }
+        },
+        {
+          "ruleId": "CVE-2025-54365",
+          "level": "error",
+          "message": {
+            "text": "fastapi unknown is affected by CVE-2025-54365 (CVSS 7.5, HIGH)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "unknown"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "dependency": "fastapi",
+            "version": "unknown",
+            "ecosystem": "python",
+            "scope": "production",
+            "cvss_score": 7.5,
+            "cvss_version": "3.1",
+            "severity": "HIGH",
+            "risk_score": 7.54
+          }
+        },
+        {
+          "ruleId": "CVE-2025-68481",
+          "level": "warning",
+          "message": {
+            "text": "fastapi unknown is affected by CVE-2025-68481 (CVSS 5.9, MEDIUM)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "unknown"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "dependency": "fastapi",
+            "version": "unknown",
+            "ecosystem": "python",
+            "scope": "production",
+            "cvss_score": 5.9,
+            "cvss_version": "3.1",
+            "severity": "MEDIUM",
+            "risk_score": 7.54
+          }
+        },
+        {
+          "ruleId": "CVE-2026-23996",
+          "level": "note",
+          "message": {
+            "text": "fastapi unknown is affected by CVE-2026-23996 (CVSS 3.7, LOW)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "unknown"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "dependency": "fastapi",
+            "version": "unknown",
+            "ecosystem": "python",
+            "scope": "production",
+            "cvss_score": 3.7,
+            "cvss_version": "3.1",
+            "severity": "LOW",
+            "risk_score": 7.54
+          }
+        },
+        {
+          "ruleId": "CVE-2025-46814",
+          "level": "note",
+          "message": {
+            "text": "fastapi unknown is affected by CVE-2025-46814 (CVSS 3.4, LOW)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "unknown"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "dependency": "fastapi",
+            "version": "unknown",
+            "ecosystem": "python",
+            "scope": "production",
+            "cvss_score": 3.4,
+            "cvss_version": "3.1",
+            "severity": "LOW",
+            "risk_score": 7.54
+          }
+        },
+        {
+          "ruleId": "CVE-2026-25580",
+          "level": "error",
+          "message": {
+            "text": "pydantic unknown is affected by CVE-2026-25580 (CVSS 8.6, HIGH)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "unknown"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "dependency": "pydantic",
+            "version": "unknown",
+            "ecosystem": "python",
+            "scope": "production",
+            "cvss_score": 8.6,
+            "cvss_version": "3.1",
+            "severity": "HIGH",
+            "risk_score": 7.82
+          }
+        },
+        {
+          "ruleId": "CVE-2026-25640",
+          "level": "error",
+          "message": {
+            "text": "pydantic unknown is affected by CVE-2026-25640 (CVSS 7.1, HIGH)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "unknown"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "dependency": "pydantic",
+            "version": "unknown",
+            "ecosystem": "python",
+            "scope": "production",
+            "cvss_score": 7.1,
+            "cvss_version": "3.1",
+            "severity": "HIGH",
+            "risk_score": 7.82
+          }
+        },
+        {
+          "ruleId": "CVE-2021-29510",
+          "level": "note",
+          "message": {
+            "text": "pydantic unknown is affected by CVE-2021-29510 (CVSS 3.3, LOW)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "unknown"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "dependency": "pydantic",
+            "version": "unknown",
+            "ecosystem": "python",
+            "scope": "production",
+            "cvss_score": 3.3,
+            "cvss_version": "3.1",
+            "severity": "LOW",
+            "risk_score": 7.82
+          }
+        },
+        {
+          "ruleId": "CVE-2019-7164",
+          "level": "error",
+          "message": {
+            "text": "sqlalchemy unknown is affected by CVE-2019-7164 (CVSS 9.8, CRITICAL)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "unknown"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "dependency": "sqlalchemy",
+            "version": "unknown",
+            "ecosystem": "python",
+            "scope": "production",
+            "cvss_score": 9.8,
+            "cvss_version": "3.1",
+            "severity": "CRITICAL",
+            "risk_score": 8.66
+          }
+        },
+        {
+          "ruleId": "CVE-2019-7548",
+          "level": "error",
+          "message": {
+            "text": "sqlalchemy unknown is affected by CVE-2019-7548 (CVSS 7.8, HIGH)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "unknown"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "dependency": "sqlalchemy",
+            "version": "unknown",
+            "ecosystem": "python",
+            "scope": "production",
+            "cvss_score": 7.8,
+            "cvss_version": "3.1",
+            "severity": "HIGH",
+            "risk_score": 8.66
+          }
+        },
+        {
+          "ruleId": "CVE-2012-0805",
+          "level": "error",
+          "message": {
+            "text": "sqlalchemy unknown is affected by CVE-2012-0805 (CVSS 7.5, HIGH)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "unknown"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "dependency": "sqlalchemy",
+            "version": "unknown",
+            "ecosystem": "python",
+            "scope": "production",
+            "cvss_score": 7.5,
+            "cvss_version": "2.0",
+            "severity": "HIGH",
+            "risk_score": 8.66
+          }
+        },
+        {
+          "ruleId": "CVE-2022-40023",
+          "level": "error",
+          "message": {
+            "text": "sqlalchemy unknown is affected by CVE-2022-40023 (CVSS 7.5, HIGH)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "unknown"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "dependency": "sqlalchemy",
+            "version": "unknown",
+            "ecosystem": "python",
+            "scope": "production",
+            "cvss_score": 7.5,
+            "cvss_version": "3.1",
+            "severity": "HIGH",
+            "risk_score": 8.66
+          }
+        },
+        {
+          "ruleId": "CVE-2022-35918",
+          "level": "warning",
+          "message": {
+            "text": "streamlit unknown is affected by CVE-2022-35918 (CVSS 6.5, MEDIUM)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "unknown"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "dependency": "streamlit",
+            "version": "unknown",
+            "ecosystem": "python",
+            "scope": "production",
+            "cvss_score": 6.5,
+            "cvss_version": "3.1",
+            "severity": "MEDIUM",
+            "risk_score": 6.35
+          }
+        },
+        {
+          "ruleId": "CVE-2024-42474",
+          "level": "warning",
+          "message": {
+            "text": "streamlit unknown is affected by CVE-2024-42474 (CVSS 6.5, MEDIUM)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "unknown"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "dependency": "streamlit",
+            "version": "unknown",
+            "ecosystem": "python",
+            "scope": "production",
+            "cvss_score": 6.5,
+            "cvss_version": "3.1",
+            "severity": "MEDIUM",
+            "risk_score": 6.35
+          }
+        },
+        {
+          "ruleId": "CVE-2023-27494",
+          "level": "warning",
+          "message": {
+            "text": "streamlit unknown is affected by CVE-2023-27494 (CVSS 5.9, MEDIUM)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "unknown"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "dependency": "streamlit",
+            "version": "unknown",
+            "ecosystem": "python",
+            "scope": "production",
+            "cvss_score": 5.9,
+            "cvss_version": "3.1",
+            "severity": "MEDIUM",
+            "risk_score": 6.35
+          }
+        },
+        {
+          "ruleId": "CVE-2026-33682",
+          "level": "warning",
+          "message": {
+            "text": "streamlit unknown is affected by CVE-2026-33682 (CVSS 4.7, MEDIUM)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "unknown"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "dependency": "streamlit",
+            "version": "unknown",
+            "ecosystem": "python",
+            "scope": "production",
+            "cvss_score": 4.7,
+            "cvss_version": "3.1",
+            "severity": "MEDIUM",
+            "risk_score": 6.35
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,523 @@
+{
+  "results": [
+    {
+      "dependency": {
+        "name": "fastapi",
+        "version": null,
+        "ecosystem": "python",
+        "source": "python_source",
+        "scope": "production",
+        "group": null,
+        "artifact": null,
+        "raw_spec": null,
+        "provenance": [
+          "python_source"
+        ],
+        "confidence": "low"
+      },
+      "vulnerabilities": [
+        {
+          "cve_id": "CVE-2021-32677",
+          "description": "FastAPI is a web framework for building APIs with Python 3.6+ based on standard Python type hints. FastAPI versions lower than 0.65.2 that used cookies for authentication in path operations that received JSON payloads sent by browsers were vulnerable to a Cross-Site Request Forgery (CSRF) attack. In versions lower than 0.65.2, FastAPI would try to read the request payload as JSON even if the content-type header sent was not set to application/json or a compatible JSON media type (e.g. applicatio",
+          "cvss_score": 8.2,
+          "severity": "HIGH",
+          "cvss_version": "3.1",
+          "affected": true,
+          "references": [
+            "https://github.com/tiangolo/fastapi/commit/fa7e3c996edf2d5482fff8f9d890ac2390dede4d",
+            "https://github.com/tiangolo/fastapi/security/advisories/GHSA-8h2j-cgx8-6xv7",
+            "https://lists.fedoraproject.org/archives/list/package-announce%40lists.fedoraproject.org/message/MATAWX25TYKNEKLDMKWNLYDB34UWTROA/",
+            "https://github.com/tiangolo/fastapi/commit/fa7e3c996edf2d5482fff8f9d890ac2390dede4d",
+            "https://github.com/tiangolo/fastapi/security/advisories/GHSA-8h2j-cgx8-6xv7",
+            "https://lists.fedoraproject.org/archives/list/package-announce%40lists.fedoraproject.org/message/MATAWX25TYKNEKLDMKWNLYDB34UWTROA/"
+          ],
+          "fixed_versions": [
+            "0.65.2"
+          ],
+          "exploit_available": false
+        },
+        {
+          "cve_id": "CVE-2025-53539",
+          "description": "FastAPI Guard is a security library for FastAPI that provides middleware to control IPs, log requests, and detect penetration attempts. fastapi-guard's penetration attempts detection uses regex to scan incoming requests. However, some of the regex patterns used in detection are extremely inefficient and can cause polynomial complexity backtracks when handling specially crafted inputs. This vulnerability is fixed in 3.0.1.",
+          "cvss_score": 7.5,
+          "severity": "HIGH",
+          "cvss_version": "3.1",
+          "affected": true,
+          "references": [
+            "https://github.com/rennf93/fastapi-guard/commit/d9d50e8130b7b434cdc1b001b8cfd03a06729f7f",
+            "https://github.com/rennf93/fastapi-guard/security/advisories/GHSA-j47q-rc62-w448"
+          ],
+          "fixed_versions": [
+            "3.0.1"
+          ],
+          "exploit_available": false
+        },
+        {
+          "cve_id": "CVE-2025-54365",
+          "description": "fastapi-guard is a security library for FastAPI that provides middleware to control IPs, log requests, detect penetration attempts and more. In version 3.0.1, the regular expression patched to mitigate the ReDoS vulnerability by limiting the length of string fails to catch inputs that exceed this limit. This type of patch fails to detect cases in which the string representing the attributes of a <script> tag exceeds 100 characters. As a result, most of the regex patterns present in version 3.0.1",
+          "cvss_score": 7.5,
+          "severity": "HIGH",
+          "cvss_version": "3.1",
+          "affected": true,
+          "references": [
+            "https://github.com/rennf93/fastapi-guard/commit/0829292c322d33dc14ab00c5451c5c138148035a",
+            "https://github.com/rennf93/fastapi-guard/commit/d9d50e8130b7b434cdc1b001b8cfd03a06729f7f",
+            "https://github.com/rennf93/fastapi-guard/security/advisories/GHSA-rrf6-pxg8-684g",
+            "https://github.com/rennf93/fastapi-guard/security/advisories/GHSA-rrf6-pxg8-684g"
+          ],
+          "fixed_versions": [],
+          "exploit_available": false
+        },
+        {
+          "cve_id": "CVE-2025-68481",
+          "description": "FastAPI Users allows users to quickly add a registration and authentication system to their FastAPI project. Prior to version 15.0.2, the OAuth login state tokens are completely stateless and carry no per-request entropy or any data that could link them to the session that initiated the OAuth flow. `generate_state_token()` is always called with an empty `state_data` dict, so the resulting JWT only contains the fixed audience claim plus an expiration timestamp. On callback, the library merely che",
+          "cvss_score": 5.9,
+          "severity": "MEDIUM",
+          "cvss_version": "3.1",
+          "affected": true,
+          "references": [
+            "https://github.com/fastapi-users/fastapi-users/blob/bcee8c9b884de31decb5d799aead3974a0b5b158/fastapi_users/router/oauth.py#L111",
+            "https://github.com/fastapi-users/fastapi-users/blob/bcee8c9b884de31decb5d799aead3974a0b5b158/fastapi_users/router/oauth.py#L57",
+            "https://github.com/fastapi-users/fastapi-users/commit/7cf413cd766b9cb0ab323ce424ddab2c0d235932",
+            "https://github.com/fastapi-users/fastapi-users/security/advisories/GHSA-5j53-63w8-8625"
+          ],
+          "fixed_versions": [
+            "15.0.2"
+          ],
+          "exploit_available": false
+        },
+        {
+          "cve_id": "CVE-2026-23996",
+          "description": "FastAPI Api Key provides a backend-agnostic library that provides an API key system. Version 1.1.0 has a timing side-channel vulnerability in verify_key(). The method applied a random delay only on verification failures, allowing an attacker to statistically distinguish valid from invalid API keys by measuring response latencies. With enough repeated requests, an adversary could infer whether a key_id corresponds to a valid key, potentially accelerating brute-force or enumeration attacks. All us",
+          "cvss_score": 3.7,
+          "severity": "LOW",
+          "cvss_version": "3.1",
+          "affected": true,
+          "references": [
+            "https://github.com/Athroniaeth/fastapi-api-key/commit/310b2c5c77305f38c63c0b917539a0344071dfd8",
+            "https://github.com/Athroniaeth/fastapi-api-key/releases/tag/1.1.0",
+            "https://github.com/Athroniaeth/fastapi-api-key/security/advisories/GHSA-95c6-p277-p87g"
+          ],
+          "fixed_versions": [
+            "1.1.0"
+          ],
+          "exploit_available": false
+        },
+        {
+          "cve_id": "CVE-2025-46814",
+          "description": "FastAPI Guard is a security library for FastAPI that provides middleware to control IPs, log requests, and detect penetration attempts. An HTTP header injection vulnerability has been identified in versions prior to 2.0.0. By manipulating the X-Forwarded-For header, an attacker can potentially inject arbitrary IP addresses into the request. This vulnerability can allow attackers to bypass IP-based access controls, mislead logging systems, and impersonate trusted clients. It is especially impactf",
+          "cvss_score": 3.4,
+          "severity": "LOW",
+          "cvss_version": "3.1",
+          "affected": true,
+          "references": [
+            "https://github.com/rennf93/fastapi-guard/commit/0b003fda4c678c1b514e95f319aee88113e9bf4b",
+            "https://github.com/rennf93/fastapi-guard/security/advisories/GHSA-77q8-qmj7-x7pp"
+          ],
+          "fixed_versions": [
+            "2.0.0"
+          ],
+          "exploit_available": false
+        }
+      ],
+      "risk_score": 7.54,
+      "recommendation": "Upgrade immediately and review production exposure. Suggested fix version(s): 0.65.2, 1.1.0, 15.0.2, 2.0.0, 3.0.1.",
+      "confidence": "low"
+    },
+    {
+      "dependency": {
+        "name": "hypothesis",
+        "version": null,
+        "ecosystem": "python",
+        "source": "python_source",
+        "scope": "production",
+        "group": null,
+        "artifact": null,
+        "raw_spec": null,
+        "provenance": [
+          "python_source"
+        ],
+        "confidence": "low"
+      },
+      "vulnerabilities": [],
+      "risk_score": 0.0,
+      "recommendation": "No action needed.",
+      "confidence": "low"
+    },
+    {
+      "dependency": {
+        "name": "passlib",
+        "version": null,
+        "ecosystem": "python",
+        "source": "python_source",
+        "scope": "production",
+        "group": null,
+        "artifact": null,
+        "raw_spec": null,
+        "provenance": [
+          "python_source"
+        ],
+        "confidence": "low"
+      },
+      "vulnerabilities": [],
+      "risk_score": 0.0,
+      "recommendation": "No action needed.",
+      "confidence": "low"
+    },
+    {
+      "dependency": {
+        "name": "pydantic",
+        "version": null,
+        "ecosystem": "python",
+        "source": "python_source",
+        "scope": "production",
+        "group": null,
+        "artifact": null,
+        "raw_spec": null,
+        "provenance": [
+          "python_source"
+        ],
+        "confidence": "low"
+      },
+      "vulnerabilities": [
+        {
+          "cve_id": "CVE-2026-25580",
+          "description": "Pydantic AI is a Python agent framework for building applications and workflows with Generative AI. From 0.0.26 to before 1.56.0, aServer-Side Request Forgery (SSRF) vulnerability exists in Pydantic AI's URL download functionality. When applications accept message history from untrusted sources, attackers can include malicious URLs that cause the server to make HTTP requests to internal network resources, potentially accessing internal services or cloud credentials. This vulnerability only affec",
+          "cvss_score": 8.6,
+          "severity": "HIGH",
+          "cvss_version": "3.1",
+          "affected": true,
+          "references": [
+            "https://github.com/pydantic/pydantic-ai/commit/d398bc9d39aecca6530fa7486a410d5cce936301",
+            "https://github.com/pydantic/pydantic-ai/security/advisories/GHSA-2jrp-274c-jhv3"
+          ],
+          "fixed_versions": [
+            "1.56.0"
+          ],
+          "exploit_available": false
+        },
+        {
+          "cve_id": "CVE-2026-25640",
+          "description": "Pydantic AI is a Python agent framework for building applications and workflows with Generative AI. From 1.34.0 to before 1.51.0,  a path traversal vulnerability in the Pydantic AI web UI allows an attacker to serve arbitrary JavaScript in the context of the application by crafting a malicious URL. In affected versions, the CDN URL is constructed using a version query parameter from the request URL. This parameter is not validated, allowing path traversal sequences that cause the server to fetch",
+          "cvss_score": 7.1,
+          "severity": "HIGH",
+          "cvss_version": "3.1",
+          "affected": true,
+          "references": [
+            "https://github.com/pydantic/pydantic-ai/releases/tag/v1.51.0",
+            "https://github.com/pydantic/pydantic-ai/security/advisories/GHSA-wjp5-868j-wqv7"
+          ],
+          "fixed_versions": [
+            "1.51.0"
+          ],
+          "exploit_available": false
+        },
+        {
+          "cve_id": "CVE-2021-29510",
+          "description": "Pydantic is a data validation and settings management using Python type hinting. In affected versions passing either `'infinity'`, `'inf'` or `float('inf')` (or their negatives) to `datetime` or `date` fields causes validation to run forever with 100% CPU usage (on one CPU). Pydantic has been patched with fixes available in the following versions: v1.8.2, v1.7.4, v1.6.2. All these versions are available on pypi(https://pypi.org/project/pydantic/#history), and will be available on conda-forge(htt",
+          "cvss_score": 3.3,
+          "severity": "LOW",
+          "cvss_version": "3.1",
+          "affected": true,
+          "references": [
+            "https://github.com/samuelcolvin/pydantic/commit/7e83fdd2563ffac081db7ecdf1affa65ef38c468",
+            "https://github.com/samuelcolvin/pydantic/security/advisories/GHSA-5jqp-qgf6-3pvh",
+            "https://lists.fedoraproject.org/archives/list/package-announce%40lists.fedoraproject.org/message/S2HT266L6Q7H6ICP7DFGXOGBJHNNKMKB/",
+            "https://lists.fedoraproject.org/archives/list/package-announce%40lists.fedoraproject.org/message/UEFWM7DYKD2ZHE7R5YT5EQWJPV4ZKYRB/",
+            "https://lists.fedoraproject.org/archives/list/package-announce%40lists.fedoraproject.org/message/UMKAJX4O6IGBBCE32CO2G7PZQCCQSBLV/",
+            "https://github.com/samuelcolvin/pydantic/commit/7e83fdd2563ffac081db7ecdf1affa65ef38c468",
+            "https://github.com/samuelcolvin/pydantic/security/advisories/GHSA-5jqp-qgf6-3pvh",
+            "https://lists.fedoraproject.org/archives/list/package-announce%40lists.fedoraproject.org/message/S2HT266L6Q7H6ICP7DFGXOGBJHNNKMKB/",
+            "https://lists.fedoraproject.org/archives/list/package-announce%40lists.fedoraproject.org/message/UEFWM7DYKD2ZHE7R5YT5EQWJPV4ZKYRB/",
+            "https://lists.fedoraproject.org/archives/list/package-announce%40lists.fedoraproject.org/message/UMKAJX4O6IGBBCE32CO2G7PZQCCQSBLV/"
+          ],
+          "fixed_versions": [
+            "1.6.2",
+            "1.7.4",
+            "1.8.2"
+          ],
+          "exploit_available": false
+        }
+      ],
+      "risk_score": 7.82,
+      "recommendation": "Upgrade immediately and review production exposure. Suggested fix version(s): 1.51.0, 1.56.0, 1.6.2, 1.7.4, 1.8.2.",
+      "confidence": "low"
+    },
+    {
+      "dependency": {
+        "name": "pydantic-settings",
+        "version": null,
+        "ecosystem": "python",
+        "source": "python_source",
+        "scope": "production",
+        "group": null,
+        "artifact": null,
+        "raw_spec": null,
+        "provenance": [
+          "python_source"
+        ],
+        "confidence": "low"
+      },
+      "vulnerabilities": [],
+      "risk_score": 0.0,
+      "recommendation": "No action needed.",
+      "confidence": "low"
+    },
+    {
+      "dependency": {
+        "name": "pytest",
+        "version": null,
+        "ecosystem": "python",
+        "source": "python_source",
+        "scope": "development",
+        "group": null,
+        "artifact": null,
+        "raw_spec": null,
+        "provenance": [
+          "python_source"
+        ],
+        "confidence": "low"
+      },
+      "vulnerabilities": [],
+      "risk_score": 0.0,
+      "recommendation": "No action needed.",
+      "confidence": "low"
+    },
+    {
+      "dependency": {
+        "name": "sqlalchemy",
+        "version": null,
+        "ecosystem": "python",
+        "source": "python_source",
+        "scope": "production",
+        "group": null,
+        "artifact": null,
+        "raw_spec": null,
+        "provenance": [
+          "python_source"
+        ],
+        "confidence": "low"
+      },
+      "vulnerabilities": [
+        {
+          "cve_id": "CVE-2019-7164",
+          "description": "SQLAlchemy through 1.2.17 and 1.3.x through 1.3.0b2 allows SQL Injection via the order_by parameter.",
+          "cvss_score": 9.8,
+          "severity": "CRITICAL",
+          "cvss_version": "3.1",
+          "affected": true,
+          "references": [
+            "http://lists.opensuse.org/opensuse-security-announce/2019-08/msg00087.html",
+            "http://lists.opensuse.org/opensuse-security-announce/2019-09/msg00010.html",
+            "http://lists.opensuse.org/opensuse-security-announce/2019-09/msg00016.html",
+            "https://access.redhat.com/errata/RHSA-2019:0981",
+            "https://access.redhat.com/errata/RHSA-2019:0984",
+            "https://github.com/sqlalchemy/sqlalchemy/issues/4481",
+            "https://lists.debian.org/debian-lts-announce/2019/03/msg00020.html",
+            "https://lists.debian.org/debian-lts-announce/2021/11/msg00005.html",
+            "https://www.oracle.com/security-alerts/cpujan2021.html",
+            "http://lists.opensuse.org/opensuse-security-announce/2019-08/msg00087.html",
+            "http://lists.opensuse.org/opensuse-security-announce/2019-09/msg00010.html",
+            "http://lists.opensuse.org/opensuse-security-announce/2019-09/msg00016.html",
+            "https://access.redhat.com/errata/RHSA-2019:0981",
+            "https://access.redhat.com/errata/RHSA-2019:0984",
+            "https://github.com/sqlalchemy/sqlalchemy/issues/4481",
+            "https://lists.debian.org/debian-lts-announce/2019/03/msg00020.html",
+            "https://lists.debian.org/debian-lts-announce/2021/11/msg00005.html",
+            "https://www.oracle.com/security-alerts/cpujan2021.html"
+          ],
+          "fixed_versions": [
+            "1.2.17"
+          ],
+          "exploit_available": false
+        },
+        {
+          "cve_id": "CVE-2019-7548",
+          "description": "SQLAlchemy 1.2.17 has SQL Injection when the group_by parameter can be controlled.",
+          "cvss_score": 7.8,
+          "severity": "HIGH",
+          "cvss_version": "3.1",
+          "affected": true,
+          "references": [
+            "http://lists.opensuse.org/opensuse-security-announce/2019-08/msg00087.html",
+            "http://lists.opensuse.org/opensuse-security-announce/2019-09/msg00010.html",
+            "http://lists.opensuse.org/opensuse-security-announce/2019-09/msg00016.html",
+            "https://access.redhat.com/errata/RHSA-2019:0981",
+            "https://access.redhat.com/errata/RHSA-2019:0984",
+            "https://github.com/no-security/sqlalchemy_test",
+            "https://github.com/sqlalchemy/sqlalchemy/issues/4481#issuecomment-461204518",
+            "https://lists.debian.org/debian-lts-announce/2019/03/msg00020.html",
+            "https://lists.debian.org/debian-lts-announce/2021/11/msg00005.html",
+            "https://www.oracle.com/security-alerts/cpujan2021.html",
+            "http://lists.opensuse.org/opensuse-security-announce/2019-08/msg00087.html",
+            "http://lists.opensuse.org/opensuse-security-announce/2019-09/msg00010.html",
+            "http://lists.opensuse.org/opensuse-security-announce/2019-09/msg00016.html",
+            "https://access.redhat.com/errata/RHSA-2019:0981",
+            "https://access.redhat.com/errata/RHSA-2019:0984",
+            "https://github.com/no-security/sqlalchemy_test",
+            "https://github.com/sqlalchemy/sqlalchemy/issues/4481#issuecomment-461204518",
+            "https://lists.debian.org/debian-lts-announce/2019/03/msg00020.html",
+            "https://lists.debian.org/debian-lts-announce/2021/11/msg00005.html",
+            "https://www.oracle.com/security-alerts/cpujan2021.html"
+          ],
+          "fixed_versions": [],
+          "exploit_available": false
+        },
+        {
+          "cve_id": "CVE-2012-0805",
+          "description": "Multiple SQL injection vulnerabilities in SQLAlchemy before 0.7.0b4, as used in Keystone, allow remote attackers to execute arbitrary SQL commands via the (1) limit or (2) offset keyword to the select function, or unspecified vectors to the (3) select.limit or (4) select.offset function.",
+          "cvss_score": 7.5,
+          "severity": "HIGH",
+          "cvss_version": "2.0",
+          "affected": true,
+          "references": [
+            "http://rhn.redhat.com/errata/RHSA-2012-0369.html",
+            "http://secunia.com/advisories/48327",
+            "http://secunia.com/advisories/48328",
+            "http://secunia.com/advisories/48771",
+            "http://www.debian.org/security/2012/dsa-2449",
+            "http://www.mandriva.com/security/advisories?name=MDVSA-2012:059",
+            "http://www.sqlalchemy.org/changelog/CHANGES_0_7_0",
+            "http://www.sqlalchemy.org/trac/changeset/852b6a1a87e7/",
+            "https://bugs.launchpad.net/keystone/+bug/918608",
+            "https://exchange.xforce.ibmcloud.com/vulnerabilities/73756",
+            "http://rhn.redhat.com/errata/RHSA-2012-0369.html",
+            "http://secunia.com/advisories/48327",
+            "http://secunia.com/advisories/48328",
+            "http://secunia.com/advisories/48771",
+            "http://www.debian.org/security/2012/dsa-2449",
+            "http://www.mandriva.com/security/advisories?name=MDVSA-2012:059",
+            "http://www.sqlalchemy.org/changelog/CHANGES_0_7_0",
+            "http://www.sqlalchemy.org/trac/changeset/852b6a1a87e7/",
+            "https://bugs.launchpad.net/keystone/+bug/918608",
+            "https://exchange.xforce.ibmcloud.com/vulnerabilities/73756"
+          ],
+          "fixed_versions": [
+            "0.7.0"
+          ],
+          "exploit_available": false
+        },
+        {
+          "cve_id": "CVE-2022-40023",
+          "description": "Sqlalchemy mako before 1.2.2 is vulnerable to Regular expression Denial of Service when using the Lexer class to parse. This also affects babelplugin and linguaplugin.",
+          "cvss_score": 7.5,
+          "severity": "HIGH",
+          "cvss_version": "3.1",
+          "affected": true,
+          "references": [
+            "https://github.com/sqlalchemy/mako/blob/c2f392e0be52dc67d1b9770ab8cce6a9c736d547/mako/ext/extract.py#L21",
+            "https://github.com/sqlalchemy/mako/commit/925760291d6efec64fda6e9dd1fd9cfbd5be068c",
+            "https://github.com/sqlalchemy/mako/issues/366",
+            "https://lists.debian.org/debian-lts-announce/2022/09/msg00026.html",
+            "https://pyup.io/posts/pyup-discovers-redos-vulnerabilities-in-top-python-packages/",
+            "https://pyup.io/vulnerabilities/CVE-2022-40023/50870/",
+            "https://github.com/sqlalchemy/mako/blob/c2f392e0be52dc67d1b9770ab8cce6a9c736d547/mako/ext/extract.py#L21",
+            "https://github.com/sqlalchemy/mako/commit/925760291d6efec64fda6e9dd1fd9cfbd5be068c",
+            "https://github.com/sqlalchemy/mako/issues/366",
+            "https://lists.debian.org/debian-lts-announce/2022/09/msg00026.html",
+            "https://lists.debian.org/debian-lts-announce/2025/12/msg00004.html",
+            "https://pyup.io/posts/pyup-discovers-redos-vulnerabilities-in-top-python-packages/",
+            "https://pyup.io/vulnerabilities/CVE-2022-40023/50870/"
+          ],
+          "fixed_versions": [
+            "1.2.2"
+          ],
+          "exploit_available": false
+        }
+      ],
+      "risk_score": 8.66,
+      "recommendation": "Upgrade immediately and review production exposure. Suggested fix version(s): 0.7.0, 1.2.17, 1.2.2.",
+      "confidence": "low"
+    },
+    {
+      "dependency": {
+        "name": "streamlit",
+        "version": null,
+        "ecosystem": "python",
+        "source": "python_source",
+        "scope": "production",
+        "group": null,
+        "artifact": null,
+        "raw_spec": null,
+        "provenance": [
+          "python_source"
+        ],
+        "confidence": "low"
+      },
+      "vulnerabilities": [
+        {
+          "cve_id": "CVE-2022-35918",
+          "description": "Streamlit is a data oriented application development framework for python. Users hosting Streamlit app(s) that use custom components are vulnerable to a directory traversal attack that could leak data from their web server file-system such as: server logs, world readable files, and potentially other sensitive information. An attacker can craft a malicious URL with file paths and the streamlit server would process that URL and return the contents of that file. This issue has been resolved in vers",
+          "cvss_score": 6.5,
+          "severity": "MEDIUM",
+          "cvss_version": "3.1",
+          "affected": true,
+          "references": [
+            "https://github.com/streamlit/streamlit/commit/80d9979d5f4a00217743d607078a1d867fad8acf",
+            "https://github.com/streamlit/streamlit/security/advisories/GHSA-v4hr-4jpx-56gc",
+            "https://github.com/streamlit/streamlit/commit/80d9979d5f4a00217743d607078a1d867fad8acf",
+            "https://github.com/streamlit/streamlit/security/advisories/GHSA-v4hr-4jpx-56gc"
+          ],
+          "fixed_versions": [
+            "1.11.1"
+          ],
+          "exploit_available": false
+        },
+        {
+          "cve_id": "CVE-2024-42474",
+          "description": "Streamlit is a data oriented application development framework for python. Snowflake Streamlit open source addressed a security vulnerability via the static file sharing feature. Users of hosted Streamlit app(s) on Windows were vulnerable to a path traversal vulnerability when the static file sharing feature is enabled. An attacker could utilize the vulnerability to leak the password hash of the Windows user running Streamlit. The vulnerability was patched on Jul 25, 2024, as part of Streamlit o",
+          "cvss_score": 6.5,
+          "severity": "MEDIUM",
+          "cvss_version": "3.1",
+          "affected": true,
+          "references": [
+            "https://github.com/streamlit/streamlit/commit/3a639859cfdfba2187c81897d44a3e33825eb0a3",
+            "https://github.com/streamlit/streamlit/security/advisories/GHSA-rxff-vr5r-8cj5"
+          ],
+          "fixed_versions": [
+            "1.37.0"
+          ],
+          "exploit_available": false
+        },
+        {
+          "cve_id": "CVE-2023-27494",
+          "description": "Streamlit, software for turning data scripts into web applications, had a cross-site scripting (XSS) vulnerability in versions 0.63.0 through 0.80.0. Users of hosted Streamlit app(s) were vulnerable to a reflected XSS vulnerability. An attacker could craft a malicious URL with Javascript payloads to a Streamlit app. The attacker could then trick the user into visiting the malicious URL and, if successful, the server would render the malicious javascript payload as-is, leading to XSS. Version 0.8",
+          "cvss_score": 5.9,
+          "severity": "MEDIUM",
+          "cvss_version": "3.1",
+          "affected": true,
+          "references": [
+            "https://github.com/streamlit/streamlit/commit/afcf880c60e5d7538936cc2d9721b9e1bc02b075",
+            "https://github.com/streamlit/streamlit/security/advisories/GHSA-9c6g-qpgj-rvxw",
+            "https://github.com/streamlit/streamlit/commit/afcf880c60e5d7538936cc2d9721b9e1bc02b075",
+            "https://github.com/streamlit/streamlit/security/advisories/GHSA-9c6g-qpgj-rvxw"
+          ],
+          "fixed_versions": [
+            "0.81.0"
+          ],
+          "exploit_available": false
+        },
+        {
+          "cve_id": "CVE-2026-33682",
+          "description": "Streamlit is a data oriented application development framework for python. Streamlit Open Source versions prior to 1.54.0 running on Windows hosts have an unauthenticated Server-Side Request Forgery (SSRF) vulnerability. The vulnerability arises from improper validation of attacker-supplied filesystem paths. In certain code paths, including within the `ComponentRequestHandler`, filesystem paths are resolved using `os.path.realpath()` or `Path.resolve()` before sufficient validation occurs. On Wi",
+          "cvss_score": 4.7,
+          "severity": "MEDIUM",
+          "cvss_version": "3.1",
+          "affected": true,
+          "references": [
+            "https://github.com/streamlit/streamlit/commit/23692ca70b2f2ac720c72d1feb4f190c9d6eed76",
+            "https://github.com/streamlit/streamlit/releases/tag/1.54.0",
+            "https://github.com/streamlit/streamlit/security/advisories/GHSA-7p48-42j8-8846"
+          ],
+          "fixed_versions": [
+            "1.54.0"
+          ],
+          "exploit_available": false
+        }
+      ],
+      "risk_score": 6.35,
+      "recommendation": "Patch soon and monitor advisories. Suggested fix version(s): 0.81.0, 1.11.1, 1.37.0, 1.54.0.",
+      "confidence": "low"
+    }
+  ]
+}
