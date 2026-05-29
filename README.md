@@ -1,35 +1,40 @@
 # SCFCA — Secure Custody Framework for Cryptocurrency Assets
 
+## 1. Project Overview
+
 SCFCA is a thesis-oriented proof of concept for institutional custody, management, preservation, and auditing of cryptocurrency assets in criminal-investigation and institutional contexts.
 
-It demonstrates a FastAPI backend, a React/Vite frontend, backend-enforced access control, PostgreSQL-backed custody records, document metadata integrity, audit evidence, Docker Compose execution, and automated security evidence in GitLab CI/CD. It is not production custody software and does not execute live blockchain transactions or manage real private keys.
+The current SCFCAv2 repository demonstrates:
 
-## Current Implemented Capabilities
-
-- PostgreSQL-backed users, cases, tickets, documents, assets, valuation snapshots, ticket approvals, and audit events.
+- FastAPI backend APIs.
+- React/Vite frontend.
+- PostgreSQL-backed persistence for users, cases, tickets, documents, assets, valuation snapshots, approvals, and audit events.
+- Docker Compose runtime for PostgreSQL, backend, and frontend.
+- GitLab CI/CD validation and security evidence collection.
 - Backend-enforced role-based access control for regular users, administrators, and auditors.
-- Regular users see only cases, tickets, and documents linked to their assigned cases.
-- Administrators see all cases and tickets, can create custody cases, can assign tickets, and can approve or reject tickets. Audit endpoints remain auditor-only.
-- Case creation is implemented as an administrator-only workflow. Administrators may register new custody cases through the frontend, while case handlers and auditors are denied direct case creation. Custody actions such as transfers, conversions, reassignment, and administrative metadata updates remain governed by the ticket approval workflow.
-- Auditors have a read-only audit/report/hash-chain verification view.
-- Document metadata includes stored SHA-256 hash values.
-- Uploaded PDF files are hashed by the backend when uploaded through the file upload endpoint.
-- Audit events include `previous_hash` and `hash_chain` integrity fields, with auditor-only PoC verification of persisted chain continuity.
-- Registered seized asset facts are protected from ORM-level updates after persistence, while operational metadata such as asset status remains mutable.
-- Backend-restricted auditor JSON and HTML audit report export endpoints.
-- Backend-restricted auditor hash verification for known document hashes and audit event hashes.
-- FastAPI backend and React/Vite frontend for the PoC workflow.
-- Docker Compose local runtime with PostgreSQL, backend, and frontend services.
-- Docker hardening for the application containers: non-root users, `no-new-privileges`, dropped Linux capabilities, backend read-only filesystem, and `/tmp` mounted as `tmpfs`.
-- SBOM/SCA evidence files and Dependabot configuration for backend pip and frontend npm dependencies.
-- GitLab CI/CD validation with backend tests, frontend build verification, Docker Compose configuration validation, security scanners, and retained evidence artifacts.
+- Audit hash-chain continuity verification for persisted audit events.
+- ORM-level seized asset fact immutability guards.
 
-## Quick Start
-### Docker Compose Recommended
+This is not production custody software. It does not execute live blockchain transactions, does not sign transactions, and does not manage real private keys.
+
+## 2. Login / Demo Accounts
+
+| Role | Username | Password | Permissions |
+| --- | --- | --- | --- |
+| regular | `alice` | `alice123` | View assigned cases, create custody workflow tickets for assigned cases, and upload PDFs for assigned cases. |
+| regular | `mark` | `mark123` | View assigned cases, create custody workflow tickets for assigned cases, and upload PDFs for assigned cases. |
+| regular | `john` | `john123` | View assigned cases, create custody workflow tickets for assigned cases, and upload PDFs for assigned cases. |
+| administrator | `bob` | `bob123` | Create custody cases, view all cases and tickets, assign tickets, and approve or reject tickets. |
+| administrator | `eve` | `eve123` | Create custody cases, view all cases and tickets, assign tickets, and approve or reject tickets. |
+| auditor | `carol` | `carol123` | Read-only audit, report, hash lookup, and audit hash-chain verification view. |
+
+Auditors are audit-focused. They do not receive operational case records through the case list API, and the frontend hides operational navigation for the auditor role.
+
+## 3. Quick Start with Docker Compose
 
 Prerequisite: Docker Desktop or Docker Engine with Compose support.
 
-From the repository root:
+Start the full PoC stack from the repository root:
 
 ```bash
 docker compose up --build
@@ -39,10 +44,10 @@ URLs:
 
 - Frontend: http://127.0.0.1:5173
 - Backend API: http://127.0.0.1:8000
- - Swagger/API docs: http://127.0.0.1:8000/docs
- - Health endpoint: http://127.0.0.1:8000/api/v1/health/
+- Swagger/API docs: http://127.0.0.1:8000/docs
+- Health: http://127.0.0.1:8000/api/v1/health/
 
-Important: Use `127.0.0.1` consistently for both frontend and backend during local Docker Compose demos. Do not mix `localhost` and `127.0.0.1`, because browser cookies are host-specific and CSRF/session cookies may not be visible across different hostnames.
+Use `127.0.0.1` consistently for both frontend and backend. Do not mix `localhost` and `127.0.0.1`, because browser cookies are host-specific and CSRF/session cookies may not be visible across different hostnames.
 
 Seed or reset the PostgreSQL demo data:
 
@@ -56,27 +61,31 @@ Stop the local runtime:
 docker compose down
 ```
 
-### Local Execution
+Delete the PostgreSQL volume and reset stored data:
 
-Prerequisites:
+```bash
+docker compose down -v
+```
 
-- Python 3.10+
-- Node.js 20+
-- A reachable PostgreSQL database
+## 4. Local Development Mode
 
-Default local database URL used by the backend settings:
+Docker Compose is the reference PoC environment. Manual local mode requires a reachable PostgreSQL database.
+
+Default local database URL used by backend settings:
 
 ```bash
 postgresql://user:password@localhost:5432/scfca
 ```
 
-Example environment value:
+Example environment setup:
 
 ```bash
-DATABASE_URL=postgresql://user:password@localhost:5432/scfca
+$env:PYTHONPATH='.'
+$env:DEBUG='false'
+$env:DATABASE_URL='postgresql://user:password@localhost:5432/scfca'
 ```
 
-Install and run the backend:
+Install backend dependencies and run the backend from the repository root:
 
 ```bash
 pip install -r backend/requirements.txt
@@ -89,169 +98,50 @@ Seed or reset the local PostgreSQL demo data:
 python scripts/seed_demo_data.py
 ```
 
-Install and run the frontend:
+Install frontend dependencies and run the frontend:
 
 ```bash
 npm --prefix frontend install
 npm --prefix frontend run dev -- --host 127.0.0.1 --port 5173
 ```
 
-Optional local checks:
+## 5. Automated Tests
+
+Current local verification result: `41 passed`.
+
+Run backend tests:
 
 ```bash
-npm --prefix frontend run typecheck
-pytest
+$env:PYTHONPATH='.'
+$env:DEBUG='false'
+pytest -q
+pytest -q tests
 ```
 
-## Validation and Testing
-
-The GitLab CI/CD pipeline validates the PoC with:
-
-- backend import and compilation checks,
-- PostgreSQL-backed backend tests with `pytest`,
-- Hypothesis property-based security input tests for malformed backend inputs,
-- frontend production build verification with `npm run build`,
-- Docker Compose configuration validation.
-
-These checks support repeatable PoC validation, but they do not prove the system is production-ready or vulnerability-free.
-
-## DevSecOps Security Pipeline
-
-The GitLab CI/CD security stage currently provides non-blocking, visibility-first automated security evidence:
-
-- SCA / dependency analysis: `pip-audit` for backend Python dependencies and `npm audit` for frontend dependencies.
-- SAST: Bandit for Python backend checks and Semgrep for broader static analysis.
-- Secret scanning: Gitleaks.
-- Container image scanning: Trivy scans for backend and frontend Docker images.
-- IaC / configuration scanning: Checkov for Docker, Compose, and GitLab CI configuration.
-- DAST: OWASP ZAP baseline scan against the running PoC stack.
-
-Security findings are not hidden or reclassified by the pipeline. Findings require human triage and, where appropriate, remediation. The jobs are intentionally non-blocking at this stage so the thesis evidence can show scanner output without claiming a production release gate.
-
-## Evidence Artifacts
-
-GitLab CI retains security evidence artifacts for review:
-
-- JSON artifacts are machine-readable evidence for traceability and future automation.
-- HTML artifacts are human-readable evidence for thesis/professor review, screenshots, and manual interpretation.
-- The OWASP ZAP baseline job also emits a Markdown report.
-
-Real GitLab pipeline artifacts and screenshots can be used as PoC validation evidence. These artifacts demonstrate automated security testing coverage for the thesis; they are not production certification and do not prove the absence of vulnerabilities.
-
-## Demo Accounts
-
-| Username | Password | Role |
-| --- | --- | --- |
-| `alice` | `alice123` | regular |
-| `mark` | `mark123` | regular |
-| `john` | `john123` | regular |
-| `bob` | `bob123` | administrator |
-| `eve` | `eve123` | administrator |
-| `carol` | `carol123` | auditor |
-
-## Demo Dataset
-
-The current seeder creates a deterministic PostgreSQL dataset:
-
-- `alice` has 10 assigned cases.
-- `mark` has 7 assigned cases.
-- `john` has 5 assigned cases.
-- 1 shared case is assigned to both `mark` and `john`.
-- 21 assets.
-- 21 documents.
-- 21 tickets.
-- 161 audit events.
-
-Run the seeder with:
+Run frontend build verification:
 
 ```bash
-python scripts/seed_demo_data.py
+npm --prefix frontend run build
 ```
 
-or, in Docker:
+Validate Docker Compose configuration:
 
 ```bash
-docker compose exec backend python scripts/seed_demo_data.py
+docker compose config
 ```
 
-## Role Behavior
+Current test files:
 
-Regular users:
+- `tests/test_workflows.py`
+- `tests/test_fuzz_security_inputs.py`
+- `tests/test_audit_hash_chain.py`
+- `tests/test_asset_immutability.py`
+- `tests/test_security_hardening.py`
+- `tests/test_models.py`
 
-- Can view only cases assigned to their username.
-- Can view tickets and documents linked to their assigned cases.
-- Can register/upload documents for assigned cases.
-- Can create custody workflow tickets only for assigned cases.
-- Can see a shared case if their username is one of the active assignments.
+## 6. Manual Demo Walkthrough
 
-Administrators:
-
-- Can view all cases and all tickets.
-- Can create custody cases through the administrator-only case creation endpoint.
-- Can assign tickets.
-- Can approve or reject custody tickets.
-- Cannot initiate regular custody workflow tickets.
-- Can submit case creation request tickets for regular handlers.
-- Cannot access auditor-only audit endpoints.
-
-Auditors:
-
-- Cannot access the case list route.
-- Can view audit metadata through the audit endpoints.
-- Can export JSON and HTML audit reports through backend auditor-restricted endpoints.
-- Can verify stored document hashes and audit event hashes through a backend auditor-restricted endpoint.
-- Do not have document content download access.
-
-## Security Controls
-
-Implemented controls in the current repository:
-
-- Password hashing with `passlib[bcrypt]`.
-- Signed session cookie named `scfca_session`, protected with an HMAC signature derived from `SECRET_KEY`.
-- CSRF token cookie/header check for state-changing cookie-authenticated routes.
-- Server-side RBAC dependencies in backend routes.
-- Regular-user case scoping through PostgreSQL case assignments.
-- Document metadata hash storage using `sha256:<digest>` values.
-- Backend SHA-256 calculation for uploaded PDF content.
-- Audit event `previous_hash` and `hash_chain` fields for a tamper-evident audit trail.
-- Auditor-only audit hash-chain verification endpoint for PoC chain continuity checks.
-- ORM-level immutability guards for persisted seized asset facts and frozen valuation snapshots.
-- Docker hardening in Compose and Dockerfiles.
-- SBOM/SCA evidence files for dependency transparency.
-- Dependabot configuration for weekly backend pip and frontend npm dependency checks.
-
-## Security Evidence / DevSecOps
-
-Relevant files:
-
-- `.gitlab-ci.yml`
-- `docs/sbom.md`
-- `docs/evidence/sbom/`
-- `docs/evidence/security-testing/README.md`
-- `docs/evidence/security-reports/README.md`
-- `docs/evidence/manual-validation/README.md`
-- `docs/evidence/security-triage/README.md`
-- `docs/evidence/container-security/README.md`
-- `docs/evidence/iac-security/README.md`
-- `docs/evidence/dast/README.md`
-- `scripts/container_scan.md`
-- `scripts/security_reports_to_html.py`
-- `.github/dependabot.yml`
-
-Current scope:
-
-- GitLab CI runs validation, tests, builds, security scanners, and DAST evidence jobs for the PoC.
-- Security jobs produce JSON artifacts for machine-readable evidence and HTML artifacts for human-readable review where supported by the reporting converter.
-- OWASP ZAP produces JSON, HTML, and Markdown DAST artifacts directly.
-- SBOM and SCA evidence files are present under `docs/evidence/sbom/` for repository-level transparency.
-- Dependabot is configured for backend pip and frontend npm dependencies.
-- No GitHub Actions workflow directory is present in this repository.
-- CI security jobs are visibility-first and non-blocking; findings require triage and remediation.
-- No production container certification, compliance certification, or vulnerability-free claim is made.
-
-## Suggested Thesis Defense Walkthrough
-
-1. Start the local runtime:
+1. Start Docker Compose:
 
    ```bash
    docker compose up --build
@@ -264,17 +154,97 @@ Current scope:
    ```
 
 3. Open the frontend at http://127.0.0.1:5173.
-4. Log in as `alice` and show that only assigned cases are visible.
-5. Log in as `mark`, then `john`, and show the shared Mark/John case is visible to both assigned users.
-6. Log in as `bob` or `eve` and show administrator visibility across all tickets.
-7. Approve or reject a ticket as an administrator.
-8. Log in as `carol`.
-9. Filter audit events by actor, role, action, entity, date, or free-text query.
-10. Export an audit report as JSON and HTML.
-11. Verify a known document hash from the document list.
-12. Verify a known audit hash from an audit event.
+4. Log in as `alice` and show assigned-case visibility.
+5. Log in as `bob` and show administrator visibility across cases and tickets.
+6. Create a new case as an administrator from the Cases page.
+7. Log in as a regular user assigned to a case and create a custody workflow ticket.
+8. Approve or reject a ticket as an administrator.
+9. Upload PDF evidence for an assigned case.
+10. Log in as `carol`.
+11. Open the audit section and show audit events.
+12. Show audit event pagination at 15 events per page.
+13. Run audit hash-chain verification from the auditor audit view.
+14. Show that the auditor role is audit-focused: operational navigation is hidden, and direct case-list API access is denied.
+15. Show GitLab CI evidence and retained artifacts for tests, builds, scanners, and DAST.
 
-## Project Structure
+This walkthrough does not include ticket execution, multi-factor authentication, re-authentication, or login throttling because those controls are not implemented in the current PoC.
+
+## 7. Security Controls You Can Demonstrate
+
+Implemented controls in the current repository:
+
+- Backend RBAC and role-based frontend navigation.
+- CSRF protection for state-changing cookie-authenticated routes.
+- Administrator-only case creation.
+- Assigned-case scoping for regular users.
+- Auditor-only audit access.
+- PDF-only upload validation and backend SHA-256 hashing for uploaded PDF files.
+- Document metadata hash storage using `sha256:<digest>` values.
+- Audit event `previous_hash` and `hash_chain` fields.
+- Auditor-only audit hash-chain verification endpoint: `GET /api/v1/audit/chain/verify`.
+- Auditor-only hash lookup endpoint: `POST /api/v1/audit/hash/verify`.
+- Auditor-only audit report exports: `GET /api/v1/audit/reports/json` and `GET /api/v1/audit/reports/html`.
+- Asset immutability ORM guards for persisted seized asset facts and frozen valuation snapshots.
+- Docker hardening: non-root container users, `no-new-privileges`, `cap_drop: ALL`, backend read-only filesystem, and `/tmp` mounted as `tmpfs`.
+- Security headers set by the FastAPI middleware.
+- Dependency and security scanner evidence in GitLab CI.
+
+Not implemented in the current PoC:
+
+- MFA.
+- Re-authentication prompts.
+- Login throttling or rate limiting.
+- Ticket execution or blockchain transaction execution.
+
+## 8. DevSecOps Security Evidence
+
+GitLab CI/CD provides validation and visibility-first security evidence. Security jobs are intentionally non-blocking evidence jobs, not production release gates.
+
+Current jobs and tools include:
+
+- Backend compile/import validation.
+- `pytest` backend tests.
+- Hypothesis fuzz/security input tests.
+- Frontend production build with `npm run build`.
+- Docker Compose configuration validation.
+- `pip-audit` for backend Python dependency analysis.
+- `npm audit` for frontend dependency analysis.
+- Bandit for Python SAST.
+- Semgrep for broader static analysis.
+- Gitleaks for secret scanning.
+- Checkov for Docker/YAML/GitLab CI configuration scanning.
+- Trivy backend and frontend container image scans.
+- OWASP ZAP baseline DAST against the running PoC stack.
+- HTML security evidence reports generated from scanner JSON where supported.
+- JSON artifacts retained for machine-readable evidence.
+- Manual validation checklist documentation.
+- Security triage documentation.
+- Requirements traceability documentation.
+
+Relevant evidence paths:
+
+- `.gitlab-ci.yml`
+- `docs/evidence/sbom/`
+- `docs/evidence/security-testing/README.md`
+- `docs/evidence/security-reports/README.md`
+- `docs/evidence/manual-validation/README.md`
+- `docs/evidence/security-triage/README.md`
+- `docs/evidence/container-security/README.md`
+- `docs/evidence/iac-security/README.md`
+- `docs/evidence/dast/README.md`
+- `docs/evidence/static-analysis/README.md`
+- `scripts/security_reports_to_html.py`
+
+## 9. Requirements Traceability Matrix
+
+Current traceability files:
+
+- `docs/traceability/current-requirements-traceability.md`
+- `docs/traceability/current-requirements-traceability-latex.md`
+
+These files map requirements to implementation files, tests, security evidence, residual risks, and PoC limitations. They are intended for thesis traceability and Overleaf/LaTeX-friendly annex material.
+
+## 10. Project Structure
 
 Current top-level repository structure:
 
@@ -285,6 +255,15 @@ Current top-level repository structure:
 │   └── dependabot.yml
 ├── backend/
 │   ├── api/
+│   │   └── v1/
+│   │       └── routes/
+│   │           ├── audit.py
+│   │           ├── auth.py
+│   │           ├── cases.py
+│   │           ├── chat.py
+│   │           ├── documents.py
+│   │           ├── health.py
+│   │           └── tickets.py
 │   ├── asset_registry/
 │   ├── assets/
 │   ├── audit/
@@ -307,16 +286,25 @@ Current top-level repository structure:
 │   ├── validators/
 │   ├── Dockerfile
 │   ├── README.md
-│   ├── main.py
 │   └── requirements.txt
 ├── diagrams/
 ├── docs/
-│   ├── evidence/
 │   ├── diagrams/
-│   ├── sbom.md
-│   └── README.md
+│   ├── evidence/
+│   ├── traceability/
+│   ├── README.md
+│   └── sbom.md
 ├── frontend/
 │   ├── src/
+│   │   ├── app/
+│   │   ├── components/
+│   │   ├── hooks/
+│   │   ├── layouts/
+│   │   ├── pages/
+│   │   ├── services/
+│   │   ├── styles/
+│   │   ├── types/
+│   │   └── utils/
 │   ├── Dockerfile
 │   ├── package.json
 │   ├── package-lock.json
@@ -336,26 +324,43 @@ Current top-level repository structure:
 │   ├── test_security_hardening.py
 │   └── test_workflows.py
 ├── docker-compose.yml
+├── pytest.ini
 ├── .dockerignore
 ├── .env.docker.example
 ├── .gitignore
+├── .gitlab-ci.yml
 └── README.md
 ```
 
-## Limitations
+## 11. Current Limitations / Deferred Controls
 
 - Proof of concept only; not production custody software.
 - No live blockchain execution.
-- No HSM, MPC, wallet signing, or private-key custody integration.
+- No ticket execution endpoint.
+- No private-key custody.
+- No HSM, MPC, wallet signing, or key ceremony integration.
 - No production secret manager integration.
-- CI security jobs are non-blocking visibility checks, not production release gates.
-- Security findings require triage and remediation; scanner output is not a claim that all findings are fixed.
-- The OWASP ZAP baseline scan is unauthenticated and does not replace deeper authenticated DAST or manual assessment.
-- Automated scanners do not prove complete security or compliance.
-- Manual validation evidence still needs to be documented separately.
-- No image signing or signed provenance.
-- No Kubernetes deployment policy or runtime monitoring.
+- No production compliance certification.
+- CI security jobs are non-blocking evidence jobs, not production release gates.
+- OWASP ZAP baseline is unauthenticated and does not replace deeper authenticated DAST or manual assessment.
+- No MFA in the current PoC.
+- No re-authentication in the current PoC.
+- No rate limiting or login throttling in the current PoC.
+- Asset immutability is SQLAlchemy ORM-level enforcement, not database-trigger immutable storage and not external immutable storage.
+- Audit hash-chain verification is PoC-level continuity checking, not an external append-only ledger.
 - Seeded documents are metadata-backed; original binary content for seeded records is not persisted.
 - Uploaded document binary content is held in an in-memory runtime cache, so it is not durable across backend restarts.
-- Audit hash chaining supports PoC tamper-evidence but is not an append-only external ledger.
-- Asset seized-fact immutability is enforced at the SQLAlchemy ORM mapper-event layer in this PoC. It is not database-trigger immutable storage and can be bypassed by direct database writes or SQLAlchemy bulk update paths.
+- Security scanner output requires human triage and is not a claim that all findings are fixed.
+
+## 12. Troubleshooting
+
+| Problem | Current fix |
+| --- | --- |
+| Docker Desktop is not running | Start Docker Desktop, then rerun `docker compose up --build`. |
+| `docker compose` cannot find `docker-compose.yml` | Run the command from the repository root. |
+| Port `8000` is already in use | Stop the process using port `8000` or change the backend port mapping for local testing. |
+| Port `5173` is already in use | Stop the existing frontend/Vite server or change the frontend port for local testing. |
+| `vite` is not recognized | Run `npm --prefix frontend install`, then retry the frontend command. |
+| `ModuleNotFoundError: No module named 'backend'` | Run backend commands from the repository root and set `PYTHONPATH=.`. |
+| Frontend shows missing CSRF/session behavior or empty data unexpectedly | Use `127.0.0.1` consistently. Do not mix `localhost` and `127.0.0.1`. |
+| Demo data needs a clean reset | Run `docker compose down -v`, start the stack again, then run `docker compose exec backend python scripts/seed_demo_data.py`. |
