@@ -93,6 +93,32 @@ Evidence:
 
 Limitation: this is ORM-level enforcement, not a database trigger or external immutable store.
 
+## Login Throttling Hardening
+
+Current login throttling is implemented as a narrow in-memory PoC control for `POST /api/v1/auth/login`.
+
+Policy:
+
+- Maximum failed attempts: 5.
+- Window: 5 minutes.
+- Throttle duration: 5 minutes.
+- Key: normalized username and client IP.
+- Successful login resets the failed-attempt counter for that username/IP pair.
+
+Evidence:
+
+- `backend/auth/login_throttle.py`
+- `backend/api/v1/routes/auth.py`
+- `tests/test_security_hardening.py`
+- `docs/traceability/current-requirements-traceability.md`
+
+Limitations:
+
+- Process-local only.
+- Not distributed across backend workers or hosts.
+- Does not use Redis or external infrastructure.
+- Does not rate-limit health checks, frontend static assets, audit verification, or all API endpoints.
+
 ## RTM Documents
 
 Current traceability files:
@@ -110,7 +136,7 @@ Deferred or not implemented in the current PoC:
 
 - MFA.
 - Re-authentication prompts.
-- Rate limiting/login throttling.
+- Global API rate limiting.
 - Ticket execution.
 - Blockchain transaction execution.
 - HSM/MPC/private-key custody.

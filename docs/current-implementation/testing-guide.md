@@ -9,7 +9,7 @@ This guide describes the current SCFCAv2 test and verification commands only. It
 Latest local verification result:
 
 ```text
-41 passed, 191 warnings
+46 passed, 193 warnings
 ```
 
 Warnings are currently deprecation and test-client warnings, not test failures.
@@ -61,7 +61,7 @@ docker compose config
 | Test file | Current focus |
 | --- | --- |
 | `tests/test_workflows.py` | Role workflows, case creation, ticket behavior, audit access, audit chain endpoint access, absence of direct asset mutation routes. |
-| `tests/test_security_hardening.py` | Security headers, CSRF behavior, ticket approval constraints, document validation. |
+| `tests/test_security_hardening.py` | Security headers, CSRF behavior, login throttling, ticket approval constraints, document validation. |
 | `tests/test_fuzz_security_inputs.py` | Hypothesis malformed-input checks for selected backend routes. |
 | `tests/test_audit_hash_chain.py` | Audit hash-chain verification function behavior. |
 | `tests/test_asset_immutability.py` | ORM-level seized asset fact and frozen valuation immutability. |
@@ -79,4 +79,4 @@ pytest -q --junitxml=pytest-report.xml
 
 - `pytest.ini` scopes collection to `tests`, so local reference material is not collected as part of the current project suite.
 - Generated `__pycache__` changes should not be committed.
-- The test suite does not claim MFA, re-authentication, rate limiting, ticket execution, or blockchain custody behavior.
+- The test suite does not claim MFA, re-authentication, global API rate limiting, ticket execution, or blockchain custody behavior.

@@ -4,7 +4,7 @@
 
 SCFCAv2 is a thesis-oriented proof of concept for institutional custody, preservation, management, and audit of cryptocurrency-related evidence. The current repository implements a FastAPI backend, React/Vite frontend, PostgreSQL-backed domain data, Docker Compose runtime, role-based access control, audit evidence, and DevSecOps evidence collection.
 
-This record describes the current repository only. It does not claim MFA, re-authentication, rate limiting, ticket execution, live blockchain execution, HSM/MPC custody, or private-key custody.
+This record describes the current repository only. It does not claim MFA, re-authentication, global API rate limiting, ticket execution, live blockchain execution, HSM/MPC custody, or private-key custody.
 
 ## Current Implementation Timeline
 
@@ -48,7 +48,7 @@ Demo data is seeded by `scripts/seed_demo_data.py`. The current seed includes us
 
 | API area | Current route file | Current behavior |
 | --- | --- | --- |
-| Auth | `backend/api/v1/routes/auth.py` | Login/logout/current principal with signed session cookie and CSRF token. |
+| Auth | `backend/api/v1/routes/auth.py` | Login/logout/current principal with signed session cookie, CSRF token, and in-memory failed-login throttling. |
 | Cases | `backend/api/v1/routes/cases.py` | Admin-only case creation; regular users see assigned cases; auditors are denied case list access. |
 | Tickets | `backend/api/v1/routes/tickets.py` | Regular users create custody workflow tickets for assigned cases; admins assign, approve, reject, and update status. |
 | Documents | `backend/api/v1/routes/documents.py` | Document metadata registration, PDF upload, SHA-256 hashing, RBAC-scoped listing/download. |
@@ -64,6 +64,7 @@ No asset mutation API route is present in the current repository. Asset holdings
 | --- | --- |
 | RBAC | `backend/auth/dependencies.py`, route dependencies in `backend/api/v1/routes/`, `tests/test_workflows.py` |
 | CSRF protection | `backend/auth/csrf.py`, mutation routes, `tests/test_security_hardening.py` |
+| Login throttling | `backend/auth/login_throttle.py`, `backend/api/v1/routes/auth.py`, `tests/test_security_hardening.py` |
 | Admin-only case creation | `backend/api/v1/routes/cases.py`, `tests/test_workflows.py` |
 | Assigned-case scoping | `backend/api/v1/routes/cases.py`, `backend/core/models.py`, `tests/test_workflows.py` |
 | Auditor-only audit access | `backend/api/v1/routes/audit.py`, `tests/test_workflows.py` |
@@ -100,14 +101,15 @@ Current test files:
 - `tests/test_asset_immutability.py`
 - `tests/test_models.py`
 
-Current local verification result: `41 passed, 191 warnings`.
+Current local verification result: `46 passed, 193 warnings`.
 
 ## Known Limitations
 
 - Proof of concept only; not production custody software.
 - No MFA in the current PoC.
 - No re-authentication prompts in the current PoC.
-- No rate limiting or login throttling in the current PoC.
+- No global API rate limiting in the current PoC.
+- Login throttling is in-memory, process-local, and scoped only to failed login attempts.
 - No ticket execution endpoint.
 - No live blockchain execution.
 - No private-key custody, HSM, MPC, or signing integration.

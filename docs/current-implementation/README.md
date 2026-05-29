@@ -26,7 +26,7 @@ Current RTM documents:
 
 - MFA.
 - Re-authentication prompts.
-- Rate limiting/login throttling.
+- Global API rate limiting.
 - Ticket execution.
 - Live blockchain execution.
 - HSM/MPC/private-key custody.

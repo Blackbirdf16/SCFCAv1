@@ -12,6 +12,7 @@ The current SCFCAv2 repository demonstrates:
 - Docker Compose runtime for PostgreSQL, backend, and frontend.
 - GitLab CI/CD validation and security evidence collection.
 - Backend-enforced role-based access control for regular users, administrators, and auditors.
+- In-memory PoC login throttling for repeated failed login attempts.
 - Audit hash-chain continuity verification for persisted audit events.
 - ORM-level seized asset fact immutability guards.
 
@@ -107,7 +108,7 @@ npm --prefix frontend run dev -- --host 127.0.0.1 --port 5173
 
 ## 5. Automated Tests
 
-Current local verification result: `41 passed`.
+Current local verification result: `46 passed, 193 warnings`.
 
 Run backend tests:
 
@@ -167,7 +168,7 @@ Current test files:
 14. Show that the auditor role is audit-focused: operational navigation is hidden, and direct case-list API access is denied.
 15. Show GitLab CI evidence and retained artifacts for tests, builds, scanners, and DAST.
 
-This walkthrough does not include ticket execution, multi-factor authentication, re-authentication, or login throttling because those controls are not implemented in the current PoC.
+This walkthrough does not include ticket execution, multi-factor authentication, re-authentication, or global API rate limiting because those controls are not implemented in the current PoC.
 
 ## 7. Security Controls You Can Demonstrate
 
@@ -175,6 +176,7 @@ Implemented controls in the current repository:
 
 - Backend RBAC and role-based frontend navigation.
 - CSRF protection for state-changing cookie-authenticated routes.
+- In-memory login throttling for repeated failed login attempts to `/api/v1/auth/login`.
 - Administrator-only case creation.
 - Assigned-case scoping for regular users.
 - Auditor-only audit access.
@@ -193,7 +195,7 @@ Not implemented in the current PoC:
 
 - MFA.
 - Re-authentication prompts.
-- Login throttling or rate limiting.
+- Global API rate limiting.
 - Ticket execution or blockchain transaction execution.
 
 ## 8. DevSecOps Security Evidence
@@ -345,7 +347,8 @@ Current top-level repository structure:
 - OWASP ZAP baseline is unauthenticated and does not replace deeper authenticated DAST or manual assessment.
 - No MFA in the current PoC.
 - No re-authentication in the current PoC.
-- No rate limiting or login throttling in the current PoC.
+- No global API rate limiting in the current PoC.
+- Login throttling is in-memory and scoped only to failed `/api/v1/auth/login` attempts; it is not distributed production-grade brute-force protection.
 - Asset immutability is SQLAlchemy ORM-level enforcement, not database-trigger immutable storage and not external immutable storage.
 - Audit hash-chain verification is PoC-level continuity checking, not an external append-only ledger.
 - Seeded documents are metadata-backed; original binary content for seeded records is not persisted.

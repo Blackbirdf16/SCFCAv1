@@ -10,6 +10,7 @@ Status legend: `Implemented`, `Partial`, `Evidence-only`, `Design-level / docume
 | --- | --- | --- | --- | --- |
 | Role-Based Access Control | `backend/auth/dependencies.py`, `backend/api/v1/routes/*.py`, `frontend/src/components/Sidebar.tsx` | `tests/test_workflows.py`, `tests/test_security_hardening.py` | Implemented | Backend role checks enforce access decisions. |
 | Authentication and session handling | `backend/api/v1/routes/auth.py`, `backend/auth/dependencies.py`, `backend/auth/service.py` | `tests/test_security_hardening.py` | Implemented | Signed session cookie (`scfca_session`) and login/logout audit events. |
+| Login throttling / brute-force reduction | `backend/auth/login_throttle.py`, `backend/api/v1/routes/auth.py` | `tests/test_security_hardening.py` | Implemented | In-memory PoC limiter for failed login attempts only; not global or distributed rate limiting. |
 | CSRF protection | `backend/auth/csrf.py`, state-changing routes in `backend/api/v1/routes/` | `tests/test_security_hardening.py`, `tests/test_workflows.py` | Implemented | Cookie+header token check on mutation routes. |
 | Admin-only case creation | `backend/api/v1/routes/cases.py` (`POST /cases/`) | `tests/test_workflows.py` | Implemented | `require_role(Role.administrator)` and CSRF protection. |
 | Case assignment and scoped case visibility | `backend/api/v1/routes/cases.py`, `backend/core/models.py` (`CaseAssignment`) | `tests/test_workflows.py` | Implemented | Regular users only see assigned cases. |
@@ -64,7 +65,8 @@ Notes:
 | Least privilege RBAC | Role-gated dependencies and route checks | `backend/auth/dependencies.py`, `backend/api/v1/routes/*.py`, `frontend/src/components/Sidebar.tsx` | `tests/test_workflows.py` | UI role hiding is supportive; backend remains authoritative. |
 | Auditor read-only separation | Auditor-only audit routes, operational route denial | `backend/api/v1/routes/audit.py`, `backend/api/v1/routes/cases.py` | `tests/test_workflows.py` | Auditor still depends on same app boundary (no separate reporting service). |
 | Administrator/case-handler separation | Admin cannot create regular custody tickets; regular cannot create cases | `backend/api/v1/routes/tickets.py`, `backend/api/v1/routes/cases.py` | `tests/test_workflows.py` | Case creation request is ticket-based; broader governance workflow is PoC-level. |
-| CSRF protection | CSRF cookie+header verification on state changes | `backend/auth/csrf.py`, mutation routes | `tests/test_security_hardening.py` | No claim of anti-automation/rate controls beyond CSRF. |
+| Login throttling / brute-force reduction | In-memory failed-login counter keyed by normalized username and client IP | `backend/auth/login_throttle.py`, `backend/api/v1/routes/auth.py` | `tests/test_security_hardening.py` | PoC-only, process-local, not distributed production abuse protection. |
+| CSRF protection | CSRF cookie+header verification on state changes | `backend/auth/csrf.py`, mutation routes | `tests/test_security_hardening.py` | No claim of global API rate limiting beyond narrow login throttling. |
 | Audit hash-chain integrity verification | Auditor-only chain verification validates stored hashes and continuity | `backend/api/v1/routes/audit.py` (`/chain/verify`) | `tests/test_audit_hash_chain.py`, `tests/test_workflows.py` | Implemented for persisted audit rows; not a separate append-only audit service. |
 | Seized asset fact immutability | ORM update guards block changes to registered asset facts and frozen valuation snapshots; no direct mutation route exists | `backend/core/models.py`, `backend/api/v1/routes/cases.py` | `tests/test_asset_immutability.py`, `tests/test_workflows.py` | App-level ORM enforcement; not a database trigger or blockchain custody guarantee. |
 | Controlled error handling | Explicit `HTTPException` responses and validation checks | `backend/api/v1/routes/*.py` | `tests/test_fuzz_security_inputs.py` | No unified global error envelope middleware for all exceptions. |
@@ -103,13 +105,13 @@ Notes:
 
 Additional notes:
 - `backend/db/` is not present in the current repository. Database integration is implemented through `backend/core/database.py` and ORM models in `backend/core/models.py`.
-- Features intentionally outside this PoC remain `Not implemented in PoC`: MFA, rate limiting, re-authentication prompts, HSM/MPC custody, live blockchain execution, and production deployment claims.
+- Features intentionally outside this PoC remain `Not implemented in PoC`: MFA, global API rate limiting, re-authentication prompts, HSM/MPC custody, live blockchain execution, and production deployment claims.
 
 ## Comparison with Previous Prototype Scope
 
-The previous prototype included some additional application-level security controls such as MFA, re-authentication, rate limiting, and asset immutability tests. The current SCFCAv2 repository focuses on a PostgreSQL-backed proof of concept, Docker Compose execution, GitLab CI/CD validation, security scanner evidence, HTML security reports, DAST/container/IaC scanning, and role-aligned UI/RBAC. Controls not implemented in SCFCAv2 are marked as deferred or out of scope rather than claimed.
+The previous prototype included some additional application-level security controls such as MFA, re-authentication, broader rate limiting, and asset immutability tests. The current SCFCAv2 repository focuses on a PostgreSQL-backed proof of concept, Docker Compose execution, GitLab CI/CD validation, security scanner evidence, HTML security reports, DAST/container/IaC scanning, and role-aligned UI/RBAC. Controls not implemented in SCFCAv2 are marked as deferred or out of scope rather than claimed.
 
 Repository-grounded clarification:
 - Current code and tests confirm: CSRF protection, dual approval, PDF-only validation, admin-only case creation, auditor-only audit access, PostgreSQL-backed domain models/routes, and CI security evidence jobs.
-- Current code does not show implemented MFA, login rate limiting, or re-authentication enforcement.
+- Current code does not show implemented MFA, global API rate limiting, or re-authentication enforcement. Narrow in-memory failed-login throttling is implemented for the login endpoint only.
 - Current tests in `tests/` include asset immutability coverage for ORM-level seized-fact guards and absence of direct asset mutation routes.

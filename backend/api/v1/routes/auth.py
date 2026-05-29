@@ -12,6 +12,12 @@ from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 
 from backend.auth.csrf import CSRF_COOKIE, create_csrf_token, require_csrf
 from backend.auth.dependencies import SESSION_COOKIE, Principal, create_session_cookie, get_current_principal
+from backend.auth.login_throttle import (
+    THROTTLED_LOGIN_DETAIL,
+    is_login_throttled,
+    record_failed_login,
+    reset_login_throttle,
+)
 from backend.auth.schemas import LoginRequest, Role
 from backend.api.v1.routes.audit import record_audit_event
 from backend.auth.service import authenticate_user
@@ -28,8 +34,13 @@ def login(payload: LoginRequest, response: Response, request: Request):
     if not (payload.password or "").strip():
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Password is required")
 
+    client_ip = request.client.host if request.client else None
+    if is_login_throttled(username, client_ip):
+        raise HTTPException(status_code=status.HTTP_429_TOO_MANY_REQUESTS, detail=THROTTLED_LOGIN_DETAIL)
+
     user = authenticate_user(username, payload.password)
     if user is None:
+        record_failed_login(username, client_ip)
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
 
     # `user.role` is stored as an Enum(Role) in the DB; ensure compatibility
@@ -37,6 +48,7 @@ def login(payload: LoginRequest, response: Response, request: Request):
     if payload.role is not None and payload.role != user_role:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Role does not match credential")
 
+    reset_login_throttle(username, client_ip)
     csrf_token = create_csrf_token()
 
     session_cookie = create_session_cookie(username, user_role)
