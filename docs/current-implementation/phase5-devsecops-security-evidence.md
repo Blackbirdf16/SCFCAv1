@@ -45,6 +45,10 @@ The backend test job starts a PostgreSQL service, runs `scripts/seed_demo_data.p
 
 Scanner JSON reports are converted to HTML where supported by `scripts/security_reports_to_html.py`.
 
+Current hardening note: the active backend and frontend Dockerfiles include dependency-free `HEALTHCHECK` instructions, and the Checkov CI scan excludes `old-repo-reference/` because that directory is archived reference material rather than current SCFCA implementation scope.
+
+Current frontend SCA note: the Vite/esbuild moderate npm audit finding was remediated by updating Vite within the frontend dependency set and re-running the frontend build and audit. This does not change application custody logic or claim production security.
+
 Evidence paths:
 
 - `docs/evidence/security-reports/README.md`

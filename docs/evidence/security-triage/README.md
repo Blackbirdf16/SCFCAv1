@@ -40,10 +40,10 @@ Latest GitLab artifacts should be treated as the source of truth. Only older loc
 | --- | --- | --- | --- | --- | --- | --- |
 | Semgrep | No findings observed in current evidence. | None observed | `semgrep-report.html`, `semgrep-report.json` | No current action | Keep Semgrep in CI and continue reviewing artifacts. | Not required |
 | Gitleaks | No findings observed in current evidence. | None observed | `gitleaks-report.html`, `gitleaks-report.json` | No current action | Keep Gitleaks in CI and continue reviewing artifacts. | Not required |
-| Checkov | Latest report must be confirmed after output and parser fixes. | Requires artifact review | `checkov-report.html`, `checkov-report.json` | Configuration scan evidence / Requires manual review | Keep Checkov in CI; review failed checks if any appear in the latest artifact. | Not started |
+| Checkov | Missing Dockerfile health checks in active backend/frontend images; archived reference Dockerfiles outside current scope. | Medium / policy finding | `checkov-report.html`, `checkov-report.json` | Configuration hardening issue | Added active Dockerfile health checks and excluded `old-repo-reference/` from the CI scan. | Remediated locally |
 | Bandit | B311 standard pseudo-random generator use in `backend/api/v1/routes/cases.py`. | Low to medium, context-dependent | `bandit-backend-report.html`, `bandit-backend-report.json` | Requires manual review | Determine whether randomness is demo-only or security-sensitive before changing. | Not started |
 | OWASP ZAP | Missing browser security headers such as CSP, anti-clickjacking, `X-Content-Type-Options`, `Permissions-Policy`, COOP, COEP, and CORP. | Low to medium, header-dependent | `zap-baseline-report.html`, `zap-baseline-report.json`, `zap-baseline-report.md` | Configuration hardening issue | Add simple safe headers first; design CSP carefully to avoid breaking the frontend. | Partially remediated |
-| npm audit | Frontend dependency vulnerabilities observed in local npm audit evidence. | Moderate and high in local evidence | `frontend/npm-audit-frontend.html`, `frontend/npm-audit-frontend.json` | Dependency vulnerability | Inspect latest npm audit details; prefer non-breaking updates; run frontend build after changes. | Not started |
+| npm audit | Vite/esbuild moderate frontend dependency findings. | Moderate | `frontend/npm-audit-frontend.html`, `frontend/npm-audit-frontend.json` | Dependency vulnerability | Updated Vite dependency and verified frontend build and npm audit. | Remediated locally |
 | Trivy backend | Backend container image vulnerabilities require latest artifact review. | Requires artifact review | `trivy-backend-report.html`, `trivy-backend-report.json` | Container/base-image vulnerability / Dependency vulnerability | Distinguish OS package findings from Python dependency findings before updating. | Not started |
 | Trivy frontend | Frontend container image and dependency vulnerabilities require latest artifact review. | Requires artifact review | `trivy-frontend-report.html`, `trivy-frontend-report.json` | Container/base-image vulnerability / Dependency vulnerability | Separate base image findings from `node_modules` findings; coordinate with npm remediation. | Not started |
 | pip-audit | Local `docs/evidence/sbom/pip-audit-report.json` showed no vulnerabilities, but latest CI artifact should be confirmed. | None observed locally / Requires artifact review | `pip-audit-report.html`, `pip-audit-report.json` | Requires manual review | Confirm latest CI artifact; update backend dependencies only after reviewing concrete findings. | Not started |
@@ -60,7 +60,7 @@ No Gitleaks findings were observed in the current evidence available to the revi
 
 ### Checkov
 
-The Checkov output path and HTML parser were recently fixed. The latest GitLab artifact should be reviewed to confirm whether any failed checks remain. If failed checks appear, classify them individually as configuration hardening issues, acceptable PoC limitations, or remediation candidates.
+The Checkov output path and HTML parser were recently fixed. The active backend and frontend Dockerfiles now include dependency-free health checks. The CI Checkov command excludes `old-repo-reference/`, which is archived reference material and not part of the current implementation scope.
 
 ### Bandit B311
 
@@ -93,15 +93,13 @@ Phase 11C remediation note:
 
 ### npm Audit Frontend Vulnerabilities
 
-Local npm audit evidence under `docs/evidence/sbom/npm-audit-frontend.json` shows frontend dependency vulnerabilities, including direct and transitive packages. The latest GitLab artifact should be reviewed before changing dependencies.
+Local npm audit evidence previously showed Vite/esbuild frontend dependency vulnerabilities. Vite was updated and the frontend build and `npm audit --audit-level=moderate` were verified locally.
 
 Proposed action:
 
-- Inspect the latest `npm-audit-frontend.html` and JSON artifact.
-- Prefer `npm audit fix` only if it does not require breaking major upgrades.
-- Review direct dependencies such as `axios`, `vite`, and `postcss` separately from transitive dependencies.
-- Run `npm run build` after any dependency change.
-- Do not upgrade major versions blindly.
+- Review the next GitLab `npm-audit-frontend.html` and JSON artifact to confirm the CI environment is clean.
+- Continue reviewing direct dependencies such as `axios`, `vite`, and `postcss` separately from transitive dependencies.
+- Run `npm run build` after future dependency changes.
 
 ### Trivy Backend and Frontend Vulnerabilities
 
@@ -126,12 +124,11 @@ Proposed action:
 
 ## Safe Remediation Priority
 
-1. Review and fix or upgrade frontend dependencies if safe and `npm run build` passes.
-2. Review Bandit B311 and replace `random` with `secrets`, `uuid`, or deterministic fixture data only if the usage is security-sensitive or if repeatability is preferred.
-3. Add simple security headers if safe, starting with low-risk headers before CSP.
-4. Review backend and frontend container base image updates after separating OS findings from application dependency findings.
-5. Re-run the GitLab pipeline and compare JSON and HTML artifacts before and after remediation.
-6. Document residual risk for findings that cannot be safely fixed in the PoC.
+1. Review Bandit B311 and replace `random` with `secrets`, `uuid`, or deterministic fixture data only if the usage is security-sensitive or if repeatability is preferred.
+2. Add CSP only after separate testing against Vite development behavior, frontend runtime assets, and API calls.
+3. Review backend and frontend container base image updates after separating OS findings from application dependency findings.
+4. Re-run the GitLab pipeline and compare JSON and HTML artifacts before and after remediation.
+5. Document residual risk for findings that cannot be safely fixed in the PoC.
 
 ## Explicit Non-Goals
 

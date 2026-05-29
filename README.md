@@ -189,7 +189,7 @@ Implemented controls in the current repository:
 - Auditor-only hash lookup endpoint: `POST /api/v1/audit/hash/verify`.
 - Auditor-only audit report exports: `GET /api/v1/audit/reports/json` and `GET /api/v1/audit/reports/html`.
 - Asset immutability ORM guards for persisted seized asset facts and frozen valuation snapshots.
-- Docker hardening: non-root container users, `no-new-privileges`, `cap_drop: ALL`, backend read-only filesystem, and `/tmp` mounted as `tmpfs`.
+- Docker hardening: non-root container users, Dockerfile `HEALTHCHECK` instructions, `no-new-privileges`, `cap_drop: ALL`, backend read-only filesystem, and `/tmp` mounted as `tmpfs`.
 - Security headers set by the FastAPI middleware.
 - Dependency and security scanner evidence in GitLab CI.
 

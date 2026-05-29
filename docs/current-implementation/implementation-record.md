@@ -73,7 +73,7 @@ No asset mutation API route is present in the current repository. Asset holdings
 | Audit hash-chain verification | `backend/api/v1/routes/audit.py`, `tests/test_audit_hash_chain.py` |
 | Asset fact immutability | `backend/core/models.py`, `tests/test_asset_immutability.py` |
 | Security headers | `backend/main.py`, `tests/test_security_hardening.py` |
-| Docker hardening | `docker-compose.yml`, `backend/Dockerfile`, `frontend/Dockerfile` |
+| Docker hardening | `docker-compose.yml`, `backend/Dockerfile`, `frontend/Dockerfile`; includes non-root users, Compose security options, and Dockerfile health checks |
 
 ## DevSecOps Evidence
 

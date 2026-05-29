@@ -161,7 +161,7 @@ ZAP DAST baseline & Non-blocking baseline runtime scan & .gitlab-ci.yml (dast\_z
 \hline
 Residual CSP/COEP findings & Deferred hardening noted in triage & docs/evidence/security-triage/README.md & security-triage documentation & Deferred / Partial in current PoC. \\
 \hline
-Residual Vite/esbuild moderate findings & npm audit evidence includes vite/esbuild advisories & docs/evidence/sbom/npm-audit-frontend.json & npm audit JSON evidence & Dependency risk remains until upgrades/remediation complete. \\
+Vite/esbuild npm audit remediation & Vite dependency updated and npm audit re-run & frontend/package.json; frontend/package-lock.json & npm audit JSON evidence; local npm audit verification & Remediated locally; future dependency findings still require triage. \\
 \hline
 Trivy findings needing review & Manual artifact interpretation before remediation & docs/evidence/security-triage/README.md & triage evidence references & Requires manual review by design. \\
 \hline

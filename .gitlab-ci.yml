@@ -253,7 +253,7 @@ iac_scan_checkov:
   script:
     - |
       set +e
-      checkov -d . --framework dockerfile yaml gitlab_ci --output json > checkov-report.json
+      checkov -d . --skip-path old-repo-reference --framework dockerfile yaml gitlab_ci --output json > checkov-report.json
       scan_exit=$?
       set -e
       python3 scripts/security_reports_to_html.py --input checkov-report.json --output checkov-report.html --title "Checkov IaC Security Report" --tool checkov

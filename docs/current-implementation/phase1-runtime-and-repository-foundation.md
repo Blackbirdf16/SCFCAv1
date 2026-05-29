@@ -21,7 +21,7 @@ Current SCFCAv2 implementation evidence exists in the repository and runtime con
 | Backend runtime | FastAPI app served by backend container | `backend/main.py`, `backend/Dockerfile` |
 | Frontend runtime | React/Vite app served by frontend container | `frontend/`, `frontend/Dockerfile` |
 | Database | PostgreSQL 16 Alpine service with named volume | `docker-compose.yml` |
-| Health check | Backend health endpoint | `backend/api/v1/routes/health.py` |
+| Health check | Backend health endpoint and Dockerfile container health checks | `backend/api/v1/routes/health.py`, `backend/Dockerfile`, `frontend/Dockerfile` |
 
 ## PostgreSQL-Backed PoC
 

@@ -74,14 +74,14 @@ Notes:
 | Controlled error handling | Explicit `HTTPException` responses and validation checks | `backend/api/v1/routes/*.py` | `tests/test_fuzz_security_inputs.py` | No unified global error envelope middleware for all exceptions. |
 | Non-root Docker containers | Runtime user drop to non-root | `backend/Dockerfile`, `frontend/Dockerfile` | Dockerfile review | Host-level runtime controls are environment dependent. |
 | Docker hardening | Read-only FS, `cap_drop: ALL`, `no-new-privileges`, `tmpfs` | `docker-compose.yml` | Compose config + README security section | No Kubernetes policy enforcement in PoC. |
-| Dependency scanning | `pip-audit` and `npm audit` jobs | `.gitlab-ci.yml` | `docs/evidence/sbom/`, security reports docs | Findings still require manual triage/remediation decisions. |
+| Dependency scanning | `pip-audit` and `npm audit` jobs | `.gitlab-ci.yml` | `docs/evidence/sbom/`, security reports docs | Frontend Vite/esbuild finding remediated locally; future findings still require manual triage/remediation decisions. |
 | SAST | Bandit and Semgrep jobs | `.gitlab-ci.yml` | `docs/evidence/security-reports/README.md` | Scanner coverage is best-effort; not equivalent to full code audit. |
 | Secret scanning | Gitleaks job | `.gitlab-ci.yml` | `docs/evidence/security-reports/README.md` | No guarantee against all secret leakage patterns. |
 | Trivy container scanning | Backend/frontend image scans in CI | `.gitlab-ci.yml` | `docs/evidence/security-triage/README.md` | Triage doc states latest artifacts still require review. |
 | Checkov IaC/config scanning | Dockerfile/YAML/GitLab CI check | `.gitlab-ci.yml` | `docs/evidence/security-triage/README.md` | Some findings may remain as accepted PoC limitations. |
 | ZAP DAST baseline | Baseline DAST job with artifact outputs | `.gitlab-ci.yml` (`dast_zap_baseline`) | `docs/evidence/dast/README.md` | Baseline, unauthenticated scan; non-blocking evidence-only mode. |
 | Residual CSP/COEP findings | Deferred hardening noted in triage | `docs/evidence/security-triage/README.md` | Triage notes | Marked deferred/partial in current PoC. |
-| Residual Vite/esbuild moderate dev-tooling findings | npm audit evidence references `vite`/`esbuild` advisories | `docs/evidence/sbom/npm-audit-frontend.json` | npm audit JSON evidence | Dependency risk remains until planned upgrade/remediation. |
+| Vite/esbuild npm audit remediation | Vite dependency updated and npm audit re-run | `frontend/package.json`, `frontend/package-lock.json` | npm audit JSON evidence; local npm audit verification | Remediated locally; future dependency findings still require triage. |
 | Trivy findings requiring artifact review | Manual review required by triage process | `docs/evidence/security-triage/README.md` | Trivy artifact references in triage | Current status is review-driven, not auto-remediated. |
 
 ## Table 4 - DevSecOps Evidence Traceability
