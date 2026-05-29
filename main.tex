@@ -47,7 +47,7 @@
 % ---------------- Title Page ----------------
 \begin{figure}
     \centering
-    \includegraphics[width=1\linewidth]{uni.png}
+    \includegraphics[width=1\linewidth]{docs//thesis-notes/uni.png}
     \label{fig:UMALOGO}
 \end{figure}
 
@@ -322,7 +322,7 @@ The continuous improvement logic of SCFCA follows the Plan--Do--Check--Act (PDCA
 
 \begin{figure}[ht]
     \centering
-    \includegraphics[width=0.95\textwidth]{figure11.png}
+    \includegraphics[width=0.95\textwidth]{docs//thesis-notes/figure11.png}
     \caption{SCFCA as an ISO/IEC 27001-aligned ISMS following the PDCA continuous improvement model.}
     \label{fig:scfca-pdca-isms}
 \end{figure}
@@ -464,8 +464,8 @@ The PoC is validated by testing whether the prototype enforces the security cons
 
 \begin{figure}[ht]
     \centering
-    \includegraphics[width=0.95\textwidth]{figure25.png}
-    \caption{Class diagram of the main backend domain models and relationships in the SCFCA project. PlantUML}
+    \includegraphics[width=0.95\textwidth]{docs//thesis-notes/figure25.png}
+    \caption{Class diagram of the main backend domain models and relationships in the SCFCA project. PlantUML \cite{Plantuml1} } 
     \label{fig:class-diagram}
 \end{figure}
 
@@ -561,7 +561,7 @@ Threat graphs are commonly used in cyber threat intelligence to model adversaria
 
 \begin{figure}
     \centering
-    \includegraphics[width=1\linewidth]{figure 11.png}
+    \includegraphics[width=1\linewidth]{docs//thesis-notes/figure 11.png}
     \caption{Taxonomy of threats. Adapted from Jouini et al. (2014), as discussed in cyber threat intelligence literature~\cite{Lee2023}.}
     \label{fig:threat_taxonomy}
 \end{figure}
@@ -658,7 +658,7 @@ By modeling the attack graph in this manner, the threat analysis highlights that
 
 \begin{figure}
     \centering
-    \includegraphics[width=0.75\linewidth]{figure10.png}
+    \includegraphics[width=0.75\linewidth]{docs//thesis-notes/figure10.png}
     \caption{Threat graph example for MU-7: Case Data Exfiltration~\cite{Lee2023}.}
     \label{fig:placeholder1}
 \end{figure}
@@ -701,7 +701,7 @@ From a defensive perspective, mitigation requires layered controls including:
 The threat graph analysis demonstrates that preventing unauthorized access is not dependent on a single control, but on a combination of authentication hardening, credential protection, and session monitoring mechanisms.
 \begin{figure}
     \centering
-    \includegraphics[width=1\linewidth]{figure9.png}
+    \includegraphics[width=1\linewidth]{docs//thesis-notes/figure9.png}
     \caption{MU-1 Threat Graph  : Unauthorized Access }
     \label{fig:placeholder3}
 \end{figure}
@@ -738,7 +738,7 @@ All attack branches ultimately converge on the attacker goal:
 
 \begin{figure}
     \centering
-    \includegraphics[width=1\linewidth]{figure 12.png}
+    \includegraphics[width=1\linewidth]{docs//thesis-notes/figure 12.png}
     \caption{MU-2 – Privilege Escalation Threat Graph}
     \label{fig:placeholder4}
 \end{figure}
@@ -757,6 +757,7 @@ With this structured threat knowledge in place, the work can now transition from
 
 % =====================================================
 \chapter{System Architecture}
+\label{ch:system-architecture}
 \section{System Actors}
 The Secure Custody Framework for Cryptocurrency Assets (SCFCA) operates within an institutional environment involving multiple actors with clearly separated responsibilities and access privileges. The explicit definition of system actors is essential to enforce separation of duties, prevent abuse of privileges, and ensure accountability and auditability across all custody operations.
 
@@ -764,10 +765,11 @@ All interactions with the system are performed by authenticated users operating 
 
 \begin{figure}
     \centering
-    \includegraphics[width=1\linewidth]{Figure 1 . System overview ( simplified first idea ).png}
+    \includegraphics[width=1\linewidth]{docs//thesis-notes/Figure1.png}
     \caption{ System overview ( simplified first idea , use cases)}
     \label{fig:system-overview}
 \end{figure}
+
 
 \subsection{Identity Representation}
 All users within the system are represented internally by pseudonymous UserIDs. These identifiers do not encode the user’s role, real-world identity, or organizational position. Role information and access privileges are managed separately through the system’s access control mechanisms. This design minimizes information leakage, prevents bias, and ensures that audit records remain operationally meaningful without exposing unnecessary personal data.
@@ -780,7 +782,7 @@ The Case Handler represents the authorized investigative authority responsible f
 
 \begin{figure}
     \centering
-    \includegraphics[width=1\linewidth]{Figure2.png}
+    \includegraphics[width=1\linewidth]{docs//thesis-notes/Figure2.png}
     \caption{Tropo Analysis diagram (case handler’s goals)}
     \label{fig:placeholder2}
 \end{figure}
@@ -811,7 +813,7 @@ Administrators act as control actors within the custody workflow, but they canno
 
 \begin{figure}
     \centering
-    \includegraphics[width=1\linewidth]{Figure3.png}
+    \includegraphics[width=1\linewidth]{docs//thesis-notes/Figure3.png}
     \caption{Tropo Analysis Diagram ( Administrator’s goals)}
     \label{fig:placeholder}
 \end{figure}
@@ -862,7 +864,7 @@ The Auditor cannot:
 \end{itemize}
 \begin{figure}
     \centering
-    \includegraphics[width=1\linewidth]{Figure4.png}
+    \includegraphics[width=1\linewidth]{docs//thesis-notes/Figure4.png}
     \caption{Tropo Analysis Diagram ( Auditor’s goals) }
     \label{fig:Auditor,Secure Tropos}
 \end{figure}
@@ -880,7 +882,7 @@ MU-7 (if credentials stolen)
 
 \begin{figure}
     \centering
-    \includegraphics[width=1\linewidth]{Figure5.png}
+    \includegraphics[width=1\linewidth]{docs//thesis-notes/Figure5.png}
     \caption{Tropo Analysis Diagram ( External Adversary’s goals)}
     \label{fig:placeholder}
 \end{figure}
@@ -942,7 +944,7 @@ MU-7 (internal abuse)
 
 \begin{figure}
     \centering
-    \includegraphics[width=1\linewidth]{Figure6.png}
+    \includegraphics[width=1\linewidth]{docs//thesis-notes/Figure6.png}
     \caption{Tropo Analysis Diagram ( Malicious Insider’s goals)}
     \label{fig:placeholder}
 \end{figure}
@@ -1061,7 +1063,7 @@ MU-9 (DoS) → threatens → "System availability / Generate reports / Submit ti
 
 \begin{figure}
     \centering
-    \includegraphics[width=1\linewidth]{Figure7.png}
+    \includegraphics[width=1\linewidth]{docs//thesis-notes/Figure7.png}
     \caption{Tropo Analysis Diagram (Threat-goals relations)}
     \label{fig:placeholder}
 \end{figure}
@@ -1073,7 +1075,7 @@ Each mitigation measure is derived from the formal Security Requirements defined
 
 \begin{figure}
     \centering
-    \includegraphics[width=1\linewidth]{Figure8.png}
+    \includegraphics[width=1\linewidth]{docs//thesis-notes/Figure8.png}
     \caption{Tropo Analysis Diagram (Mitigation Measures )}
     \label{fig:placeholder}
 \end{figure}
@@ -1173,7 +1175,7 @@ Finally, this trust-boundary view aligns the architecture with a Zero Trust inte
 \subsection{Identity, Accounts, Roles}
 \begin{figure}
     \centering
-    \includegraphics[width=1\linewidth]{figure13.png}
+    \includegraphics[width=1\linewidth]{docs//thesis-notes/figure13.png}
     \caption{Functional requirements model for identity, case management, asset registration, and ticketing workflow.}
     \label{fig:placeholder}
 \end{figure}
@@ -1309,7 +1311,7 @@ Generated reports shall be informational snapshots and shall not modify system s
 
 \begin{figure}
     \centering
-    \includegraphics[width=1\linewidth]{figure14..png}
+    \includegraphics[width=1\linewidth]{docs//thesis-notes/figure14..png}
     \caption{Functional requirements model for document handling, reporting, execution traceability, and audit logging.}
     \label{fig:placeholder}
 \end{figure}
@@ -1353,7 +1355,7 @@ The system shall enforce a least-privilege access control model ensuring that ea
 
 \begin{figure}
     \centering
-    \includegraphics[width=1\linewidth]{figure15.png}
+    \includegraphics[width=1\linewidth]{docs//thesis-notes/figure15.png}
     \caption{Security requirements model for access control, authentication, audit integrity, and custody dual control.}
     \label{fig:security-requirements-part-1}
 \end{figure}
@@ -1420,7 +1422,7 @@ If an approved custody operation fails during execution, the system shall record
 
 \begin{figure}
     \centering
-    \includegraphics[width=1\linewidth]{figure16.png}
+    \includegraphics[width=1\linewidth]{docs//thesis-notes/figure16.png}
     \caption{Security requirements model for custody integrity, data protection, confidentiality, and privacy controls.}
     \label{fig:security-requirements-part-2}
 \end{figure}
@@ -1459,7 +1461,7 @@ Figure~\ref{fig:non-functional-requirements-model} presents the non-functional r
 
 \begin{figure}
     \centering
-    \includegraphics[width=1\linewidth]{figure18.png}
+    \includegraphics[width=1\linewidth]{docs//thesis-notes/figure18.png}
     \caption{Non-functional requirements model for operational quality, reliability, traceability, and maintainability.}
     \label{fig:non-functional-requirements-model}
 \end{figure}
@@ -1568,7 +1570,7 @@ evidentiary value recorded at seizure or registration time.
 
 \begin{figure}
     \centering
-    \includegraphics[width=1\linewidth]{figure19.png}
+    \includegraphics[width=1\linewidth]{docs//thesis-notes/figure19.png}
     \caption{Domain class diagram of the SCFCA core data structures.}
     \label{fig:figure19.png}
 \end{figure}
@@ -1638,7 +1640,7 @@ the threat model, the formal security requirements, and the architectural contro
 
 \begin{figure}
     \centering
-    \includegraphics[width=1\linewidth]{figure17.png}
+    \includegraphics[width=1\linewidth]{docs//thesis-notes/figure17.png}
     \caption{Domain Security Model linking SCFCA assets to security requirements, threats, attacks, and mitigations.}
     \label{fig:scfca-domain-security-model}
 \end{figure}
@@ -1685,7 +1687,7 @@ blocks the custody action.
 \begin{figure}[H]
     \centering
     \includegraphics[width=1\linewidth]{scfca_activity_diagram_case_ticket_custody.pdf}
-    \caption{Activity diagram for case creation, ticket approval, and custody execution in SCFCA.}
+    \caption{Activity diagram for case creation, ticket approval, and custody execution in SCFCA.\cite{AD}}
     \label{fig:activity-case-ticket-custody}
 \end{figure}
 
@@ -1705,21 +1707,21 @@ approval process.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=1\linewidth]{figure20.png}
+    \includegraphics[width=1\linewidth]{docs//thesis-notes/figure20.png}
     \caption{Sequence diagram fragment for ticket creation and first administrator approval.}
     \label{fig:sequence-ticket-creation-first-approval}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=1\linewidth]{figure21.png}
+    \includegraphics[width=1\linewidth]{docs//thesis-notes/figure21.png}
     \caption{Sequence diagram fragment for dual approval and custody execution.}
     \label{fig:sequence-approval-execution-path}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=1\linewidth]{figure22.png}
+    \includegraphics[width=1\linewidth]{docs//thesis-notes/figure22.png}
     \caption{Sequence diagram fragment for rejection handling in the custody approval workflow.}
     \label{fig:sequence-rejection-path}
 \end{figure}
@@ -1768,7 +1770,30 @@ concept was implemented and how the defined requirements were reflected in the p
 
 % =====================================================
 \chapter{Implementation, Validation, and Proof of Concept}
+
 \label{ch:implementation-validation-poc}
+
+\subsection*{Repository Structure as Proof-of-Concept Evidence}
+\addcontentsline{toc}{section}{Repository Structure as Proof-of-Concept Evidence}
+
+The SCFCA repository was organized to support both implementation and validation. It does not contain only application code; it also contains the execution environment, automated tests, security evidence, diagrams, scripts, and CI/CD configuration required to reproduce and review the proof of concept.
+
+\begin{verbatim}
+SCFCA/
+├── backend/              FastAPI backend and security enforcement logic
+├── frontend/             React/Vite user interface
+├── tests/                Automated functional and security tests
+├── scripts/              Demo seeding and evidence report scripts
+├── docs/evidence/        SBOM, security reports, and validation evidence
+├── docs/diagrams/plantuml/  PlantUML sources and rendered SVG/PNG diagrams
+├── docker-compose.yml    Reproducible local runtime
+├── .gitlab-ci.yml        CI/CD validation and security pipeline
+└── README.md             Execution and demonstration guide
+\end{verbatim}
+
+This structure supports the proof-of-concept objective because the system can be executed, seeded, tested, scanned, and reviewed from the repository itself. Therefore, the repository acts not only as a code archive, but also as a validation package for the thesis.\cite{REPO1} \cite{REPO2} 
+
+In practical terms, the proof of concept allows a reviewer to start the system with Docker Compose, seed deterministic demo data, log in as different institutional roles, observe role-based visibility differences, create and review custody workflow tickets, inspect document hash metadata, export audit reports, verify document or audit hashes, and review CI/CD security evidence generated by the repository.
 
 \section{Development Model, Environment, and Tooling}
 
@@ -1786,21 +1811,39 @@ The current implementation is structured as a web application composed of the fo
     \item a \textbf{GitLab CI/CD pipeline}, used to validate the repository, execute tests, build the frontend, validate container configuration, run security scanners, and retain evidence artifacts.
 \end{itemize}
 
+\begin{table}[htbp]
+\centering
+\caption{Repository evidence supporting the SCFCA proof of concept}
+\label{tab:scfca-repository-evidence}
+\begin{tabular}{p{0.24\textwidth} p{0.36\textwidth} p{0.30\textwidth}}
+\hline
+\textbf{PoC Area} & \textbf{Evidence in Repository} & \textbf{Validation Contribution} \\
+\hline
+Backend implementation & FastAPI backend with authentication, case management, ticket workflows, document handling, audit events, and hash verification & Demonstrates that the proposed architecture was translated into executable server-side logic \\
+\hline
+Frontend implementation & React/Vite interface for role-based interaction by regular users, administrators, and auditors & Supports visual demonstration of institutional workflows and role-specific views \\
+\hline
+Persistence layer & PostgreSQL-backed users, cases, tickets, documents, assets, approvals, valuation snapshots, and audit events & Validates that access control and workflow behavior operate over persistent records rather than temporary in-memory data \\
+\hline
+Security controls & RBAC, signed session cookie, CSRF protection, SHA-256 document hashing, and audit hash chaining & Provides implementation evidence for the main security requirements defined in the architecture \\
+\hline
+DevSecOps pipeline & GitLab CI/CD with SCA, SAST, secret scanning, Trivy, Checkov, OWASP ZAP, and build/test validation & Demonstrates that validation and security checks are integrated into the software development lifecycle \\
+\hline
+Evidence artifacts & JSON and HTML reports, SBOM/SCA folders, security evidence folders, and retained CI artifacts & Supports auditability, traceability, and human-readable review of security evidence \\
+\hline
+Automated tests & Workflow tests, security hardening tests, malformed-input tests, model tests, and frontend build checks & Provides repeatable evidence that selected functional and security properties were verified \\
+\hline
+Docker runtime & Docker Compose execution with backend, frontend, PostgreSQL, and container hardening controls & Supports reproducibility of the proof-of-concept environment and validates the deployment model \\
+\hline
+\end{tabular}
+\end{table}
+
 This implementation model reflects the two technical dimensions of the thesis. The first dimension is the secure custody governance model: the system must enforce separation of duties, restricted visibility, approval workflows, and auditability. The second dimension is the secure software engineering model: the repository must provide evidence that the system can be tested, built, scanned, and reproduced in a controlled way. This is aligned with DevOps and DevSecOps principles, where validation, automation, and feedback are integrated into the software lifecycle rather than treated as final manual activities~\cite{Kim2016,Vehent2018}.
 
-\begin{figure}[htbp]
+\begin{figure} [htbp]
     \centering
-    \fbox{
-    \begin{minipage}{0.92\textwidth}
-        \centering
-        \vspace{1.2cm}
-        Placeholder for implementation architecture figure.\\
-        Suggested figure: React/Vite frontend, FastAPI backend, PostgreSQL database,
-        Docker Compose runtime, GitLab CI/CD pipeline, and generated evidence artifacts.
-        \vspace{1.2cm}
-    \end{minipage}
-    }
-    \caption{Implementation architecture of the SCFCA proof of concept.}
+    \includegraphics[width=1\linewidth]{docs//diagrams//plantuml/scfca_poc_architecture.png}
+    \caption{Implementation architecture of the SCFCA proof of concept.  \cite{Plantuml2}}
     \label{fig:scfca-implementation-architecture}
 \end{figure}
 
@@ -1820,17 +1863,26 @@ At a high level, the implemented prototype contains the following layers:
     \item \textbf{DevSecOps evidence layer:} GitLab CI/CD jobs and retained artifacts generated by tests, builds, scanners, and report converters.
 \end{itemize}
 
-This structure supports the architectural claim made in Chapter~\ref{ch:system-architecture}: SCFCA is not only a set of requirements, but a software architecture where security controls are embedded in workflow logic, domain records, and validation evidence.
+This structure supports the architectural claim made in Chapter ~\ref{ch:system-architecture}. SCFCA is not only a set of requirements, but a software architecture where security controls are embedded in workflow logic, domain records, and validation evidence.
 
 \subsection{Backend Structure}
 
 The backend is implemented in Python using FastAPI. It exposes API routes for the main system areas: authentication, cases, tickets, documents, audit, health checks, and internal communication. The backend is the primary enforcement point for the proof of concept.
+
+This organization separates domain concerns such as cases, tickets, documents, audit events, and authentication into distinct backend areas, which supports maintainability and makes the implementation easier to map to the architectural models defined earlier in the thesis.
 
 Authentication is implemented through a signed session cookie named \texttt{scfca\_session}. The session payload contains the authenticated username and role, and it is protected with an HMAC signature derived from the configured secret key. This prevents the frontend from arbitrarily declaring a different role or identity without server-side validation. State-changing requests are protected with a CSRF token mechanism based on the \texttt{scfca\_csrf} cookie and the \texttt{x-csrf-token} request header.
 
 Role-based access control is enforced through backend dependencies. Protected endpoints require the authenticated principal to hold an allowed role before the requested operation is processed. This supports the least-privilege requirement by ensuring that authorization is checked on the server side and not left to the frontend.
 
 The backend also implements the workflow restrictions required by SCFCA. Regular users can create custody workflow tickets only for cases assigned to them. Administrators can view all tickets and approve or reject them, but they cannot initiate regular custody workflow tickets. Auditors are restricted to audit metadata, report export, and hash-verification functionality.
+
+\begin{figure} [htbp]
+    \centering
+    \includegraphics[width=1\linewidth]{docs//diagrams//plantuml/backend_domain_api_structure.png}
+    \caption{Backend domain and API structure of the SCFCA proof of concept. \cite{Plantuml3}}
+    \label{fig:backend-domain-api-structure}
+\end{figure}
 
 \subsection{Frontend Structure}
 
@@ -1840,11 +1892,19 @@ The frontend is intentionally not treated as a trusted security boundary. It may
 
 The role-aware interface remains useful for operational clarity. Regular users, administrators, and auditors interact with the same system through different views that reflect their responsibilities. This supports the non-functional requirement for role-based interface clarity and reduces the likelihood of accidental misuse during demonstration and validation.
 
-\subsection{Database and Persistence Layer}
+\begin{figure} [htbp]
+    \centering
+    \includegraphics[width=1\linewidth]{diagrams/frontend_component_type_model.png}
+    \caption{Frontend component structure of the SCFCA proof of concept. \cite{Plantuml4} }
+    \label{fig:frontend_component_type_model}
+\end{figure}
+
 
 The current proof of concept uses PostgreSQL as its persistence backend. The database stores the main domain entities required by the SCFCA workflow, including users, cases, case assignments, assets, frozen valuation snapshots, tickets, ticket approvals, document metadata, and audit events.
 
 The use of PostgreSQL moves the project beyond a purely in-memory demonstration. Seeded records remain available across backend restarts, and role-specific visibility can be validated against persistent state. This strengthens the credibility of the proof of concept because access-control behavior can be demonstrated against the same underlying dataset from different user roles.
+
+This persistent dataset allows the same case, ticket, document, and audit records to be inspected from different role perspectives, making the access-control boundaries demonstrable rather than only described.
 
 The repository includes a deterministic seed script for demonstration and validation. The seeded dataset includes the regular users \texttt{alice}, \texttt{mark}, and \texttt{john}, the administrators \texttt{bob} and \texttt{eve}, and the auditor \texttt{carol}. The current seeded dataset assigns cases to regular users and includes shared-case behavior, assets, documents, tickets, and audit events. This makes it possible to demonstrate concrete scenarios such as:
 
@@ -1866,25 +1926,17 @@ The backend container runs the FastAPI application with Uvicorn. The frontend co
 
 Container hardening is included at the Docker and Docker Compose level. The backend and frontend application containers run as non-root users. The Compose configuration uses \texttt{no-new-privileges}, drops Linux capabilities for the application containers, and configures the backend container with a read-only filesystem and a temporary writable \texttt{/tmp} mount. These controls demonstrate that container security is considered as part of the PoC execution model.
 
-\begin{figure}[htbp]
+\begin{figure} [htbp]
     \centering
-    \fbox{
-    \begin{minipage}{0.92\textwidth}
-        \centering
-        \vspace{1.2cm}
-        Placeholder for Docker Compose architecture figure.\\
-        Suggested figure: PostgreSQL service, backend service, frontend service,
-        ports 5432/8000/5173, health checks, and hardening controls.
-        \vspace{1.2cm}
-    \end{minipage}
-    }
-    \caption{Docker Compose execution model for the SCFCA proof of concept.}
+    \includegraphics[width=1\linewidth]{docs//diagrams//plantuml/scfca_docker_compose_container_model.png}
+    \caption{Docker Compose execution model for the SCFCA proof of concept.\cite{Plantuml5} }
     \label{fig:scfca-docker-compose-model}
 \end{figure}
 
 \section{Implementation of Core Security Logic}
 
 The implementation focuses on the controls that are most important to the thesis: server-side authorization, assignment-based visibility, ticket governance, document integrity, auditability, and DevSecOps evidence. These controls operationalize the security requirements defined in Chapter~\ref{ch:system-architecture}.
+Each control corresponds to a specific architectural risk identified earlier in the thesis. Server-side RBAC addresses unauthorized access and privilege escalation. Assignment-based visibility addresses case data exfiltration and unauthorized case access. Ticket governance and administrator approval address bypass of custody authorization. Document hashing addresses evidence tampering. Finally, audit hash chaining addresses log manipulation and supports later verification of system activity.
 
 \subsection{Authentication, Session Handling, and CSRF Protection}
 
@@ -1906,7 +1958,7 @@ The implemented role behavior follows the SCFCA model:
     \item \textbf{Auditors} can access audit metadata, report export, and hash verification, but do not receive operational modification privileges.
 \end{itemize}
 
-This implementation directly supports least privilege, separation of duties, and restricted access to sensitive case information.
+This implementation directly supports least privilege, separation of duties, and restricted access to sensitive case information.It also reinforces the principle that the frontend is not part of the trusted authorization boundary.
 
 \subsection{Case Visibility and Assignment Enforcement}
 
@@ -1918,15 +1970,17 @@ This behavior supports the thesis requirement that case handlers must only acces
 
 \subsection{Ticket Workflow and Administrator Approval}
 
-The ticket workflow is the main governance mechanism of the SCFCA proof of concept. Regular users create custody workflow tickets linked to assigned cases. Administrators review those tickets and may approve or reject them. A single administrator decision is not treated as an informal action; it is stored as part of the workflow state and remains visible for later audit review.
+The ticket workflow is the main governance mechanism for custody-related requests in the SCFCA proof of concept. Tickets are linked to existing cases and are used to request actions such as transfer, conversion, reassignment, or administrative metadata updates. Regular users create custody workflow tickets only for cases assigned to them. Administrators review those tickets and may approve or reject them.
 
-The implementation stores administrator decisions as approval records rather than reducing the process to a simple visual status. This preserves evidence of who approved or rejected the request, at which stage, and when. Rejection finalizes the ticket as rejected and prevents the approval path from continuing.
+A single administrator decision is not treated as an informal action; it is stored as part of the workflow state and remains visible for later audit review. The implementation stores administrator decisions as approval records rather than reducing the process to a simple visual status. This preserves evidence of who approved or rejected the request, at which stage, and when. Rejection finalizes the ticket as rejected and prevents the approval path from continuing.
 
-The current implementation also includes a case-creation-request ticket type. In this phase, administrators may submit case creation request tickets for regular handlers, while direct case creation through a backend case-creation endpoint is not the selected implementation path. This is an implementation choice in the PoC and should be understood as part of the current workflow design.
+Case creation is implemented as a separate administrative workflow and should not be confused with custody workflow ticket creation. Administrators may register new custody cases and assign them to case handlers, while regular custody-impacting actions remain governed by the ticket workflow. In this model, tickets are used for requests linked to existing cases, whereas case creation establishes the initial case record and custody context.
 
 \subsection{Document Integrity Metadata}
 
 The document subsystem stores document metadata and SHA-256 hash values. Uploaded PDF files are hashed by the backend when received through the upload endpoint. Document records are linked to cases and include metadata such as filename, document type, case identifier, uploader, creation timestamp, and hash value.
+
+The important point for the PoC is that the integrity value is calculated by the backend at upload time, not supplied by the user as an untrusted claim.
 
 The use of hashing supports integrity verification: a later document hash can be compared against the stored value to detect replacement or modification. This is aligned with the evidentiary nature of the SCFCA domain, where supporting documentation must remain traceable and resistant to silent tampering. The cryptographic hash mechanism is used as an integrity control, consistent with standard cryptographic practice~\cite{Aumasson2021}.
 
@@ -1938,26 +1992,36 @@ The previous-hash and hash-chain fields create tamper-evident linkage between ev
 
 The auditor-facing functionality includes filtered audit review, JSON report export, HTML report export, and hash verification. The hash verification endpoint can determine whether a submitted hash corresponds to a known document hash or audit-event hash. This allows an auditor to verify integrity using safe metadata without requiring access to confidential case narratives or document contents.
 
+\begin{figure} [htbp]
+    \centering
+    \includegraphics[width=1\linewidth]{docs//thesis-notes/figure23.png}
+    \caption{Auditor dashboard showing the HTML audit report generated by the SCFCA proof of concept.}
+    \label{fig:scfca-auditor-html-report}
+\end{figure}
+
+
+
 \begin{figure}[htbp]
     \centering
-    \fbox{
-    \begin{minipage}{0.92\textwidth}
-        \centering
-        \vspace{1.2cm}
-        Placeholder for audit evidence screenshot.\\
-        Suggested figure: Auditor dashboard, HTML audit report, or hash verification result.
-        \vspace{1.2cm}
-    \end{minipage}
-    }
-    \caption{Auditor-facing audit evidence and hash verification in the SCFCA proof of concept.}
-    \label{fig:scfca-audit-evidence-placeholder}
+    \includegraphics[width=1\linewidth]{docs//thesis-notes/figure24.png}
+    \caption{Auditor-facing hash verification for document and audit evidence in the SCFCA proof of concept.}
+    \label{fig:scfca-auditor-hash-verification}
 \end{figure}
 
 \section{DevSecOps Evidence Layer}
 
-The implementation includes a DevSecOps evidence layer built around GitLab CI/CD. This layer is not separate from the proof of concept; it supports the thesis argument that secure custody systems should be developed and validated through repeatable engineering evidence, not only through design claims.
+The implementation includes a DevSecOps evidence layer built around GitLab CI/CD. This layer is not separate from the proof of concept; it supports the thesis argument that secure custody systems must be validated not only through application behavior, but also through the software development ecosystem that produces the application.
 
-The GitLab pipeline is organized around validation, testing, build, and security stages. It validates the backend, frontend, Docker configuration, dependencies, static code properties, secrets exposure, container images, configuration files, and dynamic application behavior. Security jobs are intentionally non-blocking at this stage. Their purpose is to preserve evidence, expose findings, and support triage, not to claim a mature production release gate.
+This is relevant because SCFCA, like any modern software system, depends on third-party packages, container images, build scripts, configuration files, and CI/CD execution. A weakness in these elements could affect the trustworthiness of the final system even if the custody workflow itself is correctly designed. For this reason, the pipeline is used to generate repeatable evidence about tests, dependencies, static code properties, exposed secrets, container images, configuration files, and dynamic application behavior.
+
+The GitLab pipeline is organized around validation, testing, build, and security stages. Security jobs are intentionally non-blocking at this stage. Their purpose is to preserve evidence, expose findings, and support triage, not to claim a mature production release gate or to prove that the system is vulnerability-free.
+
+\begin{figure} [htbp]
+    \centering
+    \includegraphics[width=1\linewidth]{docs//diagrams//plantuml/scfca_devsecops_pipeline_evidence.png}
+    \caption{DevSecOps Pipeline PlantUML\cite{Plantuml6}}
+    \label{fig:scfca-devsecops-pipeline-placeholder}
+\end{figure}
 
 \subsection{GitLab CI/CD Pipeline}
 
@@ -1972,24 +2036,20 @@ The GitLab CI/CD pipeline provides automated validation of the repository. The m
 
 The backend test job uses a PostgreSQL service, waits for database readiness, runs the demo seed script, and then executes the test suite. This is important because it verifies backend behavior in a CI environment using a database-backed execution path, not only in the developer's local environment.
 
-\begin{figure}[htbp]
-    \centering
-    \fbox{
-    \begin{minipage}{0.92\textwidth}
+
+\begin{figure} [htbp]
         \centering
-        \vspace{1.2cm}
-        Placeholder for GitLab CI/CD pipeline screenshot.\\
-        Suggested figure: GitLab pipeline showing validate, test, build, and security stages.
-        \vspace{1.2cm}
-    \end{minipage}
-    }
-    \caption{GitLab CI/CD pipeline stages used to validate the SCFCA proof of concept.}
+        \includegraphics[width=1\linewidth]{docs//thesis-notes/figure27.png}
+        \caption{GitLab pipeline showing validate, test, build, and security stages.}
     \label{fig:scfca-gitlab-pipeline-placeholder}
-\end{figure}
+    \end{figure}
+
+       
 
 \subsection{Software Composition Analysis}
 
 Software Composition Analysis is included to provide visibility into dependency risk. The backend dependency audit uses \texttt{pip-audit} against \texttt{backend/requirements.txt}. The frontend dependency audit uses \texttt{npm audit} against the frontend npm dependency tree.
+This supports the software supply-chain view adopted in the thesis: dependencies are part of the system's trust boundary and must therefore be identified, monitored, and reviewed.
 
 Both jobs produce machine-readable JSON artifacts. These artifacts allow dependency findings to be reviewed, preserved, and compared over time. The pipeline also converts scanner outputs into HTML summaries where supported by the reporting script, making the results easier to inspect during thesis review.
 
@@ -1999,7 +2059,7 @@ This does not eliminate dependency risk. It provides repeatable visibility, whic
 
 Static Application Security Testing is performed through two tools. Bandit scans the Python backend for common Python security issues. Semgrep performs broader static analysis using a default ruleset. These tools provide source-level evidence that the codebase has been scanned for common classes of insecure patterns.
 
-Secret scanning is performed with Gitleaks. The purpose of this job is to detect committed secrets or sensitive values that should not be present in the repository. This is especially relevant because the project includes Docker, CI/CD, backend configuration, and demo credentials. Demo accounts are intentionally documented for validation, but real secrets must not be committed.
+Secret scanning is performed with Gitleaks. The purpose of this job is to detect committed secrets or sensitive values that should not be present in the repository. This is especially relevant because the project includes Docker, CI/CD, backend configuration, and demo credentials. Demo accounts are intentionally documented for reproducibility, but real credentials, tokens, and private configuration values must not be committed to the repository.
 
 The SAST and secret scanning jobs are evidence jobs. Their output requires human review and triage before any claim can be made about the relevance or severity of specific findings.
 
@@ -2014,6 +2074,9 @@ Infrastructure-as-Code and configuration scanning is performed with Checkov. The
 Dynamic Application Security Testing is performed using the OWASP ZAP baseline scan. The pipeline starts the PoC stack through Docker Compose, waits for the backend health endpoint, waits for the frontend to become reachable, and then runs ZAP against the frontend target.
 
 The ZAP job produces JSON, HTML, and Markdown artifacts. This is useful because it provides both machine-readable and human-readable DAST evidence. The current ZAP baseline scan is unauthenticated, so it should be interpreted as baseline dynamic evidence rather than exhaustive application security testing.
+Its value in this PoC is to show that dynamic testing can be automated and preserved as reviewable evidence, not to replace a complete penetration test.
+
+
 
 \subsection{Human-Readable HTML Evidence Reports}
 
@@ -2041,7 +2104,7 @@ The HTML report approach is important because raw JSON artifacts are useful for 
 
 The validation strategy verifies that the proof of concept behaves consistently with the architecture and requirements defined earlier in the thesis. The objective is not broad feature completeness, but confirmation that the core institutional workflows and security constraints are enforceable.
 
-The validation combines automated tests, CI/CD execution, scanner evidence, Docker-based reproducibility, and planned manual validation. This combination is appropriate for a security-oriented proof of concept because security claims must be supported by executable behavior and reviewable evidence.
+The validation combines automated tests, CI/CD execution, scanner evidence, Docker-based reproducibility, and manual validation. This combination is appropriate for a security-oriented proof of concept because security claims must be supported by executable behavior and reviewable evidence.
 
 \subsection{Automated Functional and Security Tests}
 
@@ -2071,7 +2134,7 @@ This type of testing does not replace deeper fuzzing or formal verification. How
 
 \subsection{Manual Validation Checklist}
 
-Manual validation is planned as a complementary evidence layer. Automated tests and scanners are necessary, but they do not fully replace human review of role behavior, workflow logic, and generated artifacts. The manual validation checklist should document the following checks:
+Manual validation was used as a complementary evidence layer. Automated tests and scanners are necessary, but they do not fully replace human review of role behavior, workflow logic, and generated artifacts. The manual validation checklist documents the following checks:
 
 \begin{itemize}
     \item login as \texttt{alice}, \texttt{mark}, \texttt{john}, \texttt{bob}, \texttt{eve}, and \texttt{carol};
@@ -2105,7 +2168,7 @@ Manual validation is planned as a complementary evidence layer. Automated tests 
 
 \subsection{Final Reproducibility Check}
 
-After the implementation and DevSecOps phases are complete, a final reproducibility check is planned. The final repository will be copied or uploaded into a new blank GitLab project, and the full pipeline will be executed from scratch.
+After the implementation and DevSecOps phases were completed, a final reproducibility check was performed by copying the final repository into a new blank GitLab project and executing the full pipeline from scratch.
 
 This step is intended to verify that the CI/CD configuration, Docker setup, automated tests, security scanning jobs, and evidence artifacts work in a clean GitLab environment without depending on local machine state or hidden configuration from the original project. This strengthens the thesis evidence because it demonstrates that the repository is reproducible as an independent GitLab CI/CD project.
 
@@ -2196,45 +2259,373 @@ In summary, the future evolution of SCFCA should move in two complementary direc
 
 % =====================================================
 \appendix
-\chapter*{Appendix A: Mapping of Thesis Requirements to Project Implementation}
-\addcontentsline{toc}{chapter}{Appendix A: Mapping of Thesis Requirements to Project Implementation}
 
-This appendix maps high-level thesis security goals to the project modules and files that implement them, answering the question: which part of the codebase addresses each architectural claim?
+\chapter{Phases of Work}
 
+\begingroup
+\footnotesize
+\setlength{\tabcolsep}{5pt}
+\setlength{\extrarowheight}{5pt}
+\renewcommand{\arraystretch}{1.45}
 
-\begin{longtable}{|p{4cm}|p{6cm}|p{5cm}|}
+\begin{longtable}{|p{6.2cm}|p{10cm}|}
 \hline
-\textbf{Thesis Requirement / Security Control} & \textbf{Project File(s) / Module(s) / Test(s)} & \textbf{Description / Implementation Details} \\
+\textbf{Phase Name} & \textbf{Phase Description} \\
 \hline
-Secure custody of cryptocurrency assets & backend/custody/.keep (placeholder), backend/models/, backend/services/ & Custody module placeholder; models and services would implement key/custody logic in a full system \\
+\endfirsthead
+
 \hline
-RBAC (Role-Based Access Control) & backend/auth/dependencies.py, backend/auth/schemas.py, backend/auth/service.py, backend/auth/routes.py & Role extraction, enforcement, and authentication logic; require\_role, require\_any\_role functions \\
+\textbf{Phase Name} & \textbf{Phase Description} \\
 \hline
-Authentication \& JWT & backend/auth/jwt.py, backend/auth/routes.py, backend/auth/service.py & JWT-based authentication, token issuance, and validation \\
+\endhead
+
+ 1 -- Repository stabilization &
+Cleaned and stabilized the repository structure, Git remotes, and working tree before implementation. \\
 \hline
-Dual approval / separation of duties & backend/tickets/, backend/services/tickets.py, backend/models/tickets.py, tests/test\_workflows.py & Ticket approval flow, status transitions, dual-approval logic, tested in test\_ticket\_dual\_approval\_execution... \\
+
+ 2 -- Docker Compose execution model &
+Added and validated a local containerized execution model with frontend, backend, and PostgreSQL. \\
 \hline
-Audit logging \& traceability & backend/audit/service.py, backend/audit/poc\_audit.py, backend/services/audit\_log.py, tests/test\_workflows.py & Append-only, hash-chained audit log, event recording, audit chain verification, tested in workflows \\
+
+ 3 -- Backend CI with PostgreSQL &
+Updated backend tests in GitLab CI to use a PostgreSQL service and seeded test data. \\
 \hline
-CSRF protection & backend/middleware/csrf.py, tests/test\_workflows.py (test\_csrf\_blocks\_unsafe\_without\_header) & Middleware for CSRF token validation, enforced for unsafe methods, tested for blocking requests without token \\
+
+ 4 -- CI scanner command fixes &
+Fixed scanner execution problems so Semgrep and Checkov could run and produce usable artifacts. \\
 \hline
-Rate limiting & backend/middleware/rate\_limit.py, backend/services/rate\_limit.py, tests/test\_security\_phase5.py & Per-IP and per-endpoint rate limiting, login throttling, tested for lockout and abuse scenarios \\
+
+ 5 -- Trivy container scanning &
+Reworked backend and frontend image scans to run correctly in the CI environment. \\
 \hline
-MFA (Multi-Factor Authentication) & backend/auth/mfa.py, tests/test\_security\_phase5.py & MFA setup and verification endpoints, tested for enrollment and code validation \\
+
+ 6 -- OWASP ZAP DAST &
+Added a non-blocking OWASP ZAP baseline scan against the running frontend. \\
 \hline
-Re-authentication for sensitive actions & backend/auth/reauth.py, backend/services/reauth.py, tests/test\_security\_phase5.py & Re-auth token issuance and validation, required for ticket execution, tested for enforcement \\
+
+ 7 -- Security input fuzzing &
+Added property-based robustness tests for malformed authenticated API inputs. \\
 \hline
-Asset immutability & backend/models/assets.py, tests/test\_cases\_and\_assets.py (test\_asset\_immutability\_enforced) & ORM-level enforcement of immutability, tested for attempts to modify asset quantity \\
+
+ 8 -- HTML security evidence reports &
+Added human-readable HTML summaries for scanner outputs while preserving JSON artifacts. \\
 \hline
-Automated \& manual testing & tests/test\_workflows.py, tests/test\_security\_phase5.py, tests/test\_cases\_and\_assets.py, README.md (test instructions) & End-to-end and unit tests for all major workflows and security controls \\
+
+ 9A -- Checkov JSON output fix &
+Adjusted Checkov report generation so JSON output could be consumed by the HTML report converter. \\
 \hline
-Audit chain verification & backend/audit/service.py (verify\_chain), tests/test\_workflows.py & Hash-chained audit log, endpoint and test for verifying audit chain integrity \\
+
+ 9B -- Checkov parser fix &
+Updated the HTML report converter to support Checkov list-root JSON reports. \\
 \hline
-Documentation \& traceability & docs/traceability-matrix.md, docs/implementation-record.md, README.md, docs/testing-guide.md & Explicit mapping from requirements to code/tests, implementation rationale, and test instructions \\
+
+ 10 -- README validation update &
+Updated project documentation to reflect current proof-of-concept capabilities, validation status, and evidence artifacts. \\
 \hline
-Demo script / walkthrough & README.md (Demo Script section), tests/test\_workflows.py & Step-by-step demo and test coverage for all critical workflows and security controls \\
+
+ 11A -- Manual validation checklist &
+Added manual validation evidence structure for role checks, workflow checks, screenshots, and thesis review. \\
 \hline
+
+ 11B -- Security findings triage &
+Added a triage document to classify scanner findings, remediations, deferred controls, and residual risks. \\
+\hline
+
+ 11C -- Bandit B311 remediation &
+Replaced pseudo-random demo case generation with deterministic fixture generation. \\
+\hline
+
+ 11D -- Baseline HTTP security headers &
+Added baseline HTTP security headers to backend and frontend responses. CSP and COEP were deferred. \\
+\hline
+
+ 11E -- Frontend dependency remediation &
+Applied safe non-force npm audit fixes and deferred Vite/esbuild major upgrade risks. \\
+\hline
+
+ 11F -- Backend dependency audit review &
+Verified backend Python dependencies with pip-audit. No dependency change was required. \\
+\hline
+
+ 11G -- Container scan review &
+Reviewed Trivy findings and classified remaining container and base-image risks. \\
+\hline
+
+ 11H -- Final remediation verification &
+Verified the post-remediation state using tests, frontend build, Docker Compose checks, and scanner evidence. \\
+\hline
+
+ 12A -- PlantUML diagram sources &
+Added PlantUML source diagrams for architecture, Docker Compose, and DevSecOps evidence flow. \\
+\hline
+
+ 12B -- PlantUML SVG/PNG exports &
+Rendered PlantUML diagrams into SVG and PNG files for thesis and presentation use. \\
+\hline
+
+ 12C -- Diagram folder reorganization &
+Moved existing diagrams into the PlantUML thesis diagram folder and removed unused diagram metadata. \\
+\hline
+
+ 13A -- Audit hash-chain verification &
+Added full audit-chain verification with hash recomputation, continuity checks, tamper detection, and an auditor-only verification endpoint. \\
+\hline
+
+ 13B -- Asset immutability enforcement &
+Added ORM-level guards preventing modification of persisted seized asset facts and frozen valuation snapshot fields. \\
+\hline
+
+ 13C -- Login throttling / brute-force protection &
+Added in-memory, proof-of-concept login throttling for repeated failed authentication attempts, scoped only to the login endpoint. \\
+\hline
+
+ 13D -- Current implementation documentation and RTM alignment &
+Rewrote the README and added current implementation documentation, testing guide, and traceability updates based on the actual SCFCAv2 repository. \\
+\hline
+
+ 13E -- Re-authentication for sensitive administrator actions &
+Added password re-authentication for selected sensitive administrative actions, including case creation and ticket approval, rejection, and assignment. \\
+\hline
+
+ 14A -- Local demo URL standardization &
+Standardized local demo URLs to \texttt{127.0.0.1} to avoid browser cookie and CSRF host-mismatch issues. \\
+\hline
+
+ 14B -- Admin-only case creation &
+Connected the frontend case creation form to a PostgreSQL-backed workflow restricted to administrators. \\
+\hline
+
+ 14C -- Case creation audit evidence &
+Added audit event generation and tests for administrator case creation. \\
+\hline
+
+ 15A -- Ticket UI cleanup &
+Separated Open Tickets, Create Ticket, and Closed Tickets views to reduce visual confusion. \\
+\hline
+
+ 15B -- Role-based ticket navigation &
+Adjusted ticket navigation for regular users, administrators, and auditors according to the SCFCA role model. \\
+\hline
+
+ 15C -- Auditor-only audit access &
+Restricted general audit-event access to the auditor role and denied administrators and regular users. \\
+\hline
+
+ 15D -- Audit events pagination &
+Added 15-event pagination with Older/Newer navigation for the auditor audit page. \\
+\hline
+
+ 15E -- Auditor data minimization &
+Restricted auditors away from operational case, asset, ticket, and document views. \\
+\hline
+
+ 15F -- Assets page workflow cleanup &
+Converted the Assets page into a read-only holdings and ticket-based custody request page, removing direct custody action forms. \\
+\hline
+
+ 15G -- Dashboard cleanup &
+Removed fake or confusing dashboard action buttons such as Deposit, Withdraw, and Cash In. \\
+\hline
+
+ 16 -- Repository hygiene cleanup &
+Removed tracked archive metadata and ignored local reference repositories to prevent old prototype files from being accidentally collected or committed. \\
+\hline
+
+ 17 -- Final remote synchronization &
+Synchronized the final working branch across GitLab, GitHub SCFCAv2, and GitHub SCFCAv1. \\
+\hline
+
+\caption{Phases and subphases followed during the implementation, validation, hardening, and documentation of the SCFCA proof of concept.}
+\label{tab:phases-of-work}
 \end{longtable}
+
+\endgroup
+
+\section{Phase-to-Implementation File Mapping}
+
+The previous table summarizes the implementation phases and their purpose. 
+To complement that overview, Table~\ref{tab:phase-file-mapping} maps each phase to the main repository files, scripts, tests, and documentation artifacts affected during the development of the SCFCA proof of concept. 
+This provides a compact implementation-level reference showing where each phase is reflected in the repository.
+
+\begingroup
+\footnotesize
+\setlength{\tabcolsep}{5pt}
+\setlength{\extrarowheight}{5pt}
+\renewcommand{\arraystretch}{1.45}
+
+\begin{longtable}{|p{1.5cm}|p{4.8cm}|p{9.8cm}|}
+\hline
+\textbf{Phase} & \textbf{Work Performed} & \textbf{Main Files / Code} \\
+\hline
+\endfirsthead
+
+\hline
+\textbf{Phase} & \textbf{Work Performed} & \textbf{Main Files / Code} \\
+\hline
+\endhead
+
+1 & Repository stabilization &
+\texttt{README.md}; \texttt{.gitignore}; repository root. \\
+\hline
+
+2 & Docker Compose execution model &
+\texttt{docker-compose.yml}; \texttt{backend/Dockerfile}; \texttt{frontend/Dockerfile}; \texttt{.env.docker.example}. \\
+\hline
+
+3 & Backend CI with PostgreSQL &
+\texttt{.gitlab-ci.yml}; \texttt{scripts/seed\_demo\_data.py}; \texttt{backend/requirements.txt}. \\
+\hline
+
+4 & CI scanner command fixes &
+\texttt{.gitlab-ci.yml}. \\
+\hline
+
+5 & Trivy container scanning &
+\texttt{.gitlab-ci.yml}; \texttt{backend/Dockerfile}; \texttt{frontend/Dockerfile}. \\
+\hline
+
+6 & OWASP ZAP DAST &
+\texttt{.gitlab-ci.yml}; \texttt{docs/evidence/dast/README.md}. \\
+\hline
+
+7 & Security input fuzzing &
+\texttt{tests/test\_fuzz\_security\_inputs.py};
+\texttt{docs/evidence/security-testing/README.md}. \\
+\hline
+
+8 & HTML security evidence reports &
+\texttt{scripts/security\_reports\_to\_html.py}; \texttt{.gitlab-ci.yml}; \texttt{docs/evidence/security-reports/README.md}. \\
+\hline
+
+9A & Checkov JSON output fix &
+\texttt{.gitlab-ci.yml}. \\
+\hline
+
+9B & Checkov parser fix &
+\texttt{scripts/security\_reports\_to\_html.py}. \\
+\hline
+
+10 & README validation update &
+\texttt{README.md}. \\
+\hline
+
+11A & Manual validation checklist &
+\texttt{docs/evidence/manual-validation/README.md}; \texttt{README.md}. \\
+\hline
+
+11B & Security findings triage &
+\texttt{docs/evidence/security-triage/README.md}; \texttt{README.md}. \\
+\hline
+
+11C & Bandit B311 remediation &
+\texttt{backend/api/v1/routes/cases.py}. \\
+\hline
+
+11D & Baseline HTTP security headers &
+\texttt{backend/main.py}; \texttt{frontend/vite.config.ts}; \texttt{docs/evidence/security-triage/README.md}. \\
+\hline
+
+11E & Frontend dependency remediation &
+\texttt{frontend/package-lock.json}. \\
+\hline
+
+11F & Backend dependency audit review &
+\texttt{backend/requirements.txt}; GitLab \texttt{pip-audit} artifacts. \\
+\hline
+
+11G & Container scan review &
+\texttt{backend/Dockerfile}; \texttt{frontend/Dockerfile}; \texttt{docs/evidence/security-triage/README.md}. \\
+\hline
+
+11H & Final remediation verification &
+\texttt{tests/}; \texttt{frontend/}; \texttt{docker-compose.yml}; GitLab artifacts. \\
+\hline
+
+12A & PlantUML diagram sources &
+\texttt{docs/diagrams/plantuml/*.puml}; \texttt{docs/diagrams/plantuml/README.md}. \\
+\hline
+
+12B & PlantUML SVG/PNG exports &
+\texttt{docs/diagrams/plantuml/*.svg}; \texttt{docs/diagrams/plantuml/*.png}. \\
+\hline
+
+12C & Diagram folder reorganization &
+\texttt{docs/diagrams/plantuml/}; \texttt{.gitignore}. \\
+\hline
+
+13A & Audit hash-chain verification &
+\texttt{backend/api/v1/routes/audit.py}; \texttt{tests/test\_audit\_hash\_chain.py}; \texttt{tests/test\_workflows.py}; \texttt{pytest.ini}. \\
+\hline
+
+13B & Asset immutability enforcement &
+\texttt{backend/core/models.py}; \texttt{tests/test\_asset\_immutability.py}; \texttt{tests/test\_workflows.py}. \\
+\hline
+
+13C & Login throttling / brute-force protection &
+\texttt{backend/auth/login\_throttle.py}; \texttt{backend/api/v1/routes/auth.py}; \texttt{tests/conftest.py}; \texttt{tests/test\_security\_hardening.py}; \texttt{README.md}; \texttt{docs/current-implementation/}; \texttt{docs/traceability/}. \\
+\hline
+
+13D & Current implementation documentation and RTM alignment &
+\texttt{README.md}; \texttt{docs/current-implementation/README.md}; \texttt{docs/current-implementation/implementation-record.md}; \texttt{docs/current-implementation/testing-guide.md}; \texttt{docs/traceability/current-requirements-traceability.md}; \texttt{docs/traceability/current-requirements-traceability-latex.md}. \\
+\hline
+
+13E & Re-authentication for sensitive administrator actions &
+\texttt{backend/auth/reauth.py}; \texttt{backend/auth/schemas.py}; \texttt{backend/api/v1/routes/auth.py}; \texttt{backend/api/v1/routes/cases.py}; \texttt{backend/api/v1/routes/tickets.py}; \texttt{frontend/src/services/auth.ts}; \texttt{frontend/src/services/scfcaData.ts}; \texttt{frontend/src/pages/Cases.tsx}; \texttt{frontend/src/pages/Tickets.tsx}; \texttt{tests/test\_security\_hardening.py}; \texttt{tests/test\_workflows.py}. \\
+\hline
+
+14A & Local demo URL standardization &
+\texttt{README.md}; \texttt{frontend/src/services/}. \\
+\hline
+
+14B & Admin-only case creation &
+\texttt{backend/api/v1/routes/cases.py}; \texttt{frontend/src/pages/Cases.tsx}; \texttt{frontend/src/services/scfcaData.ts}; \texttt{tests/test\_workflows.py}. \\
+\hline
+
+14C & Case creation audit evidence &
+\texttt{backend/api/v1/routes/cases.py}; \texttt{tests/test\_workflows.py}. \\
+\hline
+
+15A & Ticket UI cleanup &
+\texttt{frontend/src/pages/Tickets.tsx}; \texttt{frontend/src/components/Sidebar.tsx}. \\
+\hline
+
+15B & Role-based ticket navigation &
+\texttt{frontend/src/components/Sidebar.tsx}; \texttt{frontend/src/pages/Tickets.tsx}; \texttt{frontend/src/utils/roles.ts}. \\
+\hline
+
+15C & Auditor-only audit access &
+\texttt{backend/api/v1/routes/audit.py}; \texttt{tests/test\_workflows.py}; \texttt{frontend/src/pages/Audit.tsx}. \\
+\hline
+
+15D & Audit events pagination &
+\texttt{frontend/src/pages/Audit.tsx}; \texttt{frontend/src/services/dashboard.ts}. \\
+\hline
+
+15E & Auditor data minimization &
+\texttt{frontend/src/app/routes.tsx}; \texttt{frontend/src/pages/CaseDetails.tsx}; \texttt{frontend/src/pages/Documents.tsx}; \texttt{frontend/src/pages/Dashboard.tsx}. \\
+\hline
+
+15F & Assets page workflow cleanup &
+\texttt{frontend/src/pages/Assets.tsx}; \texttt{frontend/src/pages/Tickets.tsx}; \texttt{frontend/src/utils/roles.ts}. \\
+\hline
+
+15G & Dashboard cleanup &
+\texttt{frontend/src/pages/Dashboard.tsx}; \texttt{frontend/src/services/dashboard.ts}. \\
+\hline
+
+16 & Repository hygiene cleanup &
+\texttt{.gitignore}; removed tracked \texttt{\_\_MACOSX/} metadata files; ignored \texttt{old-repo-reference/}. \\
+\hline
+
+17 & Final remote synchronization &
+Git remotes: \texttt{gitlab}; \texttt{origin}; \texttt{github-v1}. \\
+\hline
+
+\caption{Mapping of implementation phases to the main files and project locations affected.}
+\label{tab:phase-file-mapping}
+\end{longtable}
+
+\endgroup
 
 % =====================================================
 \chapter*{Appendix B: Requirements-to-Implementation Traceability}
