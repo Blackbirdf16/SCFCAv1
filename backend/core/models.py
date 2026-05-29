@@ -22,6 +22,8 @@ from sqlalchemy import (
     Numeric,
     UniqueConstraint,
     Index,
+    event,
+    inspect,
 )
 from sqlalchemy.orm import relationship
 
@@ -154,6 +156,50 @@ class AuditEvent(Base):
     details = Column(Text, nullable=True)
     previous_hash = Column(String, nullable=True)
     hash_chain = Column(String, nullable=True)
+
+
+ASSET_IMMUTABLE_FIELDS = (
+    "asset_id",
+    "symbol",
+    "network",
+    "wallet_ref",
+    "balance",
+    "asset_type",
+    "protocol",
+    "case_id",
+    "registered_at",
+)
+
+FROZEN_VALUATION_IMMUTABLE_FIELDS = (
+    "case_id",
+    "snapshot_time",
+    "valuation",
+)
+
+
+def _changed_immutable_fields(target, field_names: tuple[str, ...]) -> list[str]:
+    state = inspect(target)
+    return [
+        field_name
+        for field_name in field_names
+        if state.attrs[field_name].history.has_changes()
+    ]
+
+
+@event.listens_for(Asset, "before_update")
+def prevent_asset_fact_update(_mapper, _connection, target: Asset) -> None:
+    changed_fields = _changed_immutable_fields(target, ASSET_IMMUTABLE_FIELDS)
+    if changed_fields:
+        changed = ", ".join(changed_fields)
+        raise ValueError(f"Asset seized facts are immutable after registration: {changed}")
+
+
+@event.listens_for(FrozenValuationSnapshot, "before_update")
+def prevent_frozen_valuation_update(_mapper, _connection, target: FrozenValuationSnapshot) -> None:
+    changed_fields = _changed_immutable_fields(target, FROZEN_VALUATION_IMMUTABLE_FIELDS)
+    if changed_fields:
+        changed = ", ".join(changed_fields)
+        raise ValueError(f"Frozen valuation snapshots are immutable after creation: {changed}")
 
 
 __all__ = [

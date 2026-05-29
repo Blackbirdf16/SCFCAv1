@@ -309,6 +309,36 @@ def test_auditor_cannot_create_case():
     assert response.status_code == 403
 
 
+def test_no_direct_asset_mutation_route_for_admin_or_case_handler():
+    admin_cookies, admin_headers = login("bob", "bob123", "administrator")
+    regular_cookies, regular_headers = login("alice", "alice123", "regular")
+
+    payload = {"symbol": "ETH", "balance": 99, "walletRef": "WLT-TAMPERED"}
+
+    admin_asset_response = client.patch(
+        "/api/v1/assets/AS-0001",
+        cookies=admin_cookies,
+        headers=admin_headers,
+        json=payload,
+    )
+    regular_asset_response = client.patch(
+        "/api/v1/assets/AS-0001",
+        cookies=regular_cookies,
+        headers=regular_headers,
+        json=payload,
+    )
+    admin_case_holding_response = client.patch(
+        "/api/v1/cases/SCFCA-CASE-2026-0001/holdings/AS-0001",
+        cookies=admin_cookies,
+        headers=admin_headers,
+        json=payload,
+    )
+
+    assert admin_asset_response.status_code == 404
+    assert regular_asset_response.status_code == 404
+    assert admin_case_holding_response.status_code == 404
+
+
 def test_admin_cannot_create_duplicate_case_id():
     cookies, headers = login("bob", "bob123", "administrator")
 

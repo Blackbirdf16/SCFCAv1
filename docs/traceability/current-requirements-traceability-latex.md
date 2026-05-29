@@ -37,6 +37,8 @@ Audit recording & backend/api/v1/routes/audit.py (record\_audit\_event) & tests/
 \hline
 Audit hash-chain verification & backend/api/v1/routes/audit.py (verify\_audit\_chain, /chain/verify, hash\_chain, previous\_hash) & tests/test\_audit\_hash\_chain.py; tests/test\_workflows.py & Implemented & Recomputes event hashes, validates previous\_hash continuity, detects tampering, and is auditor-only. \\
 \hline
+Asset seized-fact immutability & backend/core/models.py (Asset, FrozenValuationSnapshot update guards); no direct asset mutation route & tests/test\_asset\_immutability.py; tests/test\_workflows.py & Implemented & ORM guards block changes to registered asset facts and frozen valuation snapshots; API exposes no direct asset/holding mutation. \\
+\hline
 Audit pagination / controlled review & frontend/src/pages/Audit.tsx (AUDIT\_PAGE\_SIZE=15) & Manual UI validation evidence & Partial & Client-side pagination. \\
 \hline
 Document upload and hashing & backend/api/v1/routes/documents.py & tests/test_security_hardening.py; tests/test_fuzz_security_inputs.py & Implemented & Upload computes sha256 digest. \\
@@ -129,6 +131,8 @@ CSRF protection & CSRF cookie/header check on state-changing routes & backend/au
 \hline
 Audit hash-chain integrity verification & Auditor-only chain verification validates stored hashes and continuity & backend/api/v1/routes/audit.py (/chain/verify) & tests/test\_audit\_hash\_chain.py; tests/test\_workflows.py & Implemented for persisted audit rows; not a separate append-only audit service. \\
 \hline
+Seized asset fact immutability & ORM update guards block changes to registered asset facts and frozen valuation snapshots; no direct mutation route exists & backend/core/models.py; backend/api/v1/routes/cases.py & tests/test\_asset\_immutability.py; tests/test\_workflows.py & App-level ORM enforcement; not a database trigger or blockchain custody guarantee. \\
+\hline
 Controlled error handling & Explicit HTTPException validation paths & backend/api/v1/routes/*.py & tests/test_fuzz_security_inputs.py & No unified global exception envelope middleware. \\
 \hline
 Non-root containers & Drop root runtime user & backend/Dockerfile; frontend/Dockerfile & Dockerfile review & Host/platform controls remain environment-dependent. \\
@@ -216,4 +220,4 @@ The previous prototype included some additional application-level security contr
 Current repository-only clarification:
 - Implemented in current code/tests: CSRF protection, dual approval workflow, PDF-only document validation, admin-only case creation, auditor-only audit access, and CI security evidence jobs.
 - Not implemented in current code snapshot: MFA, login throttling/rate limiting, and re-authentication enforcement.
-- Asset immutability tests are not present in the current `tests/` set.
+- Asset immutability tests are present for ORM-level seized-fact guards and absence of direct asset mutation routes.
