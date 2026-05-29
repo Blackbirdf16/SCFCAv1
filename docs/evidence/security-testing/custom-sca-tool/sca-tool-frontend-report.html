@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SCA Scan Report</title>
+  <style>
+	body { font-family: Arial, sans-serif; margin: 24px; background: #f7f7f9; color: #1f2937; }
+	h1 { margin-bottom: 6px; }
+	.summary { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 14px; margin-bottom: 16px; }
+	.summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 8px; }
+	.dependency-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 14px; margin-bottom: 14px; }
+	.dep-meta { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 6px; margin-bottom: 10px; }
+	table { width: 100%; border-collapse: collapse; font-size: 14px; }
+	th, td { border: 1px solid #e5e7eb; padding: 8px; text-align: left; vertical-align: top; }
+	th { background: #f3f4f6; }
+	.badge { font-weight: 700; padding: 3px 8px; border-radius: 999px; display: inline-block; }
+	.sev-critical { background: #7f1d1d; color: #fff; }
+	.sev-high { background: #b91c1c; color: #fff; }
+	.sev-medium { background: #b45309; color: #fff; }
+	.sev-low { background: #065f46; color: #fff; }
+	.sev-unknown { background: #374151; color: #fff; }
+	.no-vulns { color: #065f46; font-weight: 700; }
+	.graph-section { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 14px; margin-bottom: 14px; }
+	.graph-note { color: #6b7280; font-size: 13px; margin-bottom: 10px; }
+	.graph-list { list-style: none; padding: 0; margin: 0; }
+	.graph-parent { margin-bottom: 8px; }
+	.graph-pkg { font-weight: 700; }
+	.graph-parent > ul { list-style: none; margin: 4px 0 0 20px; padding: 0; }
+	.graph-child::before { content: '→ '; color: #6b7280; }
+  </style>
+</head>
+<body>
+  <h1>SCA Scan Report</h1>
+  <p>Human-readable dependency and vulnerability report.</p>
+
+  <section class="summary">
+	<h2>Scan Summary</h2>
+	<div class="summary-grid">
+	  <div><strong>Total dependencies:</strong> 1</div>
+	  <div><strong>Vulnerable dependencies:</strong> 1</div>
+	  <div><strong>Total vulnerabilities:</strong> 4</div>
+	  <div><strong>Highest risk score:</strong> 6.35</div>
+	</div>
+  </section>
+
+  
+  <section class='dependency-card'><h3>streamlit (unknown)</h3><div class='dep-meta'><div><strong>Name:</strong> streamlit<span class='confidence-badge' style='background:#b45309;color:#fff;padding:2px 8px;border-radius:8px;font-size:12px;margin-left:8px;'>Low confidence</span><span class='version-badge' style='background:#9ca3af;color:#fff;padding:2px 8px;border-radius:8px;font-size:12px;margin-left:8px;'>Version unknown</span></div><div><strong>Ecosystem:</strong> python</div><div><strong>Scope:</strong> production</div><div><span class='provenance-list'>Sources: python_source</span></div><div><strong>Risk Score:</strong> 6.35</div><div><strong>Recommendation:</strong> Patch soon and monitor advisories. Suggested fix version(s): 0.81.0, 1.11.1, 1.37.0, 1.54.0.</div></div><table><thead><tr><th>CVE ID</th><th>Severity</th><th>CVSS</th><th>CVSS Version</th><th>Description</th><th>Fixed Versions</th></tr></thead><tbody><tr><td>CVE-2022-35918</td><td><span class='badge sev-medium'>MEDIUM</span></td><td>6.5</td><td>3.1</td><td>Streamlit is a data oriented application development framework for python. Users hosting Streamlit app(s) that use custom components are vulnerable to a directory traversal attack that could leak data from their web serv</td><td>1.11.1</td></tr><tr><td>CVE-2024-42474</td><td><span class='badge sev-medium'>MEDIUM</span></td><td>6.5</td><td>3.1</td><td>Streamlit is a data oriented application development framework for python. Snowflake Streamlit open source addressed a security vulnerability via the static file sharing feature. Users of hosted Streamlit app(s) on Windo</td><td>1.37.0</td></tr><tr><td>CVE-2023-27494</td><td><span class='badge sev-medium'>MEDIUM</span></td><td>5.9</td><td>3.1</td><td>Streamlit, software for turning data scripts into web applications, had a cross-site scripting (XSS) vulnerability in versions 0.63.0 through 0.80.0. Users of hosted Streamlit app(s) were vulnerable to a reflected XSS vu</td><td>0.81.0</td></tr><tr><td>CVE-2026-33682</td><td><span class='badge sev-medium'>MEDIUM</span></td><td>4.7</td><td>3.1</td><td>Streamlit is a data oriented application development framework for python. Streamlit Open Source versions prior to 1.54.0 running on Windows hosts have an unauthenticated Server-Side Request Forgery (SSRF) vulnerability.</td><td>1.54.0</td></tr></tbody></table><div class='uncertainty-note' style='color:#b45309;font-size:13px;margin-top:6px;'>Heuristic: This dependency was detected only from source code, not from a manifest. Results may be incomplete or less reliable.</div></section>
+</body>
+</html>
