@@ -53,6 +53,8 @@
 
 \begin{titlepage}
 \centering
+{\Large ESCUELA TÉCNICA SUPERIOR DE INGENIERÍA INFORMÁTICA }\\[1cm]
+
 {\Large Máster Universitario en Ciberseguridad (2025--2026)}\\[3cm]
 {\Large TRABAJO FIN DE MÁSTER }\\[1cm]
 
@@ -480,7 +482,13 @@ The validation is limited to architectural correctness, proof-of-concept feasibi
 
 \section{Toolchain and Development Environment}
 
-The project uses Visual Paradigm for Secure Tropos and UML modeling, GitLab/GitHub for version control and traceability, Overleaf/LaTeX for the thesis document, and Visual Studio/Visual Studio Code for the proof-of-concept implementation. Detailed environment specifics are described in Chapter~6.
+The project used a combined modeling, implementation, validation, and documentation toolchain. Visual Paradigm was used for UML, Secure Tropos, requirements modeling, misuse-case analysis, domain modeling, and workflow diagrams. Microsoft Whiteboard was used as a supporting visual tool for early threat-graph modeling and for the design of selected explanatory figures. PlantUML was used for reproducible text-based architecture and implementation diagrams.
+
+The proof-of-concept implementation was developed using Python with FastAPI for the backend, React/Vite for the frontend, and PostgreSQL for persistent storage. Visual Studio Code was used as the main development environment. Docker and Docker Compose were used to execute the backend, frontend, and PostgreSQL services in a reproducible local environment.
+
+Git was used for version control. GitHub was used as the public repository and Overleaf synchronization mirror, while GitLab was used for CI/CD execution and DevSecOps evidence generation. The GitLab pipeline was used to run validation, testing, frontend build, Docker Compose checks, dependency audits, SAST, secret scanning, container scanning, configuration scanning, and baseline DAST evidence.
+
+Overleaf and LaTeX were used for writing and formatting the thesis document. A web browser was used for Overleaf, repository access, CI/CD review, documentation, and online technical references. Generative AI tools were used only as support tools for drafting, revision, wording improvement, and review assistance; the technical design, implementation decisions, validation, and final responsibility remain those of the author.
 
 
 % =====================================================
@@ -560,7 +568,7 @@ Within the context of the SCFCA, the primary focus of the threat model is on int
 
 Threat graphs are commonly used in cyber threat intelligence to model adversarial paths and objectives \cite{Lee2023}.
 
-\begin{figure}
+\begin{figure} [htbp]
     \centering
     \includegraphics[width=1\linewidth]{docs//thesis-notes/figure12.png}
     \caption{Taxonomy of threats. Adapted from Jouini et al. (2014), as discussed in cyber threat intelligence literature~\cite{Lee2023}.}
@@ -657,7 +665,7 @@ The corresponding defensive perspective maps to MITRE D3FEND mechanisms such as:
 
 By modeling the attack graph in this manner, the threat analysis highlights that preventing exfiltration requires not only perimeter controls, but also strict privilege enforcement, monitoring, and separation of duties within custody workflows.
 
-\begin{figure}
+\begin{figure}[htbp]
     \centering
     \includegraphics[width=0.75\linewidth]{docs//thesis-notes/figure10.png}
     \caption{Threat graph example for MU-7: Case Data Exfiltration~\cite{Lee2023}.}
@@ -700,7 +708,8 @@ From a defensive perspective, mitigation requires layered controls including:
 \end{itemize}
 
 The threat graph analysis demonstrates that preventing unauthorized access is not dependent on a single control, but on a combination of authentication hardening, credential protection, and session monitoring mechanisms.
-\begin{figure}
+
+\begin{figure}[htbp]
     \centering
     \includegraphics[width=1\linewidth]{docs//thesis-notes/figure9.png}
     \caption{MU-1 Threat Graph  : Unauthorized Access }
@@ -737,7 +746,7 @@ All attack branches ultimately converge on the attacker goal:
 \textit{Administrator-Level Access to SCFCA}
 \end{center}
 
-\begin{figure}
+\begin{figure} [htbp]
     \centering
     \includegraphics[width=1\linewidth]{docs//thesis-notes/figure11.png}
     \caption{MU-2 – Privilege Escalation Threat Graph}
@@ -1781,38 +1790,31 @@ The SCFCA repository was organized to support both implementation and validation
 
 \begin{verbatim}
 SCFCA/
-├── backend/                   FastAPI backend and security enforcement logic
-├── frontend/                  React/Vite user interface
-├── tests/                     Automated functional and security tests
-├── scripts/                   Demo seeding and evidence report scripts
-├── docs/evidence/             Security reports and validation evidence
-├── docs/current-implementation/ Current implementation record and phase docs
-├── docs/traceability/         Requirements traceability matrices
-├── diagrams/                  Thesis diagrams and exported architecture figures
-├── docker-compose.yml         Reproducible local runtime
-├── .gitlab-ci.yml             CI/CD validation and security pipeline
-└── README.md                  Execution and demonstration guide
+|-- backend/                    FastAPI backend and security enforcement logic
+|-- frontend/                   React/Vite user interface
+|-- tests/                      Automated functional and security tests
+|-- scripts/                    Demo seeding and evidence report scripts
+|-- docs/evidence/              Security reports and validation evidence
+|-- docs/current-implementation/ Current implementation record and phase docs
+|-- docs/traceability/          Requirements traceability matrices
+|-- diagrams/                   Thesis diagrams and exported architecture figures
+|-- docker-compose.yml          Reproducible local runtime
+|-- .gitlab-ci.yml              CI/CD validation and security pipeline
+`-- README.md                   Execution and demonstration guide
 \end{verbatim}
 
 This structure supports the proof-of-concept objective because the system can be executed, seeded, tested, scanned, documented, and reviewed from the repository itself. Therefore, the repository acts not only as a code archive, but also as a validation package for the thesis.\cite{REPO1} \cite{REPO2}
 
 In practical terms, the proof of concept allows a reviewer to start the system with Docker Compose, seed deterministic demo data, log in as different institutional roles, observe role-based visibility differences, create and review custody workflow tickets, inspect document hash metadata, export audit reports, verify document or audit hashes, verify the audit hash chain, and review CI/CD security evidence generated by the repository.
 
-\section{Development Model, Environment, and Tooling}
+\section{Development Model and Repository Evidence}
+\label{sec:development-model-repository-evidence}
 
-The Secure Custody Framework for Cryptocurrency Assets (SCFCA) was implemented as a thesis-oriented proof of concept designed to validate the main architectural and security controls defined in the previous chapters. The implementation follows an iterative and incremental development model. The project was first stabilized around its base backend, frontend, database, and repository structure, and was then progressively strengthened through automated testing, Docker-based execution, GitLab CI/CD validation, security scanning, implementation documentation, traceability mapping, and evidence artifact generation.
+The Secure Custody Framework for Cryptocurrency Assets (SCFCA) was implemented as a thesis-oriented proof of concept designed to validate the main architectural and security controls defined in the previous chapters. The implementation follows an iterative and incremental development model. The project was first stabilized around its base repository structure, backend, frontend, database, and execution environment, and was then progressively strengthened through automated testing, Docker-based execution, GitLab CI/CD validation, security scanning, implementation documentation, traceability mapping, and evidence artifact generation.
 
-The purpose of the proof of concept is to demonstrate that the central security properties of the SCFCA architecture can be translated into executable software. In particular, the implementation validates backend-enforced role-based access control, case-assignment visibility boundaries, ticket-based governance, administrator approval workflows, document integrity metadata, tamper-evident auditability, login throttling, re-authentication for selected sensitive administrator actions, and reproducible DevSecOps evidence generation.
+The purpose of the proof of concept is not to deliver production custody software, but to demonstrate that the central security properties of the SCFCA architecture can be translated into executable and reviewable software evidence. In particular, the implementation validates backend-enforced role-based access control, case-assignment visibility boundaries, ticket-based governance, administrator approval workflows, document integrity metadata, tamper-evident auditability, login throttling, re-authentication for selected sensitive administrator actions, and reproducible DevSecOps evidence generation.
 
-The current implementation is structured as a web application composed of the following elements:
-
-\begin{itemize}
-    \item a \textbf{FastAPI backend}, responsible for authentication, authorization, workflow enforcement, document metadata, audit events, report export, hash verification, login throttling, and re-authentication for selected sensitive administrator actions;
-    \item a \textbf{React/Vite frontend}, providing the user-facing interface for regular users, administrators, and auditors;
-    \item a \textbf{PostgreSQL database}, storing users, cases, assignments, assets, valuation snapshots, tickets, approvals, documents, and audit events;
-    \item a \textbf{Docker Compose runtime}, used to execute the backend, frontend, and database services in a reproducible local environment;
-    \item a \textbf{GitLab CI/CD pipeline}, used to validate the repository, execute tests, build the frontend, validate container configuration, run security scanners, and retain evidence artifacts.
-\end{itemize}
+The repository was therefore treated not only as a code archive, but also as a validation package. It contains the implementation, execution configuration, automated tests, security evidence, diagrams, documentation, traceability material, and CI/CD configuration required to reproduce and review the proof of concept. Table~\ref{tab:scfca-repository-evidence} summarizes how the main repository areas support the validation of the SCFCA proof of concept.
 
 \begin{table}[htbp]
 \centering
@@ -1841,16 +1843,21 @@ Docker runtime & Docker Compose execution with backend, frontend, PostgreSQL, an
 \end{tabular}
 \end{table}
 
-This implementation model reflects the two technical dimensions of the thesis. The first dimension is the secure custody governance model: the system must enforce separation of duties, restricted visibility, approval workflows, privileged action confirmation, and auditability. The second dimension is the secure software engineering model: the repository must provide evidence that the system can be tested, built, scanned, documented, and reproduced in a controlled way. This is aligned with DevOps and DevSecOps principles, where validation, automation, and feedback are integrated into the software lifecycle rather than treated as final manual activities~\cite{Kim2016,Vehent2018}.
+This implementation model reflects two technical dimensions of the thesis. The first dimension is the secure custody governance model: the system must enforce separation of duties, restricted visibility, approval workflows, privileged action confirmation, and auditability. The second dimension is the secure software engineering model: the repository must provide evidence that the system can be tested, built, scanned, documented, and reproduced in a controlled way. This is aligned with DevOps and DevSecOps principles, where validation, automation, and feedback are integrated into the software lifecycle rather than treated as final manual activities~\cite{Kim2016,Vehent2018}.
+
+Figure~\ref{fig:scfca-implementation-architecture} provides a high-level view of how these implementation and validation elements are connected in the proof-of-concept architecture. The internal organization of the prototype is described in more detail in Section~\ref{sec:implemented-prototype-architecture}.
 
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=1\linewidth]{diagrams/scfca_poc_architecture.png}
-    \caption{Implementation architecture of the SCFCA proof of concept. \cite{Plantuml2}}
+    \caption{Implementation architecture of the SCFCA proof of concept.}
     \label{fig:scfca-implementation-architecture}
 \end{figure}
 
 \section{Implemented Prototype Architecture}
+\label{sec:implemented-prototype-architecture}
+
+While the previous section described the development model, repository evidence, and validation package, this section describes the internal architecture of the implemented proof of concept. The objective is to show how the main SCFCA controls are distributed across the frontend, backend, persistence layer, audit layer, and DevSecOps evidence layer.
 
 The proof of concept is organized as a modular client-server application. The frontend handles interaction and presentation, while the backend remains the security-critical control point. This distinction is essential: role checks, workflow restrictions, document hashing, audit generation, privileged action confirmation, and report access are enforced by backend logic rather than by client-side interface restrictions.
 
@@ -1865,7 +1872,17 @@ At a high level, the implemented prototype contains the following layers:
     \item \textbf{DevSecOps evidence layer:} GitLab CI/CD jobs and retained artifacts generated by tests, builds, scanners, report converters, and manual validation evidence.
 \end{itemize}
 
-This structure supports the architectural claim made in Chapter~\ref{ch:system-architecture}. SCFCA is not only a set of requirements, but a software architecture where security controls are embedded in workflow logic, domain records, and validation evidence.
+This layered organization supports the architectural claim made in Chapter~\ref{ch:system-architecture}. SCFCA is not only a set of requirements, but a software architecture where security controls are embedded in workflow logic, domain records, and validation evidence.
+
+The frontend is deliberately treated as a presentation and interaction layer, not as a trusted security boundary. It can guide users through role-specific views and hide actions that are not relevant to their role, but it does not determine whether an action is authorized. A manipulated client could still attempt to send direct HTTP requests; therefore, all security-relevant decisions must be enforced by the backend.
+
+The backend acts as the main control point of the proof of concept. It validates authenticated sessions, applies role-based access control, enforces case-assignment restrictions, validates CSRF tokens for state-changing requests, requires re-authentication tokens for selected sensitive administrator actions, computes document hashes, records audit events, and exposes auditor-facing verification and reporting functions. This design ensures that security decisions remain under server-side control.
+
+The persistence layer gives the proof of concept stronger validation value than an in-memory demonstration. Users, cases, assignments, assets, frozen valuation snapshots, tickets, approvals, documents, and audit events are stored as persistent records. This allows the same dataset to be inspected from different role perspectives and makes role-based visibility, workflow state, document metadata, and audit traceability demonstrable across executions.
+
+The audit and integrity layer supports the evidentiary objective of the framework. Audit events are recorded with integrity metadata, including previous-hash and hash-chain fields, so that later verification can detect broken continuity or modified event content. Uploaded PDF documents are associated with backend-generated SHA-256 hash metadata. These mechanisms do not make the database physically immutable, but they demonstrate how tamper-evident traceability can be implemented within the proof-of-concept scope.
+
+Finally, the DevSecOps evidence layer surrounds the application with repeatable validation. The GitLab pipeline, scanner outputs, JSON artifacts, HTML reports, tests, and manual validation evidence make the repository reviewable as an engineering artifact. This supports the thesis argument that secure custody systems require not only secure workflows, but also evidence that the software used to enforce those workflows can be built, tested, scanned, and reviewed in a controlled manner.
 
 \subsection{Backend Structure}
 
@@ -2068,7 +2085,7 @@ The latest local verification after the final implementation hardening phase exe
 
 \begin{figure}
     \centering
-    \includegraphics[width=1\linewidth]{figure62.png}
+    \includegraphics[width=1\linewidth]{docs/thesis-notes/figure62.png}
      \caption{GitLab CI/CD pipeline execution showing successful completion of the latest pipeline and available security, testing, build, and audit evidence artifacts.}
     \label{fig:gitlab-pipeline-artifacts-summary}
 \end{figure}
@@ -2286,11 +2303,15 @@ A further line of future work concerns the secure network architecture required 
 Finally, SCFCA could be extended beyond the specific institutional and national context that motivated this thesis. Although the work was framed with particular attention to the needs of public authorities managing confiscated cryptocurrency assets, future research could adapt the framework to different legal systems, regulatory environments, and operational models. Comparative adaptation across jurisdictions would be especially valuable for understanding which parts of the architecture are universally applicable and which must be tailored to local procedural or legal constraints.
 
 In summary, the future evolution of SCFCA should move in three complementary directions: deeper custody realism, stronger assurance maturity, and secure deployment architecture. On one side, this means integrating real cryptographic infrastructure, advanced signing models, and live operational workflows. On another, it means strengthening software supply chain governance, monitoring, certifiability, and operational evidence. Finally, it requires designing and validating a secure institutional network architecture so that the custody platform can operate within a properly segmented, monitored, and hardened deployment environment. Together, these directions would help transform the present reference architecture into a more deployable and institutionally defensible custody platform.
+
+
+\printbibliography
+
+
 % =====================================================
 \appendix
 
-\chapter{Phases of Work}
-
+\chapter{Proof-of-Concept Implementation Steps}
 \begingroup
 \footnotesize
 \setlength{\tabcolsep}{5pt}
@@ -3260,7 +3281,7 @@ Therefore, the custom SCA tool was treated as a supporting validation artifact r
 \FloatBarrier
 
 % =====================================================
-\printbibliography
+
 
 
 
