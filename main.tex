@@ -47,26 +47,27 @@
 % ---------------- Title Page ----------------
 \begin{figure}
     \centering
-    \includegraphics[width=1\linewidth]{docs//thesis-notes/uni.png}
+    \includegraphics[width=1\linewidth]{docs//thesis-notes/uni.png}\\[2cm]
     \label{fig:UMALOGO}
 \end{figure}
 
 \begin{titlepage}
 \centering
-{\Large ESCUELA TÉCNICA SUPERIOR DE INGENIERÍA INFORMÁTICA }\\[1cm]
+{\Large TRABAJO FIN DE MÁSTER }\\[2cm]
 
 {\Large Máster Universitario en Ciberseguridad (2025--2026)}\\[3cm]
-{\Large TRABAJO FIN DE MÁSTER }\\[1cm]
 
-{\huge \textbf{Secure Custody Framework for Cryptocurrency Assets (SCFCA)}}\\[2cm]
+{\huge \textbf{Secure Custody Framework for Cryptocurrency Assets (SCFCA)}}\\[3cm]
 
 
-{\Large Design of a Secure Technical Framework for the Custody, Management, Preservation, and Auditing of Cryptocurrency Assets in Criminal Investigations}\\[2cm]
+{\Large Design of a Secure Technical Framework for the Custody, Management, Preservation, and Auditing of Cryptocurrency Assets in Criminal Investigations}\\[5cm]
 
-\textbf{Student:} Lorela Elezaj\\
-\textbf{Instructor:} Antonio Maña Gómez \\[2cm]
+
+
+
+\textbf  Realizado por Lorela Elezaj\\
+\textbf  Tutorizado por Antonio Maña \\[2cm]
 \vfill
-\textbf{Date:} \today
 
 \end{titlepage}
 
@@ -472,6 +473,8 @@ The PoC is validated by testing whether the prototype enforces the security cons
     \label{fig:class-diagram}
 \end{figure}
 
+
+
 \subsection{Log Integrity and Traceability Verification}
 
 Audit evidence is validated by checking that custody actions generate traceable records protected by hash chaining, making unauthorized modification detectable. This supports the requirement that custody operations remain auditable, attributable, and reviewable over time. The logging and monitoring rationale is aligned with established guidance on computer security log management, where logs are treated as evidence for detection, accountability, and incident analysis~\cite{NIST80092}.
@@ -776,7 +779,7 @@ All interactions with the system are performed by authenticated users operating 
 \begin{figure}
     \centering
     \includegraphics[width=1\linewidth]{docs//thesis-notes/Figure1.png}
-    \caption{ System overview ( simplified first idea , use cases)}
+    \caption{Initial high-level use-case overview of the SCFCA system.}
     \label{fig:system-overview}
 \end{figure}
 
@@ -793,7 +796,7 @@ The Case Handler represents the authorized investigative authority responsible f
 \begin{figure}
     \centering
     \includegraphics[width=1\linewidth]{docs//thesis-notes/Figure2.png}
-    \caption{Tropo Analysis diagram (case handler’s goals)}
+    \caption{Tropos Analysis diagram (case handler’s goals)}
     \label{fig:placeholder2}
 \end{figure}
 
@@ -824,7 +827,7 @@ Administrators act as control actors within the custody workflow, but they canno
 \begin{figure}
     \centering
     \includegraphics[width=1\linewidth]{docs//thesis-notes/Figure3.png}
-    \caption{Tropo Analysis Diagram ( Administrator’s goals)}
+    \caption{Tropos Analysis Diagram ( Administrator’s goals)}
     \label{fig:placeholder}
 \end{figure}
 
@@ -875,7 +878,7 @@ The Auditor cannot:
 \begin{figure}
     \centering
     \includegraphics[width=1\linewidth]{docs//thesis-notes/Figure4.png}
-    \caption{Tropo Analysis Diagram ( Auditor’s goals) }
+    \caption{Tropos Analysis Diagram ( Auditor’s goals) }
     \label{fig:Auditor,Secure Tropos}
 \end{figure}
 
@@ -893,7 +896,7 @@ MU-7 (if credentials stolen)
 \begin{figure}
     \centering
     \includegraphics[width=1\linewidth]{docs//thesis-notes/Figure5.png}
-    \caption{Tropo Analysis Diagram ( External Adversary’s goals)}
+    \caption{Tropos Analysis Diagram ( External Adversary’s goals)}
     \label{fig:placeholder}
 \end{figure}
 
@@ -955,7 +958,7 @@ MU-7 (internal abuse)
 \begin{figure}
     \centering
     \includegraphics[width=1\linewidth]{docs//thesis-notes/Figure6.png}
-    \caption{Tropo Analysis Diagram ( Malicious Insider’s goals)}
+    \caption{Tropos Analysis Diagram ( Malicious Insider’s goals)}
     \label{fig:placeholder}
 \end{figure}
 
@@ -1003,13 +1006,12 @@ The following table summarizes the identified misuse cases, their attack vectors
 
 
 
-\begin{longtable}{|p{1.2cm}|p{3.2cm}|p{3.2cm}|p{3.8cm}|p{4.5cm}|}
+\begin{longtable}{|p{1.2cm}|p{3.0cm}|p{3.0cm}|p{3.5cm}|p{3.6cm}|}
 \caption{Misuse Case - Threat \& Mitigation Mapping}
 \\\hline
 \textbf{ID} & \textbf{Misuse Case} & \textbf{Malicious Goal} & \textbf{Typical Attack Vectors} & \textbf{Mitigation Measures (Mapped to Requirements)} \\
-\\\hline
+\hline
 \endfirsthead
-
 \hline
 \textbf{ID} & \textbf{Misuse Case} & \textbf{Malicious Goal} & \textbf{Typical Attack Vectors} & \textbf{Mitigation Measures (Mapped to Requirements)} \\
 \hline
@@ -1074,7 +1076,7 @@ MU-9 (DoS) → threatens → "System availability / Generate reports / Submit ti
 \begin{figure}
     \centering
     \includegraphics[width=1\linewidth]{docs//thesis-notes/Figure7.png}
-    \caption{Tropo Analysis Diagram (Threat-goals relations)}
+    \caption{Tropos Analysis Diagram (Threat-goals relations)}
     \label{fig:placeholder}
 \end{figure}
 
@@ -1086,7 +1088,7 @@ Each mitigation measure is derived from the formal Security Requirements defined
 \begin{figure}
     \centering
     \includegraphics[width=1\linewidth]{docs//thesis-notes/Figure8.png}
-    \caption{Tropo Analysis Diagram (Mitigation Measures )}
+    \caption{Tropos Analysis Diagram (Mitigation Measures )}
     \label{fig:placeholder}
 \end{figure}
 
@@ -1556,7 +1558,7 @@ The model reflects the main architectural constraints of the framework: immutabl
 facts, frozen valuation snapshots, ticket-based governance, dual-administrator approval,
 assignment traceability, PDF document hashing, and tamper-evident audit logging.
 
-As shown in Figure~\ref{fig:figure19.png}, the central workflow is organized
+As shown in Figure~\ref{fig:domain-class-diagram}, the central workflow is organized
 around the \textit{Case} and \textit{Ticket} entities. A \textit{Case} represents the
 institutional custody context for a set of seized cryptocurrency assets. Each case is
 identified by a non-semantic CaseID and is linked to asset records, a frozen valuation
@@ -1578,12 +1580,6 @@ It is modeled as a one-to-one structure with the case because each case must pre
 single frozen valuation baseline. This prevents later market volatility from modifying the
 evidentiary value recorded at seizure or registration time.
 
-\begin{figure}
-    \centering
-    \includegraphics[width=1\linewidth]{docs//thesis-notes/figure19.png}
-    \caption{Domain class diagram of the SCFCA core data structures.}
-    \label{fig:figure19.png}
-\end{figure}
 
 Governance operations are represented through the \textit{Ticket} entity. Tickets provide
 the controlled mechanism for requesting custody actions, reassignment, conversion,
@@ -1636,6 +1632,22 @@ records, dual approval, traceable execution, and auditable responsibility. For t
 the domain model acts as a bridge between the functional requirements, the security
 requirements, and the proof-of-concept implementation described in the following chapter.
 
+\begin{figure} [htbp]
+    \centering
+    \includegraphics[width=1\linewidth]{docs//thesis-notes/figure19.png}
+    \caption{Domain class diagram of the SCFCA core data structures.}
+    \label{fig:domain-class-diagram}
+\end{figure}
+
+The domain class diagram in Figure~\ref{fig:domain-class-diagram} complements the backend-oriented class diagram presented earlier in Figure~\ref{fig:class-diagram}. While Figure~\ref{fig:class-diagram} focuses on the implemented backend model structure, Figure~\ref{fig:domain-class-diagram} presents the conceptual domain model used to explain the SCFCA custody architecture.
+
+\begin{figure} [htbp]
+    \centering
+    \includegraphics[width=1\linewidth]{docs//thesis-notes/figure17.png}
+    \caption{Domain Security Model linking SCFCA assets to security requirements, threats, attacks, and mitigations.}
+    \label{fig:scfca-domain-security-model}
+\end{figure}
+
 In addition to the structural domain model, a Domain Security Model was developed to
 show how the main SCFCA assets are protected through explicit security requirements,
 security properties, misuse threats, attack paths, and mitigation mechanisms. While the
@@ -1647,14 +1659,6 @@ Each protected asset is linked to one main security requirement, one required se
 property, one representative misuse threat, one likely attack path, and one mitigation
 measure. This avoids overloading the diagram while maintaining traceability between
 the threat model, the formal security requirements, and the architectural controls.
-
-\begin{figure}
-    \centering
-    \includegraphics[width=1\linewidth]{docs//thesis-notes/figure17.png}
-    \caption{Domain Security Model linking SCFCA assets to security requirements, threats, attacks, and mitigations.}
-    \label{fig:scfca-domain-security-model}
-\end{figure}
-
 
 
 As shown in Figure~\ref{fig:scfca-domain-security-model}, the model identifies five
@@ -2035,13 +2039,68 @@ This control supports the thesis requirement that original seized asset facts an
 
 \subsection{Audit Trail and Tamper-Evident Traceability}
 
-Auditability is implemented as a first-class part of the backend. Security-relevant actions generate audit events containing metadata such as actor, role, action, entity type, entity identifier, timestamp, source/session information where available, previous hash, and current hash-chain value.
+Auditability is implemented as a first-class part of the backend. Security-relevant
+actions generate audit events containing metadata such as actor, role, action, entity
+type, entity identifier, timestamp, source/session information where available, previous
+hash, and current hash-chain value.
 
-The previous-hash and hash-chain fields create tamper-evident linkage between events. The objective is not to claim that the database itself is physically immutable. Instead, the PoC demonstrates that audit records can be chained so that unauthorized modification of past entries becomes detectable during verification. This supports the thesis objective of preserving traceability, accountability, and non-repudiation in custody workflows.
+The \texttt{previous\_hash} and \texttt{event\_hash} fields stored in the
+\texttt{AuditEvent} model create tamper-evident linkage between events. The objective
+is not to claim that the database itself is physically immutable. Instead, the
+proof-of-concept demonstrates that audit records can be chained so that unauthorized
+modification of past entries becomes detectable during verification. This supports the
+thesis objective of preserving traceability, accountability, and non-repudiation in
+custody workflows.
 
-The current implementation includes an auditor-only audit-chain verification endpoint. This verifier recomputes event hashes, checks continuity between the previous-hash field and the hash of the previous event, and detects broken links or tampered event content. This is stronger than simple hash lookup because it verifies the consistency of the chain rather than only checking whether a submitted hash is known.
+The current implementation includes an auditor-only audit-chain verification endpoint.
+This verifier recomputes event hashes, checks continuity between the
+\texttt{previous\_hash} field and the hash of the preceding event, and detects broken
+links or tampered event content. This is stronger than simple hash lookup because it
+verifies the consistency of the chain rather than only checking whether a submitted hash
+is known.
 
-The auditor-facing functionality also includes filtered audit review, JSON report export, HTML report export, and hash verification. The hash verification endpoint can determine whether a submitted hash corresponds to a known document hash or audit-event hash. This allows an auditor to verify integrity using safe metadata without requiring access to confidential case narratives or document contents.
+The auditor-facing functionality also includes filtered audit review, JSON report
+export, HTML report export, and hash verification. The hash verification endpoint can
+determine whether a submitted hash corresponds to a known document hash or
+audit-event hash. This allows an auditor to verify integrity using safe metadata without
+requiring access to confidential case narratives or document contents.
+
+\paragraph{Production hardening path for audit integrity.}
+The current proof of concept enforces tamper-evidence at the application layer through
+hash-chaining and auditor-facing chain verification. A production deployment of SCFCA
+would strengthen this guarantee through three complementary infrastructure-level
+mechanisms.
+
+First, PostgreSQL role separation and a dedicated append-only audit account: the
+application database user is granted \texttt{INSERT} only on the \texttt{audit\_events}
+table, while \texttt{UPDATE} and \texttt{DELETE} privileges are revoked entirely. This
+ensures that even a fully compromised application session cannot silently overwrite or
+remove existing audit records, making the append-only constraint enforceable at the
+database engine level rather than relying solely on the ORM layer.
+
+Second, a \texttt{BEFORE UPDATE OR DELETE} trigger on the \texttt{audit\_events} table
+that raises an exception unconditionally. Combined with the role restriction above, this
+creates a defence-in-depth barrier: the application layer enforces append-only behaviour
+through the SQLAlchemy ORM guards already in place in the SCFCAv2 repository, while
+the database trigger provides an independent enforcement point that survives any
+application-layer bypass attempt.
+
+Third, periodic external anchoring of the audit chain's latest cumulative hash to an
+immutable external store. Suitable options include a write-once object storage bucket
+with WORM retention (e.g.\ AWS S3 Object Lock, Azure Immutable Blob Storage) or a
+transparency log such as Rekor~\cite{rekor}. Anchoring does not replace the
+database-resident chain but provides an out-of-band integrity checkpoint: an attacker
+who tampers with the database cannot retroactively alter a published anchor without
+that divergence becoming detectable. The anchoring interval determines the maximum
+undetectable tampering window and should be aligned with the evidentiary requirements
+of the applicable judicial procedures.
+
+Together, these three layers move the audit integrity guarantee from
+\emph{detectable tampering} to \emph{structurally prevented tampering}, which is the
+appropriate assurance level for a custody platform that produces evidence admissible in
+judicial proceedings. Their implementation is outside the scope of the present
+proof-of-concept but represents a well-defined and achievable next step in the
+production hardening path described in Section~\ref{sec:futureWork}.
 
 
 
@@ -2283,6 +2342,7 @@ Seventh, the current proof of concept does not implement a production network se
 For these reasons, the prototype should be interpreted as evidence of feasibility and architectural coherence, not as a complete institutional custody product. Its value lies in demonstrating that the proposed governance-driven architecture can be implemented in software and can enforce the most critical controls required for secure institutional cryptocurrency custody within a controlled academic environment.
 
 \section{Future Lines of Research}
+\label{sec:futureWork}
 
 The results of this thesis open several relevant directions for future work, both from the perspective of institutional cryptocurrency custody and from the perspective of secure software engineering.
 
@@ -2297,6 +2357,8 @@ A fourth line of future work concerns the expansion of the framework toward stro
 Closely related to this is a fifth line of research focused on certifiability-by-design. The current architecture, repository organization, phase documentation, and traceability logic already suggest a path toward stronger audit and certification readiness. Future work could formalize this by linking requirements, code, tests, deployment records, scan results, manual validation evidence, and release artifacts into a more explicit assurance chain. This would improve the suitability of the framework for external audit, regulatory review, and high-assurance institutional adoption.
 
 A sixth direction concerns monitoring and operational resilience in real deployment scenarios. The present work defines and demonstrates evidence-oriented validation, but future research could validate SCFCA in a live multi-environment deployment with centralized telemetry, alert correlation, anomaly detection, and incident-response automation. This would allow the framework to move from design-oriented runtime assurance toward experimentally validated continuous operational security.
+
+Future validation should also include authenticated DAST covering role-specific workflows, since the current OWASP ZAP baseline scan is unauthenticated and therefore does not exercise the protected application surfaces behind login.
 
 A further line of future work concerns the secure network architecture required for a real institutional deployment. The current proof of concept focuses on application security, workflow governance, auditability, and DevSecOps evidence, but it does not implement or validate a production network security architecture. In a real deployment, network security would be fundamental because the custody platform would need to protect backend services, database access, administrative interfaces, audit systems, CI/CD components, monitoring infrastructure, and any future cryptographic signing infrastructure. Future versions of SCFCA should therefore define and validate a segmented network architecture, separating public-facing components, internal application services, database systems, monitoring infrastructure, and custody-signing components into distinct security zones. This could include a DMZ for controlled external access, private backend and database subnets, strict firewall rules, administrative access through VPN or zero-trust controls, centralized logging, intrusion detection, and isolated network segments for HSM or MPC custody components. Within this thesis, such a network architecture remains outside the implemented scope, but a schematic secure network model could be added as a future architectural extension to demonstrate how the application-level controls would fit into a broader institutional security environment.
 
@@ -2320,12 +2382,12 @@ In summary, the future evolution of SCFCA should move in three complementary dir
 
 \begin{longtable}{|p{6.2cm}|p{10cm}|}
 \hline
-\textbf{Phase Name} & \textbf{Phase Description} \\
+\textbf{Implementation Step} & \textbf{Purpose} \\
 \hline
 \endfirsthead
 
 \hline
-\textbf{Phase Name} & \textbf{Phase Description} \\
+\textbf{Implementation Step} & \textbf{Purpose} \\
 \hline
 \endhead
 
@@ -2491,7 +2553,7 @@ Synchronized the final working branch across GitLab, GitHub SCFCAv2, and GitHub 
 
 \endgroup
 
-\section{Phase-to-Implementation File Mapping}
+\section{Step-to-Implementation File Mapping}
 
 The previous table summarizes the implementation phases and their purpose. 
 To complement that overview, Table~\ref{tab:phase-file-mapping} maps each phase to the main repository files, scripts, tests, and documentation artifacts affected during the development of the SCFCA proof of concept. 
@@ -2687,7 +2749,7 @@ The purpose of this mapping is to show how the security and functional requireme
 \setlength{\extrarowheight}{5pt}
 \renewcommand{\arraystretch}{1.45}
 
-\begin{longtable}{|p{1.2cm}|p{5.2cm}|p{9.4cm}|}
+\begin{longtable}{|p{1.1cm}|p{5.0cm}|p{9.0cm}|}
 \hline
 \textbf{Req. ID} & \textbf{Requirement Description} & \textbf{Implementation and Evidence} \\
 \hline
@@ -2699,7 +2761,7 @@ The purpose of this mapping is to show how the security and functional requireme
 \endhead
 
 FR-1 & User authentication and controlled access to the system &
-Implemented in \texttt{backend/api/v1/routes/auth.py} and \texttt{backend/auth/schemas.py}. Validated by \texttt{tests/test\_security\_hardening.py} and \texttt{tests/test\_workflows.py}. \\
+Implemented in \texttt{backend/auth/schemas.py} and \texttt{backend/api/v1/routes/auth.py}. Validated by \texttt{tests/test\_security\_hardening.py} and \texttt{tests/test\_workflows.py}. \\
 \hline
 
 FR-2 & Role-based access control for regular users, administrators, and auditors &
@@ -2874,7 +2936,7 @@ The mapping is intentionally limited to controls that are actually implemented o
 \setlength{\extrarowheight}{5pt}
 \renewcommand{\arraystretch}{1.45}
 
-\begin{longtable}{|p{3.2cm}|p{5.2cm}|p{7.4cm}|}
+\begin{longtable}{|p{3.0cm}|p{5.0cm}|p{7.0cm}|}
 \hline
 \textbf{Security Requirement} & \textbf{Implemented Control} & \textbf{Files / Tests / Evidence} \\
 \hline
